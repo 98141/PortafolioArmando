@@ -22,7 +22,7 @@ const navItems = [
   { label: "Cyber Labs", href: "/admin/cyber-labs", icon: Shield },
   { label: "Certificados", href: "/admin/certifications", icon: Award },
   { label: "Educación", href: "/admin/education", icon: GraduationCap },
-  { label: "Blog", href: "#", icon: FileText, disabled: true },
+  { label: "Blog", href: "/admin/blog", icon: FileText },
 ];
 
 interface AdminLayoutProps {
@@ -75,19 +75,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 item.href === "/admin/dashboard"
                   ? pathname === item.href
                   : pathname.startsWith(item.href);
-
-              if (item.disabled) {
-                return (
-                  <span
-                    key={item.label}
-                    className="flex cursor-not-allowed items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-zinc-600"
-                  >
-                    <Icon className="h-4 w-4" />
-                    {item.label}
-                    <span className="ml-auto text-[10px] uppercase">Pronto</span>
-                  </span>
-                );
-              }
 
               return (
                 <Link

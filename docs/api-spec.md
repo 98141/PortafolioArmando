@@ -548,3 +548,106 @@ Público. Detalle por slug (activo).
 ## DELETE /admin/education/:id
 
 **Admin** — Hard delete.
+
+---
+
+# Blog / Knowledge Hub (Sprint 6)
+
+## GET /blog
+
+Público. Solo `isActive: true` y `status: published`.
+
+**Query:** `page`, `limit`, `category`, `tag`, `isFeatured`, `search`
+
+**Response 200:**
+
+```json
+{
+  "status": "success",
+  "data": {
+    "posts": [],
+    "pagination": { "page": 1, "limit": 12, "total": 0, "totalPages": 0 }
+  }
+}
+```
+
+Orden: `priority` ASC, `publishedAt` DESC, `createdAt` DESC.
+
+`readingTime` se calcula automáticamente desde `content` (~200 palabras/min).
+
+---
+
+## GET /blog/featured
+
+Público. Posts publicados, activos y destacados.
+
+**Query:** `limit` (default 6, max 12)
+
+---
+
+## GET /blog/:slug
+
+Público. Detalle por slug (publicado y activo). Incluye `content` Markdown completo.
+
+---
+
+## GET /admin/blog
+
+**Admin** — Lista con filtros (incluye drafts).
+
+---
+
+## GET /admin/blog/:id
+
+**Admin** — Detalle por `_id`.
+
+---
+
+## POST /admin/blog
+
+**Admin** — Crear artículo.
+
+**Body ejemplo:**
+
+```json
+{
+  "title": "JWT en cookies httpOnly: guía práctica",
+  "excerpt": "Patrones de autenticación segura con access/refresh tokens y rotación.",
+  "content": "## Introducción\n\nContenido en Markdown...",
+  "category": "appsec",
+  "tags": ["jwt", "mern", "auth"],
+  "status": "published",
+  "seo": {
+    "title": "JWT httpOnly MERN",
+    "description": "Guía de auth segura"
+  },
+  "author": {
+    "name": "Armando Mora",
+    "role": "Software Developer | Cybersecurity Specialist"
+  },
+  "isFeatured": true,
+  "isActive": true,
+  "priority": 10
+}
+```
+
+---
+
+## PATCH /admin/blog/:id
+
+**Admin** — Actualización parcial.
+
+---
+
+## DELETE /admin/blog/:id
+
+**Admin** — Hard delete.
+
+**Response 200:**
+
+```json
+{
+  "status": "success",
+  "message": "Blog post deleted successfully"
+}
+```

@@ -102,3 +102,23 @@ export interface ExpertiseArea {
   icon: "code" | "shield" | "lock";
   highlights: string[];
 }
+
+export type LegacyBlogCategory =
+  | "cybersecurity"
+  | "development"
+  | "appsec"
+  | "tutorial"
+  | "writeup";
+
+export interface LegacyBlogPost {
+  id: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  category: LegacyBlogCategory;
+  tags: string[];
+  date: string;
+  readingTime: number;
+  featured?: boolean;
+  coverUrl?: string;
+}

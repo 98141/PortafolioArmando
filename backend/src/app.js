@@ -61,6 +61,8 @@ const {
   publicRouter: educationPublicRoutes,
   adminRouter: educationAdminRoutes,
 } = require("./routes/education.routes");
+const { publicRouter: blogPublicRoutes, adminRouter: blogAdminRoutes } =
+  require("./routes/blogPost.routes");
 const globalErrorHandler = require("./middlewares/globalErrorHandler");
 
 app.get("/api/health", (req, res) => {
@@ -79,6 +81,8 @@ app.use("/api/certifications", certificationPublicRoutes);
 app.use("/api/admin/certifications", certificationAdminRoutes);
 app.use("/api/education", educationPublicRoutes);
 app.use("/api/admin/education", educationAdminRoutes);
+app.use("/api/blog", blogPublicRoutes);
+app.use("/api/admin/blog", blogAdminRoutes);
 
 app.use((req, res) => {
   res.status(404).json({

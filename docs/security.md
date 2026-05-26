@@ -46,6 +46,7 @@ Cada refresh exitoso:
 - **CMS Cyber Labs:** rutas `/api/admin/cyber-labs` requieren cookie admin. Público `/api/cyber-labs` solo `isActive: true`. Hallazgos y mitigaciones no se exponen a usuarios no autenticados en endpoints futuros de detalle restringido (actualmente mismo payload en slug público — considerar campo `publicSummary` en Sprint 6+ si se requiere ocultar detalles).
 - **CMS Certifications:** `/api/admin/certifications` protegido; público `/api/certifications` solo `isActive: true`. `credentialUrl` y `credentialId` son públicos cuando el registro está activo (credenciales verificables).
 - **CMS Education:** `/api/admin/education` protegido; público `/api/education` solo `isActive: true`.
+- **CMS Blog:** `/api/admin/blog` protegido; público `/api/blog` solo `isActive: true` y `status: published`. Drafts y archivados nunca se exponen en rutas públicas. El contenido Markdown completo se entrega en detalle por slug — sanitizar XSS en render frontend (react-markdown sin `rehype-raw`).
 - Rate limit en rutas `/api/auth/*` (20 intentos / 15 min por IP).
 - Rate limit **más estricto** en `POST /api/auth/login` (5 intentos / 15 min por IP).
 

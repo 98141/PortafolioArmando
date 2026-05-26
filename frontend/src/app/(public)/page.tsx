@@ -5,6 +5,7 @@ import FeaturedProjects from "@/src/components/sections/FeaturedProjects";
 import CyberLabsPreview from "@/src/components/sections/CyberLabsPreview";
 import CertificationsPreview from "@/src/components/sections/CertificationsPreview";
 import EducationTimeline from "@/src/components/sections/EducationTimeline";
+import BlogPreview from "@/src/components/sections/BlogPreview";
 import CallToAction from "@/src/components/sections/CallToAction";
 
 export default function HomePage() {
@@ -17,6 +18,7 @@ export default function HomePage() {
       <CyberLabsPreview />
       <CertificationsPreview />
       <EducationTimeline />
+      <BlogPreview />
       <CallToAction />
     </>
   );

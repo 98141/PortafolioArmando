@@ -48,11 +48,11 @@ const dashboardCards = [
   },
   {
     title: "Blog",
-    description: "Artículos técnicos y writeups",
+    description: "Knowledge Hub — artículos técnicos y writeups",
     icon: FileText,
     accent: "from-violet-500/20 to-violet-600/5",
-    href: "#",
-    active: false,
+    href: "/admin/blog",
+    active: true,
   },
 ];
 
@@ -64,7 +64,7 @@ export default function AdminDashboardPage() {
           <div>
             <h2 className="text-2xl font-bold text-zinc-100">Dashboard</h2>
             <p className="mt-1 text-sm text-zinc-400">
-              Sprint 4 — CMS de proyectos y cyber labs activos. Otros módulos en próximos sprints.
+              Knowledge Hub — gestiona proyectos, labs, certificaciones, educación y blog técnico.
             </p>
           </div>
 
