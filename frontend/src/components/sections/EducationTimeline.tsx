@@ -1,10 +1,35 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, GraduationCap } from "lucide-react";
-import { education } from "@/src/data/portfolioData";
+import { ArrowRight } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { educationService } from "@/src/services/educationService";
+import { education as fallbackEducation } from "@/src/data/portfolioData";
+import { mapLegacyEducation } from "@/src/lib/legacyEducationMapper";
+import type { Education } from "@/src/types/education";
 import SectionHeader from "@/src/components/ui/SectionHeader";
-import TechBadge from "@/src/components/ui/TechBadge";
+import EducationEntryCard from "@/src/components/portfolio/EducationEntryCard";
 
 export default function EducationTimeline() {
+  const [fallback, setFallback] = useState<Education[] | null>(null);
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["featured-education"],
+    queryFn: () => educationService.getFeaturedEducation(3),
+    staleTime: 60_000,
+    retry: 1,
+  });
+
+  useEffect(() => {
+    if (isError) {
+      setFallback(fallbackEducation.map(mapLegacyEducation));
+    }
+  }, [isError]);
+
+  const entries = data ?? fallback ?? [];
+  const showFallbackNote = isError && fallback;
+
   return (
     <section className="px-4 py-16 lg:px-8">
       <div className="mx-auto max-w-6xl">
@@ -23,48 +48,35 @@ export default function EducationTimeline() {
           </Link>
         </div>
 
-        <div className="relative mt-10">
-          <div
-            className="absolute left-4 top-0 hidden h-full w-px bg-gradient-to-b from-cyan-500/50 via-purple-500/30 to-transparent sm:block"
-            aria-hidden="true"
-          />
-          <div className="space-y-8">
-            {education.map((entry, i) => (
-              <article key={entry.id} className="relative sm:pl-12">
-                <div className="absolute left-2.5 top-1.5 hidden h-3 w-3 rounded-full border-2 border-cyan-400 bg-[#050508] sm:block" />
-                <div className="glass-panel rounded-2xl p-6">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="flex gap-3">
-                      <GraduationCap
-                        className="mt-0.5 h-5 w-5 shrink-0 text-purple-400"
-                        aria-hidden="true"
-                      />
-                      <div>
-                        <h3 className="font-semibold text-zinc-100">{entry.degree}</h3>
-                        <p className="text-sm text-zinc-400">{entry.institution}</p>
-                      </div>
-                    </div>
-                    <TechBadge
-                      label={entry.status === "in-progress" ? "En curso" : "Completado"}
-                      variant={entry.status === "in-progress" ? "cyan" : "status"}
-                    />
-                  </div>
-                  <p className="mt-2 text-xs text-zinc-500">{entry.period}</p>
-                  <p className="mt-3 text-sm text-zinc-400">{entry.focus}</p>
-                  {i === 0 && (
-                    <ul className="mt-3 space-y-1">
-                      {entry.achievements.slice(0, 2).map((a) => (
-                        <li key={a} className="text-xs text-zinc-500">
-                          · {a}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </article>
-            ))}
+        {showFallbackNote && (
+          <p className="mt-4 text-xs text-amber-200/80" role="status">
+            Datos de respaldo (API no disponible) — portfolioData.ts
+          </p>
+        )}
+
+        {isLoading && !fallback ? (
+          <div className="mt-10 flex justify-center py-12">
+            <div className="h-10 w-10 animate-spin rounded-full border-2 border-cyan-500/30 border-t-cyan-400" />
           </div>
-        </div>
+        ) : (
+          <div className="relative mt-10">
+            <div
+              className="absolute left-4 top-0 hidden h-full w-px bg-gradient-to-b from-cyan-500/50 via-purple-500/30 to-transparent sm:block"
+              aria-hidden="true"
+            />
+            <div className="space-y-8">
+              {entries.map((entry, i) => (
+                <article key={entry._id} className="relative sm:pl-12">
+                  <div className="absolute left-2.5 top-1.5 hidden h-3 w-3 rounded-full border-2 border-cyan-400 bg-[#050508] sm:block" />
+                  <EducationEntryCard
+                    entry={entry}
+                    showAchievements={i === 0 ? 2 : undefined}
+                  />
+                </article>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

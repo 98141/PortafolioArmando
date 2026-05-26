@@ -53,6 +53,14 @@ const { publicRouter: projectPublicRoutes, adminRouter: projectAdminRoutes } =
   require("./routes/project.routes");
 const { publicRouter: cyberLabPublicRoutes, adminRouter: cyberLabAdminRoutes } =
   require("./routes/cyberLab.routes");
+const {
+  publicRouter: certificationPublicRoutes,
+  adminRouter: certificationAdminRoutes,
+} = require("./routes/certification.routes");
+const {
+  publicRouter: educationPublicRoutes,
+  adminRouter: educationAdminRoutes,
+} = require("./routes/education.routes");
 const globalErrorHandler = require("./middlewares/globalErrorHandler");
 
 app.get("/api/health", (req, res) => {
@@ -67,6 +75,10 @@ app.use("/api/projects", projectPublicRoutes);
 app.use("/api/admin/projects", projectAdminRoutes);
 app.use("/api/cyber-labs", cyberLabPublicRoutes);
 app.use("/api/admin/cyber-labs", cyberLabAdminRoutes);
+app.use("/api/certifications", certificationPublicRoutes);
+app.use("/api/admin/certifications", certificationAdminRoutes);
+app.use("/api/education", educationPublicRoutes);
+app.use("/api/admin/education", educationAdminRoutes);
 
 app.use((req, res) => {
   res.status(404).json({

@@ -377,3 +377,174 @@ Público. Detalle por slug (activo).
   "message": "Cyber lab deleted successfully"
 }
 ```
+
+---
+
+# Certifications (Sprint 5)
+
+## GET /certifications
+
+Público. Solo `isActive: true`.
+
+**Query:** `page`, `limit`, `category`, `status`, `isFeatured`, `search`
+
+**Response 200:**
+
+```json
+{
+  "status": "success",
+  "data": {
+    "certifications": [],
+    "pagination": { "page": 1, "limit": 12, "total": 0, "totalPages": 0 }
+  }
+}
+```
+
+Orden: `priority` ASC, `createdAt` DESC.
+
+---
+
+## GET /certifications/featured
+
+Público. Certificaciones con `isActive: true` e `isFeatured: true`.
+
+**Query:** `limit` (default 6, max 12)
+
+---
+
+## GET /certifications/:slug
+
+Público. Detalle por slug (activo).
+
+---
+
+## GET /admin/certifications
+
+**Admin** — Lista con filtros y paginación.
+
+---
+
+## GET /admin/certifications/:id
+
+**Admin** — Detalle por `_id`.
+
+---
+
+## POST /admin/certifications
+
+**Admin** — Crear certificación.
+
+**Body ejemplo:**
+
+```json
+{
+  "title": "CompTIA Security+",
+  "issuer": "CompTIA",
+  "credentialId": "ABC123",
+  "credentialUrl": "https://www.comptia.org/verify",
+  "badge": { "url": "https://example.com/badge.png", "alt": "Security+" },
+  "description": "Fundamentos de ciberseguridad.",
+  "category": "cybersecurity",
+  "skills": ["Network security", "Cryptography"],
+  "issuedAt": "2025-06-01T00:00:00.000Z",
+  "status": "active",
+  "isFeatured": true,
+  "isActive": true,
+  "priority": 10
+}
+```
+
+---
+
+## PATCH /admin/certifications/:id
+
+**Admin** — Actualización parcial.
+
+---
+
+## DELETE /admin/certifications/:id
+
+**Admin** — Hard delete.
+
+---
+
+# Education (Sprint 5)
+
+## GET /education
+
+Público. Solo `isActive: true`.
+
+**Query:** `page`, `limit`, `academicLevel`, `isFeatured`, `search`
+
+**Response 200:**
+
+```json
+{
+  "status": "success",
+  "data": {
+    "education": [],
+    "pagination": { "page": 1, "limit": 12, "total": 0, "totalPages": 0 }
+  }
+}
+```
+
+---
+
+## GET /education/featured
+
+Público. Entradas con `isActive: true` e `isFeatured: true`.
+
+**Query:** `limit` (default 6, max 12)
+
+---
+
+## GET /education/:slug
+
+Público. Detalle por slug (activo).
+
+---
+
+## GET /admin/education
+
+**Admin** — Lista con filtros y paginación.
+
+---
+
+## GET /admin/education/:id
+
+**Admin** — Detalle por `_id`.
+
+---
+
+## POST /admin/education
+
+**Admin** — Crear formación académica.
+
+**Body ejemplo:**
+
+```json
+{
+  "title": "Ingeniería en Sistemas",
+  "institution": "Universidad Centroamericana",
+  "academicLevel": "undergraduate",
+  "fieldOfStudy": "Ingeniería de software",
+  "achievements": ["Proyecto integrador full stack"],
+  "focusAreas": ["Desarrollo seguro", "Redes"],
+  "isCurrent": true,
+  "isFeatured": true,
+  "isActive": true,
+  "priority": 5
+}
+```
+
+---
+
+## PATCH /admin/education/:id
+
+**Admin** — Actualización parcial.
+
+---
+
+## DELETE /admin/education/:id
+
+**Admin** — Hard delete.
