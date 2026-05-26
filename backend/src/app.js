@@ -22,8 +22,8 @@ app.use(
   })
 );
 
-app.use(express.json({ limit: "10kb" }));
-app.use(express.urlencoded({ extended: true, limit: "10kb" }));
+app.use(express.json({ limit: "100kb" }));
+app.use(express.urlencoded({ extended: true, limit: "100kb" }));
 app.use(cookieParser());
 
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
@@ -40,13 +40,18 @@ app.use(
 );
 
 app.use((req, res, next) => {
-  req.body = mongoSanitize.sanitize(req.body);
-  req.params = mongoSanitize.sanitize(req.params);
-  req.query = mongoSanitize.sanitize(req.query);
+  req.body = mongoSanitize(req.body);
+  req.params = mongoSanitize(req.params);
+  req.query = mongoSanitize(req.query);
   next();
 });
 
 app.use(hpp());
+
+const authRoutes = require("./routes/auth.routes");
+const { publicRouter: projectPublicRoutes, adminRouter: projectAdminRoutes } =
+  require("./routes/project.routes");
+const globalErrorHandler = require("./middlewares/globalErrorHandler");
 
 app.get("/api/health", (req, res) => {
   res.status(200).json({
@@ -55,11 +60,17 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+app.use("/api/auth", authRoutes);
+app.use("/api/projects", projectPublicRoutes);
+app.use("/api/admin/projects", projectAdminRoutes);
+
 app.use((req, res) => {
   res.status(404).json({
     status: "error",
     message: `Route ${req.originalUrl} not found`,
   });
 });
+
+app.use(globalErrorHandler);
 
 module.exports = app;

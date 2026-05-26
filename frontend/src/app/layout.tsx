@@ -3,9 +3,21 @@ import "./globals.css";
 import Providers from "@/src/components/layout/Providers";
 
 export const metadata: Metadata = {
-  title: "Armando Mora | Software & Cybersecurity Portfolio",
+  title: {
+    default: "Armando Mora | Software & Cybersecurity",
+    template: "%s",
+  },
   description:
-    "Professional portfolio focused on software development, cybersecurity labs, certifications, and secure digital solutions.",
+    "Portafolio profesional de Armando Mora: desarrollo full stack, ciberseguridad aplicada, laboratorios técnicos y sistemas seguros.",
+  keywords: [
+    "Armando Mora",
+    "desarrollo de software",
+    "ciberseguridad",
+    "full stack",
+    "AppSec",
+    "MERN",
+    "Next.js",
+  ],
 };
 
 export default function RootLayout({
