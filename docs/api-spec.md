@@ -270,7 +270,7 @@ Lista todos los proyectos con mismos filtros/query + `isActive` opcional.
 
 ## DELETE /admin/projects/:id
 
-**Admin** — Hard delete. Sprint 4 puede añadir soft delete.
+**Admin** — Hard delete. Sprint futuro puede añadir soft delete.
 
 **Response 200:**
 
@@ -278,5 +278,102 @@ Lista todos los proyectos con mismos filtros/query + `isActive` opcional.
 {
   "status": "success",
   "message": "Project deleted successfully"
+}
+```
+
+---
+
+# Cyber Labs (Sprint 4)
+
+## GET /cyber-labs
+
+Público. Solo `isActive: true`.
+
+**Query:** `page`, `limit`, `category`, `severity`, `status`, `isFeatured`, `search`
+
+**Response 200:**
+
+```json
+{
+  "status": "success",
+  "data": {
+    "labs": [],
+    "pagination": { "page": 1, "limit": 12, "total": 0, "totalPages": 0 }
+  }
+}
+```
+
+Orden: `priority` ASC, `createdAt` DESC.
+
+---
+
+## GET /cyber-labs/featured
+
+Público. Labs con `isActive: true` e `isFeatured: true`.
+
+**Query:** `limit` (default 6, max 12)
+
+---
+
+## GET /cyber-labs/:slug
+
+Público. Detalle por slug (activo).
+
+---
+
+## GET /admin/cyber-labs
+
+**Admin** — Lista con filtros y paginación.
+
+---
+
+## GET /admin/cyber-labs/:id
+
+**Admin** — Detalle por `_id`.
+
+---
+
+## POST /admin/cyber-labs
+
+**Admin** — Crear security case.
+
+**Body ejemplo:**
+
+```json
+{
+  "title": "OWASP Top 10 Assessment",
+  "shortDescription": "Evaluación sistemática de una aplicación web contra OWASP Top 10 con enfoque defensivo.",
+  "category": "web_security",
+  "severity": "high",
+  "status": "completed",
+  "methodology": ["Scope", "Testing", "Reporting"],
+  "tools": ["Burp Suite", "OWASP ZAP"],
+  "findings": ["IDOR en endpoint de perfil"],
+  "mitigations": ["Autorización server-side"],
+  "tags": ["defensive", "owasp"],
+  "isFeatured": true,
+  "isActive": true,
+  "priority": 5
+}
+```
+
+---
+
+## PATCH /admin/cyber-labs/:id
+
+**Admin** — Actualización parcial.
+
+---
+
+## DELETE /admin/cyber-labs/:id
+
+**Admin** — Hard delete.
+
+**Response 200:**
+
+```json
+{
+  "status": "success",
+  "message": "Cyber lab deleted successfully"
 }
 ```

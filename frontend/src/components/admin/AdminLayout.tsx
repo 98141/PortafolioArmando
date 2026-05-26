@@ -19,7 +19,7 @@ import { useAuthStore } from "@/src/store/authStore";
 const navItems = [
   { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { label: "Proyectos", href: "/admin/projects", icon: FolderKanban },
-  { label: "Cyber Labs", href: "#", icon: Shield, disabled: true },
+  { label: "Cyber Labs", href: "/admin/cyber-labs", icon: Shield },
   { label: "Certificados", href: "#", icon: Award, disabled: true },
   { label: "Educación", href: "#", icon: GraduationCap, disabled: true },
   { label: "Blog", href: "#", icon: FileText, disabled: true },

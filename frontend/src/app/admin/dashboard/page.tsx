@@ -24,11 +24,11 @@ const dashboardCards = [
   },
   {
     title: "Cyber Labs",
-    description: "Labs y retos de ciberseguridad",
+    description: "Security cases y laboratorios de ciberseguridad",
     icon: Shield,
     accent: "from-purple-500/20 to-purple-600/5",
-    href: "#",
-    active: false,
+    href: "/admin/cyber-labs",
+    active: true,
   },
   {
     title: "Certificados",
@@ -64,7 +64,7 @@ export default function AdminDashboardPage() {
           <div>
             <h2 className="text-2xl font-bold text-zinc-100">Dashboard</h2>
             <p className="mt-1 text-sm text-zinc-400">
-              Sprint 3 — CMS de proyectos activo. Otros módulos en próximos sprints.
+              Sprint 4 — CMS de proyectos y cyber labs activos. Otros módulos en próximos sprints.
             </p>
           </div>
 

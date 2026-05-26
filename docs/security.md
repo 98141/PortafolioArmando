@@ -42,7 +42,8 @@ Cada refresh exitoso:
 
 - Middleware `protect`: exige access token válido y usuario activo.
 - Middleware `restrictTo("admin")`: exige rol admin (usado en `/api/auth/me` y CMS `/api/admin/*`).
-- **CMS Proyectos:** todas las rutas bajo `/api/admin/projects` requieren cookie de sesión admin válida. La API pública `/api/projects` solo expone documentos con `isActive: true`.
+- **CMS Proyectos:** rutas `/api/admin/projects` requieren cookie admin. Público `/api/projects` solo `isActive: true`.
+- **CMS Cyber Labs:** rutas `/api/admin/cyber-labs` requieren cookie admin. Público `/api/cyber-labs` solo `isActive: true`. Hallazgos y mitigaciones no se exponen a usuarios no autenticados en endpoints futuros de detalle restringido (actualmente mismo payload en slug público — considerar campo `publicSummary` en Sprint 5 si se requiere ocultar detalles).
 - Rate limit en rutas `/api/auth/*` (20 intentos / 15 min por IP).
 - Rate limit **más estricto** en `POST /api/auth/login` (5 intentos / 15 min por IP).
 
