@@ -20,6 +20,7 @@ export type BlogStatus = "draft" | "published" | "archived";
 
 export interface BlogCoverImage {
   url?: string;
+  publicId?: string;
   alt?: string;
 }
 
@@ -33,6 +34,7 @@ export interface BlogAuthor {
   name?: string;
   role?: string;
   avatarUrl?: string;
+  avatarPublicId?: string;
 }
 
 export interface BlogPost {
@@ -66,6 +68,7 @@ export interface BlogPostFormValues {
   excerpt: string;
   content: string;
   coverUrl: string;
+  coverPublicId?: string;
   coverAlt: string;
   category: BlogCategory;
   tagsInput: string;
@@ -76,6 +79,7 @@ export interface BlogPostFormValues {
   authorName: string;
   authorRole: string;
   authorAvatarUrl: string;
+  authorAvatarPublicId?: string;
   relatedTopicsInput: string;
   allowComments: boolean;
   isFeatured: boolean;

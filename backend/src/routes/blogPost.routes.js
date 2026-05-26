@@ -8,6 +8,7 @@ const {
   createBlogPost,
   updateBlogPost,
   deleteBlogPost,
+  restoreBlogPost,
 } = require("../controllers/blogPost.controller");
 const validateRequest = require("../middlewares/validateRequest");
 const protect = require("../middlewares/protect");
@@ -32,6 +33,7 @@ adminRouter.get("/", validateQuery, getAdminBlogPosts);
 adminRouter.get("/:id", getAdminBlogPostById);
 adminRouter.post("/", validateRequest(createBlogPostSchema), createBlogPost);
 adminRouter.patch("/:id", validateRequest(updateBlogPostSchema), updateBlogPost);
+adminRouter.post("/:id/restore", restoreBlogPost);
 adminRouter.delete("/:id", deleteBlogPost);
 
 module.exports = { publicRouter, adminRouter };

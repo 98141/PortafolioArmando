@@ -21,6 +21,7 @@ export const defaultCertificationFormValues: CertificationFormValues = {
   credentialId: "",
   credentialUrl: "",
   badgeUrl: "",
+  badgePublicId: "",
   badgeAlt: "",
   description: "",
   category: "other",
@@ -49,7 +50,11 @@ export const formValuesToPayload = (values: CertificationFormValues) => {
   };
 
   if (values.badgeUrl) {
-    payload.badge = { url: values.badgeUrl, alt: values.badgeAlt || undefined };
+    payload.badge = {
+      url: values.badgeUrl,
+      publicId: values.badgePublicId || undefined,
+      alt: values.badgeAlt || undefined,
+    };
   }
 
   if (values.issuedAt) {
@@ -70,6 +75,7 @@ export const certificationToFormValues = (
   credentialId: cert.credentialId ?? "",
   credentialUrl: cert.credentialUrl ?? "",
   badgeUrl: cert.badge?.url ?? "",
+  badgePublicId: cert.badge?.publicId ?? "",
   badgeAlt: cert.badge?.alt ?? "",
   description: cert.description ?? "",
   category: cert.category,

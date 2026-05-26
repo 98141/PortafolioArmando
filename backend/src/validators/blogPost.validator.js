@@ -8,6 +8,7 @@ const optionalUrl = z
 const coverImageSchema = z
   .object({
     url: optionalUrl,
+    publicId: z.string().trim().optional(),
     alt: z.string().trim().max(200).optional(),
   })
   .optional();
@@ -25,6 +26,7 @@ const authorSchema = z
     name: z.string().trim().min(2).max(120).optional(),
     role: z.string().trim().max(200).optional(),
     avatarUrl: optionalUrl,
+    avatarPublicId: z.string().trim().optional(),
   })
   .optional();
 
@@ -94,6 +96,10 @@ const blogQuerySchema = z.object({
     .optional()
     .transform((v) => (v === undefined ? undefined : v === "true")),
   search: z.string().trim().optional(),
+  includeDeleted: z
+    .enum(["true", "false"])
+    .optional()
+    .transform((v) => (v === undefined ? undefined : v === "true")),
 });
 
 module.exports = {

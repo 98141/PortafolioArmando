@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Award, ExternalLink } from "lucide-react";
 import type { Certification } from "@/src/types/certification";
 import GlassCard from "@/src/components/ui/GlassCard";
@@ -35,7 +36,6 @@ export default function CertificationCard({
               width={compact ? 28 : 32}
               height={compact ? 28 : 32}
               className="rounded-lg object-contain"
-              unoptimized
             />
           ) : (
             <Award
@@ -46,12 +46,10 @@ export default function CertificationCard({
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h2
-              className={
-                compact ? "font-medium text-zinc-100" : "font-semibold text-zinc-100"
-              }
-            >
-              {certification.title}
+            <h2 className={compact ? "font-medium text-zinc-100" : "font-semibold text-zinc-100"}>
+              <Link href={`/certifications/${certification.slug}`} className="hover:text-cyan-300">
+                {certification.title}
+              </Link>
             </h2>
             <CertificationStatusBadge status={certification.status} />
           </div>
@@ -78,19 +76,22 @@ export default function CertificationCard({
               <TechBadge key={skill} label={skill} variant="cyan" />
             ))}
           </div>
-          {certification.credentialUrl && (
-            <a
-              href={certification.credentialUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`inline-flex items-center gap-1 text-cyan-400 hover:text-cyan-300 ${
-                compact ? "mt-3 text-xs" : "mt-4 text-xs"
-              }`}
-            >
-              Ver credencial
-              <ExternalLink className="h-3 w-3" aria-hidden="true" />
-            </a>
-          )}
+          <div className={`flex flex-wrap gap-3 ${compact ? "mt-3" : "mt-4"}`}>
+            <Link href={`/certifications/${certification.slug}`} className="text-xs text-purple-300 hover:text-purple-200">
+              Ver detalle
+            </Link>
+            {certification.credentialUrl && (
+              <a
+                href={certification.credentialUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs text-cyan-400 hover:text-cyan-300"
+              >
+                Ver credencial
+                <ExternalLink className="h-3 w-3" aria-hidden="true" />
+              </a>
+            )}
+          </div>
         </div>
       </div>
     </GlassCard>

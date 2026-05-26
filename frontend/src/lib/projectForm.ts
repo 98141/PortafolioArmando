@@ -42,6 +42,7 @@ export const formValuesToPayload = (values: ProjectFormValues) => {
   if (values.imageUrl) {
     payload.image = {
       url: values.imageUrl,
+      publicId: values.imagePublicId || undefined,
       alt: values.imageAlt || values.title,
     };
   }
@@ -68,6 +69,7 @@ export const projectToFormValues = (project: Project): ProjectFormValues => ({
   challengesInput: joinLines(project.challenges),
   learningsInput: joinLines(project.learnings),
   imageUrl: project.image?.url ?? "",
+  imagePublicId: project.image?.publicId ?? "",
   imageAlt: project.image?.alt ?? "",
   linksDemo: project.links?.demo ?? "",
   linksGithub: project.links?.github ?? "",
@@ -92,6 +94,7 @@ export const defaultProjectFormValues: ProjectFormValues = {
   challengesInput: "",
   learningsInput: "",
   imageUrl: "",
+  imagePublicId: "",
   imageAlt: "",
   linksDemo: "",
   linksGithub: "",

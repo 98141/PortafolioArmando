@@ -3,6 +3,7 @@
 import { Star } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMemo } from "react";
 import { certificationFormSchema } from "@/src/lib/validations/certification";
 import {
   defaultCertificationFormValues,
@@ -14,6 +15,8 @@ import {
   certificationStatusLabels,
 } from "@/src/lib/certificationLabels";
 import { cn } from "@/src/lib/cn";
+import FileUploadField from "@/src/components/admin/uploads/FileUploadField";
+import type { UploadResponse } from "@/src/services/uploadService";
 
 const inputClass =
   "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm outline-none transition focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/20";
@@ -39,11 +42,29 @@ export default function CertificationForm({
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<CertificationFormValues>({
     resolver: zodResolver(certificationFormSchema),
     defaultValues,
   });
+
+  const badgeUrl = watch("badgeUrl");
+  const badgePublicId = watch("badgePublicId") || "";
+  const badgePreviewValue: UploadResponse | null = useMemo(
+    () =>
+      badgeUrl
+        ? {
+            url: badgeUrl,
+            secureUrl: badgeUrl,
+            publicId: badgePublicId,
+            resourceType: "image",
+            originalName: "Badge",
+          }
+        : null,
+    [badgeUrl, badgePublicId]
+  );
 
   return (
     <form
@@ -147,6 +168,7 @@ export default function CertificationForm({
             {errors.badgeUrl && (
               <p className="mt-1 text-xs text-red-400">{errors.badgeUrl.message}</p>
             )}
+            <input type="hidden" {...register("badgePublicId")} />
           </div>
           <div>
             <label htmlFor="badgeAlt" className={labelClass}>
@@ -154,6 +176,29 @@ export default function CertificationForm({
             </label>
             <input id="badgeAlt" className={inputClass} {...register("badgeAlt")} />
           </div>
+
+          <div className="sm:col-span-2">
+            <FileUploadField
+              label="Subir badge (imagen)"
+              value={badgePreviewValue}
+              onChange={(asset) => {
+                setValue("badgeUrl", asset?.secureUrl || asset?.url || "", {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                });
+                setValue("badgePublicId", asset?.publicId || "", {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                });
+              }}
+              uploadType="certification-badge"
+              accept="image/png,image/jpeg,image/webp,image/gif"
+              maxSize={5 * 1024 * 1024}
+              helperText="Si subes una imagen, se rellenan Badge URL + publicId. También puedes pegar una URL manual."
+              previewType="image"
+            />
+          </div>
+
           <div className="sm:col-span-2">
             <label htmlFor="skillsInput" className={labelClass}>
               Skills relacionadas (separadas por coma)

@@ -2,12 +2,20 @@ import type { Metadata } from "next";
 import PageHero from "@/src/components/portfolio/PageHero";
 import CyberLabsGrid from "@/src/components/portfolio/CyberLabsGrid";
 import GlassCard from "@/src/components/ui/GlassCard";
+import { getPublicSiteSettings } from "@/src/lib/publicSiteSettings";
+import { buildMetadata } from "@/src/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Ciberseguridad | Armando Mora",
-  description:
-    "Laboratorios técnicos de ciberseguridad: AppSec, forensics, red y cloud con metodología profesional.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getPublicSiteSettings();
+  return buildMetadata({
+    title: "Ciberseguridad | Armando Mora",
+    description:
+      "Laboratorios técnicos de ciberseguridad: AppSec, forensics, red y cloud con metodología profesional.",
+    path: "/cybersecurity",
+    seo: settings.seo,
+    branding: settings.branding,
+  });
+}
 
 export default function CybersecurityPage() {
   return (

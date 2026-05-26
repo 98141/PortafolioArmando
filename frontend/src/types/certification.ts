@@ -14,6 +14,7 @@ export type CertificationStatus = "active" | "expired" | "archived";
 
 export interface CertificationBadge {
   url?: string;
+  publicId?: string;
   alt?: string;
 }
 
@@ -46,6 +47,7 @@ export interface CertificationFormValues {
   credentialId: string;
   credentialUrl: string;
   badgeUrl: string;
+  badgePublicId?: string;
   badgeAlt: string;
   description: string;
   category: CertificationCategory;

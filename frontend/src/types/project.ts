@@ -63,6 +63,7 @@ export interface ProjectFormValues {
   challengesInput: string;
   learningsInput: string;
   imageUrl: string;
+  imagePublicId?: string;
   imageAlt: string;
   linksDemo: string;
   linksGithub: string;

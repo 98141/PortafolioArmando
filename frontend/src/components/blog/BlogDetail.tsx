@@ -55,7 +55,6 @@ export default function BlogDetail({ post }: BlogDetailProps) {
                   width={28}
                   height={28}
                   className="rounded-full"
-                  unoptimized
                 />
               ) : (
                 <User className="h-4 w-4 text-violet-400" aria-hidden="true" />
@@ -89,7 +88,7 @@ export default function BlogDetail({ post }: BlogDetailProps) {
             fill
             className="object-cover"
             priority
-            unoptimized
+            sizes="(max-width: 768px) 100vw, 768px"
           />
         </div>
       )}

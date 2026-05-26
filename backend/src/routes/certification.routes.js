@@ -8,6 +8,7 @@ const {
   createCertification,
   updateCertification,
   deleteCertification,
+  restoreCertification,
 } = require("../controllers/certification.controller");
 const validateRequest = require("../middlewares/validateRequest");
 const protect = require("../middlewares/protect");
@@ -32,6 +33,7 @@ adminRouter.get("/", validateQuery, getAdminCertifications);
 adminRouter.get("/:id", getAdminCertificationById);
 adminRouter.post("/", validateRequest(createCertificationSchema), createCertification);
 adminRouter.patch("/:id", validateRequest(updateCertificationSchema), updateCertification);
+adminRouter.post("/:id/restore", restoreCertification);
 adminRouter.delete("/:id", deleteCertification);
 
 module.exports = { publicRouter, adminRouter };

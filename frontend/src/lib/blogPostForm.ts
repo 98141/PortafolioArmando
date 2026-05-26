@@ -20,6 +20,7 @@ export const defaultBlogPostFormValues: BlogPostFormValues = {
   excerpt: "",
   content: "",
   coverUrl: "",
+  coverPublicId: "",
   coverAlt: "",
   category: "other",
   tagsInput: "",
@@ -30,6 +31,7 @@ export const defaultBlogPostFormValues: BlogPostFormValues = {
   authorName: "Armando Mora",
   authorRole: "Software Developer | Cybersecurity Specialist",
   authorAvatarUrl: "",
+  authorAvatarPublicId: "",
   relatedTopicsInput: "",
   allowComments: false,
   isFeatured: false,
@@ -55,7 +57,11 @@ export const formValuesToPayload = (values: BlogPostFormValues) => {
   };
 
   if (values.coverUrl) {
-    payload.coverImage = { url: values.coverUrl, alt: values.coverAlt || undefined };
+    payload.coverImage = {
+      url: values.coverUrl,
+      publicId: values.coverPublicId || undefined,
+      alt: values.coverAlt || undefined,
+    };
   }
 
   if (values.seoTitle || values.seoDescription || values.canonicalUrl) {
@@ -71,6 +77,7 @@ export const formValuesToPayload = (values: BlogPostFormValues) => {
       name: values.authorName || undefined,
       role: values.authorRole || undefined,
       avatarUrl: values.authorAvatarUrl || undefined,
+      avatarPublicId: values.authorAvatarPublicId || undefined,
     };
   }
 
@@ -89,6 +96,7 @@ export const postToFormValues = (post: BlogPost): BlogPostFormValues => ({
   excerpt: post.excerpt,
   content: post.content,
   coverUrl: post.coverImage?.url ?? "",
+  coverPublicId: post.coverImage?.publicId ?? "",
   coverAlt: post.coverImage?.alt ?? "",
   category: post.category,
   tagsInput: joinCommaList(post.tags),
@@ -99,6 +107,7 @@ export const postToFormValues = (post: BlogPost): BlogPostFormValues => ({
   authorName: post.author?.name ?? "Armando Mora",
   authorRole: post.author?.role ?? "",
   authorAvatarUrl: post.author?.avatarUrl ?? "",
+  authorAvatarPublicId: post.author?.avatarPublicId ?? "",
   relatedTopicsInput: joinCommaList(post.relatedTopics),
   allowComments: post.allowComments,
   isFeatured: post.isFeatured,

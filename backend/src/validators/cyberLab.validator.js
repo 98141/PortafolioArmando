@@ -7,6 +7,7 @@ const optionalUrl = z
 
 const evidenceItemSchema = z.object({
   url: optionalUrl,
+  publicId: z.string().trim().optional(),
   alt: z.string().trim().max(200).optional(),
   caption: z.string().trim().max(300).optional(),
 });
@@ -14,6 +15,7 @@ const evidenceItemSchema = z.object({
 const reportSchema = z
   .object({
     url: optionalUrl,
+    publicId: z.string().trim().optional(),
     label: z.string().trim().max(150).optional(),
   })
   .optional();
@@ -96,6 +98,10 @@ const cyberLabQuerySchema = z.object({
     .optional()
     .transform((v) => (v === undefined ? undefined : v === "true")),
   search: z.string().trim().optional(),
+  includeDeleted: z
+    .enum(["true", "false"])
+    .optional()
+    .transform((v) => (v === undefined ? undefined : v === "true")),
 });
 
 module.exports = {

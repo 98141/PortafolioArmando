@@ -2,8 +2,12 @@ const Certification = require("../models/certification.model");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const { getPagination, paginationMeta } = require("../utils/pagination");
+const { applySoftDeleteFilter } = require("../utils/softDelete");
+const { performSoftDelete, performRestore } = require("../utils/crudHelpers");
+const { writeAudit } = require("../services/audit.service");
 
 const SORT_ORDER = { priority: 1, createdAt: -1 };
+const ENTITY = "certification";
 
 const buildSearchFilter = (search) => {
   if (!search) return {};
@@ -32,6 +36,7 @@ const buildListFilter = (query, { publicOnly = false } = {}) => {
   if (query.status) filter.status = query.status;
   if (query.isFeatured !== undefined) filter.isFeatured = query.isFeatured;
 
+  applySoftDeleteFilter(filter, query, { publicOnly });
   return { ...filter, ...buildSearchFilter(query.search) };
 };
 
@@ -62,7 +67,11 @@ const getPublicCertifications = catchAsync(async (req, res) => {
 const getFeaturedCertifications = catchAsync(async (req, res) => {
   const limit = Math.min(12, Math.max(1, Number(req.query.limit) || 6));
 
-  const certifications = await Certification.find({ isActive: true, isFeatured: true })
+  const certifications = await Certification.find({
+    isActive: true,
+    isFeatured: true,
+    isDeleted: { $ne: true },
+  })
     .sort(SORT_ORDER)
     .limit(limit);
 
@@ -76,6 +85,7 @@ const getPublicCertificationBySlug = catchAsync(async (req, res, next) => {
   const certification = await Certification.findOne({
     slug: req.params.slug,
     isActive: true,
+    isDeleted: { $ne: true },
   });
 
   if (!certification) {
@@ -113,6 +123,14 @@ const createCertification = catchAsync(async (req, res, next) => {
       updatedBy: req.user._id,
     });
 
+    await writeAudit({
+      actor: req.user,
+      action: `${ENTITY}.create`,
+      entityType: ENTITY,
+      entityId: certification._id,
+      req,
+    });
+
     res.status(201).json({
       status: "success",
       data: { certification: formatCertification(certification) },
@@ -137,6 +155,14 @@ const updateCertification = catchAsync(async (req, res, next) => {
       return next(new AppError("Certification not found", 404));
     }
 
+    await writeAudit({
+      actor: req.user,
+      action: `${ENTITY}.update`,
+      entityType: ENTITY,
+      entityId: certification._id,
+      req,
+    });
+
     res.status(200).json({
       status: "success",
       data: { certification: formatCertification(certification) },
@@ -150,16 +176,46 @@ const updateCertification = catchAsync(async (req, res, next) => {
 });
 
 const deleteCertification = catchAsync(async (req, res, next) => {
-  const certification = await Certification.findByIdAndDelete(req.params.id);
+  try {
+    const certification = await performSoftDelete(Certification, req.params.id, req);
 
-  if (!certification) {
-    return next(new AppError("Certification not found", 404));
+    await writeAudit({
+      actor: req.user,
+      action: `${ENTITY}.soft_delete`,
+      entityType: ENTITY,
+      entityId: certification._id,
+      req,
+      severity: "warning",
+    });
+
+    res.status(200).json({
+      status: "success",
+      message: "Certification deleted successfully",
+    });
+  } catch (err) {
+    return next(err);
   }
+});
 
-  res.status(200).json({
-    status: "success",
-    message: "Certification deleted successfully",
-  });
+const restoreCertification = catchAsync(async (req, res, next) => {
+  try {
+    const certification = await performRestore(Certification, req.params.id, req);
+
+    await writeAudit({
+      actor: req.user,
+      action: `${ENTITY}.restore`,
+      entityType: ENTITY,
+      entityId: certification._id,
+      req,
+    });
+
+    res.status(200).json({
+      status: "success",
+      data: { certification: formatCertification(certification) },
+    });
+  } catch (err) {
+    return next(err);
+  }
 });
 
 module.exports = {
@@ -171,4 +227,5 @@ module.exports = {
   createCertification,
   updateCertification,
   deleteCertification,
+  restoreCertification,
 };

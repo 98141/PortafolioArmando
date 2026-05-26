@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { GraduationCap } from "lucide-react";
 import type { Education } from "@/src/types/education";
 import TechBadge from "@/src/components/ui/TechBadge";
@@ -33,7 +34,6 @@ export default function EducationEntryCard({
               width={32}
               height={32}
               className="mt-0.5 rounded-lg object-contain"
-              unoptimized
             />
           ) : (
             <GraduationCap
@@ -42,7 +42,11 @@ export default function EducationEntryCard({
             />
           )}
           <div>
-            <h2 className="text-xl font-semibold text-zinc-100">{entry.title}</h2>
+            <h2 className="text-xl font-semibold text-zinc-100">
+              <Link href={`/education/${entry.slug}`} className="hover:text-cyan-300">
+                {entry.title}
+              </Link>
+            </h2>
             <p className="mt-1 text-zinc-400">{entry.institution}</p>
             <p className="mt-1 text-xs text-zinc-500">
               {academicLevelLabels[entry.academicLevel]}
@@ -67,6 +71,11 @@ export default function EducationEntryCard({
             ))}
         </ul>
       )}
+      <div className="mt-4">
+        <Link href={`/education/${entry.slug}`} className="text-xs text-purple-300 hover:text-purple-200">
+          Ver detalle
+        </Link>
+      </div>
     </div>
   );
 }

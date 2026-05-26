@@ -26,6 +26,7 @@ export const certificationFormSchema = z.object({
   credentialId: z.string().trim().max(120),
   credentialUrl: optionalUrl,
   badgeUrl: optionalUrl,
+  badgePublicId: z.string().trim().optional(),
   badgeAlt: z.string().trim().max(200),
   description: z.string().trim().max(3000),
   category: certificationCategoryEnum,

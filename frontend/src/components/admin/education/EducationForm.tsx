@@ -3,11 +3,14 @@
 import { Star } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMemo } from "react";
 import { educationFormSchema } from "@/src/lib/validations/education";
 import { defaultEducationFormValues, formValuesToPayload } from "@/src/lib/educationForm";
 import type { EducationFormValues, AcademicLevel } from "@/src/types/education";
 import { academicLevelLabels } from "@/src/lib/educationLabels";
 import { cn } from "@/src/lib/cn";
+import FileUploadField from "@/src/components/admin/uploads/FileUploadField";
+import type { UploadResponse } from "@/src/services/uploadService";
 
 const inputClass =
   "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm outline-none transition focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20";
@@ -34,6 +37,7 @@ export default function EducationForm({
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<EducationFormValues>({
     resolver: zodResolver(educationFormSchema),
@@ -41,6 +45,22 @@ export default function EducationForm({
   });
 
   const isCurrent = watch("isCurrent");
+
+  const logoUrl = watch("logoUrl");
+  const logoPublicId = watch("logoPublicId") || "";
+  const logoPreviewValue: UploadResponse | null = useMemo(
+    () =>
+      logoUrl
+        ? {
+            url: logoUrl,
+            secureUrl: logoUrl,
+            publicId: logoPublicId,
+            resourceType: "image",
+            originalName: "Logo",
+          }
+        : null,
+    [logoUrl, logoPublicId]
+  );
 
   return (
     <form
@@ -158,12 +178,35 @@ export default function EducationForm({
             {errors.logoUrl && (
               <p className="mt-1 text-xs text-red-400">{errors.logoUrl.message}</p>
             )}
+            <input type="hidden" {...register("logoPublicId")} />
           </div>
           <div>
             <label htmlFor="logoAlt" className={labelClass}>
               Logo alt text
             </label>
             <input id="logoAlt" className={inputClass} {...register("logoAlt")} />
+          </div>
+
+          <div className="sm:col-span-2">
+            <FileUploadField
+              label="Subir logo (imagen)"
+              value={logoPreviewValue}
+              onChange={(asset) => {
+                setValue("logoUrl", asset?.secureUrl || asset?.url || "", {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                });
+                setValue("logoPublicId", asset?.publicId || "", {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                });
+              }}
+              uploadType="education-logo"
+              accept="image/png,image/jpeg,image/webp,image/gif"
+              maxSize={5 * 1024 * 1024}
+              helperText="Si subes una imagen, se rellenan Logo URL + publicId. También puedes pegar una URL manual."
+              previewType="image"
+            />
           </div>
           <div>
             <label htmlFor="startedAt" className={labelClass}>

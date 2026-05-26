@@ -10,6 +10,7 @@ import {
   GraduationCap,
   Shield,
   ArrowRight,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/src/lib/cn";
 
@@ -52,6 +53,14 @@ const dashboardCards = [
     icon: FileText,
     accent: "from-violet-500/20 to-violet-600/5",
     href: "/admin/blog",
+    active: true,
+  },
+  {
+    title: "Configuración",
+    description: "Site Settings, SEO default y CV público",
+    icon: Settings,
+    accent: "from-fuchsia-500/20 to-fuchsia-600/5",
+    href: "/admin/settings",
     active: true,
   },
 ];

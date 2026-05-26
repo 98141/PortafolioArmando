@@ -14,6 +14,8 @@ const {
   hashRefreshToken,
   compareRefreshTokenHash,
 } = require("../utils/password");
+const { writeAudit } = require("../services/audit.service");
+const { logSecurityEvent } = require("../utils/securityLogger");
 const {
   ACCESS_TOKEN_COOKIE,
   REFRESH_TOKEN_COOKIE,
@@ -38,12 +40,26 @@ const persistRefreshToken = async (user, refreshToken) => {
   await user.save({ validateBeforeSave: false });
 };
 
-const issueTokensAndRespond = async (user, res, statusCode = 200) => {
+const issueTokensAndRespond = async (
+  user,
+  res,
+  req,
+  statusCode = 200,
+  auditAction = "auth.login_success"
+) => {
   const accessToken = signAccessToken(user._id);
   const refreshToken = signRefreshToken(user._id);
 
   await persistRefreshToken(user, refreshToken);
   sendAuthCookies(res, accessToken, refreshToken);
+
+  await writeAudit({
+    actor: user,
+    action: auditAction,
+    entityType: "auth",
+    entityId: user._id,
+    req,
+  });
 
   res.status(statusCode).json({
     status: "success",
@@ -115,7 +131,7 @@ const registerAdmin = catchAsync(async (req, res, next) => {
     role: "admin",
   });
 
-  await issueTokensAndRespond(user, res, 201);
+  await issueTokensAndRespond(user, res, req, 201, "auth.register_admin");
 });
 
 const login = catchAsync(async (req, res, next) => {
@@ -124,6 +140,21 @@ const login = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ email }).select("+password");
 
   if (!user || !(await comparePassword(password, user.password))) {
+    logSecurityEvent("login_failed", "Invalid login attempt", {
+      requestId: req.requestId,
+      ip: req.ip,
+      route: req.originalUrl,
+      email,
+    });
+
+    await writeAudit({
+      action: "auth.login_failed",
+      entityType: "auth",
+      req,
+      severity: "warning",
+      metadata: { email },
+    });
+
     return next(new AppError("Invalid email or password", 401));
   }
 
@@ -131,7 +162,7 @@ const login = catchAsync(async (req, res, next) => {
     return next(new AppError("Your account has been deactivated", 401));
   }
 
-  await issueTokensAndRespond(user, res);
+  await issueTokensAndRespond(user, res, req);
 });
 
 const refreshToken = catchAsync(async (req, res, next) => {
@@ -170,6 +201,14 @@ const refreshToken = catchAsync(async (req, res, next) => {
 
   sendAuthCookies(res, newAccessToken, newRefreshToken);
 
+  await writeAudit({
+    actor: user,
+    action: "auth.refresh",
+    entityType: "auth",
+    entityId: user._id,
+    req,
+  });
+
   res.status(200).json({
     status: "success",
     message: "Token refreshed successfully",
@@ -180,6 +219,14 @@ const refreshToken = catchAsync(async (req, res, next) => {
 const logout = catchAsync(async (req, res) => {
   await revokeSessionFromCookies(req);
   clearAuthCookies(res);
+
+  await writeAudit({
+    actor: req.user,
+    action: "auth.logout",
+    entityType: "auth",
+    entityId: req.user?._id,
+    req,
+  });
 
   res.status(200).json({
     status: "success",

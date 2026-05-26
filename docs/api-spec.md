@@ -555,7 +555,7 @@ Público. Detalle por slug (activo).
 
 ## GET /blog
 
-Público. Solo `isActive: true` y `status: published`.
+Público. Solo `isActive: true` y `status: published`. No incluye `content` Markdown completo (para reducir payload).
 
 **Query:** `page`, `limit`, `category`, `tag`, `isFeatured`, `search`
 
@@ -579,7 +579,7 @@ Orden: `priority` ASC, `publishedAt` DESC, `createdAt` DESC.
 
 ## GET /blog/featured
 
-Público. Posts publicados, activos y destacados.
+Público. Posts publicados, activos y destacados. No incluye `content`.
 
 **Query:** `limit` (default 6, max 12)
 
@@ -651,3 +651,214 @@ Público. Detalle por slug (publicado y activo). Incluye `content` Markdown comp
   "message": "Blog post deleted successfully"
 }
 ```
+
+---
+
+# Uploads Admin (Cloudinary) (Sprint 7)
+
+Base path: `POST/DELETE /api/admin/uploads`
+
+Requisitos comunes:
+- Acceso **Admin** (JWT en cookies, `protect` + `restrictTo("admin")`)
+- `multipart/form-data` con campo `file`
+- **Rate limit**: 10 uploads por IP / 15 min (solo POST)
+- Validaciones: extensión peligrosa, `mimetype`, **magic bytes** (`file-type`), tamaño
+- Endpoints de imagen rechazan PDF; endpoints PDF rechazan imágenes
+
+## POST /admin/uploads/project-image
+
+Imagen. Tipo: `image/jpeg|image/png|image/webp|image/gif`. Magic bytes validados. Tamaño máx: `5MB`.
+
+## POST /admin/uploads/cyber-evidence
+
+Imagen. Tipo: `image/jpeg|image/png|image/webp|image/gif`. Magic bytes validados. Tamaño máx: `5MB`.
+
+## POST /admin/uploads/cyber-report
+
+PDF. Tipo: `application/pdf`. Magic bytes validados. Tamaño máx: `10MB`.
+
+## POST /admin/uploads/certification-badge
+
+Imagen. Tipo: `image/jpeg|image/png|image/webp|image/gif`. Magic bytes validados. Tamaño máx: `5MB`.
+
+## POST /admin/uploads/education-logo
+
+Imagen. Tipo: `image/jpeg|image/png|image/webp|image/gif`. Magic bytes validados. Tamaño máx: `5MB`.
+
+## POST /admin/uploads/blog-cover
+
+Imagen. Tipo: `image/jpeg|image/png|image/webp|image/gif`. Magic bytes validados. Tamaño máx: `5MB`.
+
+## POST /admin/uploads/author-avatar
+
+Imagen. Tipo: `image/jpeg|image/png|image/webp|image/gif`. Magic bytes validados. Tamaño máx: `5MB`.
+
+## POST /admin/uploads/cv
+
+PDF. Tipo: `application/pdf`. Magic bytes validados. Tamaño máx: `10MB`.
+
+## DELETE /admin/uploads
+
+Admin. Elimina un asset en Cloudinary.
+
+**Reglas:**
+- `resourceType` solo `image` o `raw`
+- `publicId` debe comenzar con `portfolio/`
+- Rechaza IDs fuera del namespace o con caracteres inválidos
+
+**Body ejemplo:**
+```json
+{
+  "publicId": "portfolio/asset-public-id",
+  "resourceType": "image|raw"
+}
+```
+
+## Respuesta estándar (success)
+
+```json
+{
+  "status": "success",
+  "data": {
+    "url": "...",
+    "secureUrl": "...",
+    "publicId": "...",
+    "resourceType": "image|raw",
+    "format": "...",
+    "bytes": 12345,
+    "originalName": "..."
+  }
+}
+```
+
+---
+
+# Site Settings (Sprint 8)
+
+## GET /site-settings
+
+Público. Devuelve configuración pública del sitio (perfil, branding, CV, SEO, redes activas, disponibilidad).
+
+**Notas:**
+- Endpoint seguro para consumo público.
+- Devuelve fallback vacío si no hay configuración previa.
+
+## GET /admin/site-settings
+
+Admin. Obtiene el documento singleton de configuración para edición.
+
+## PUT /admin/site-settings
+
+Admin. Crea/actualiza el singleton activo de Site Settings.
+
+**Reglas:**
+- Solo un documento activo (`isActive: true`).
+- URLs y email validados en backend.
+- `social` ordenable por `priority`.
+
+**Body base (resumen):**
+```json
+{
+  "profile": {
+    "fullName": "Armando Mora",
+    "professionalTitle": "Software Developer | Cybersecurity Specialist",
+    "email": "contacto@armandomora.dev",
+    "linkedin": "https://linkedin.com/in/armandomora"
+  },
+  "branding": {
+    "logo": { "url": "https://..." },
+    "avatar": { "url": "https://..." }
+  },
+  "cv": {
+    "url": "https://res.cloudinary.com/.../portfolio/cv.pdf",
+    "publicId": "portfolio/cv/..."
+  },
+  "seo": {
+    "siteName": "Armando Mora",
+    "defaultTitle": "Armando Mora | Software & Cybersecurity",
+    "defaultDescription": "Portafolio profesional",
+    "canonicalBaseUrl": "https://armandomora.dev"
+  },
+  "social": [
+    {
+      "platform": "linkedin",
+      "label": "LinkedIn",
+      "url": "https://linkedin.com/in/armandomora",
+      "isActive": true,
+      "priority": 10
+    }
+  ],
+  "availability": {
+    "status": "available",
+    "message": "Disponible para proyectos selectivos"
+  }
+}
+```
+
+---
+
+# SEO Runtime (Sprint 8)
+
+- `sitemap.xml` (`frontend/src/app/sitemap.ts`):
+  - Incluye rutas estáticas públicas.
+  - Incluye slugs dinámicos de proyectos, cyber labs, certificaciones, educación y blog published.
+  - Si la API falla, conserva rutas estáticas mínimas.
+- `robots.txt` (`frontend/src/app/robots.ts`):
+  - Permite indexado público.
+  - Bloquea `/admin`.
+  - Expone URL de sitemap.
+- `rss.xml` (`frontend/src/app/rss.xml/route.ts`):
+  - Feed RSS de posts published del blog.
+- OG image fallback: ogImage → avatar → logo (Site Settings).
+
+---
+
+# Production Hardening (Sprint FINAL)
+
+## GET /health
+
+Público. Estado operacional del API.
+
+**Respuesta:**
+```json
+{
+  "status": "success",
+  "data": {
+    "status": "ok",
+    "uptime": 123.45,
+    "timestamp": "2026-05-26T12:00:00.000Z",
+    "env": "production",
+    "dbConnected": true
+  }
+}
+```
+
+Headers: incluye `X-Request-Id`.
+
+## Soft delete y restore (CMS)
+
+Entidades: projects, cyber-labs, certifications, education, blog.
+
+**Delete admin:** soft delete (`isDeleted: true`).
+
+**Query admin:** `?includeDeleted=true` incluye eliminados.
+
+**Restore admin:** `POST /api/admin/{entity}/:id/restore`
+
+Público nunca expone registros con `isDeleted: true`.
+
+## Audit log
+
+Eventos persistidos en MongoDB (`AuditLog`). Escritura automática en CRUD CMS, uploads, auth y site settings.
+
+Acciones típicas: `{entity}.create`, `{entity}.update`, `{entity}.delete`, `{entity}.restore`, `upload.success`, `upload.delete`, `auth.login`, `auth.login_failed`, `site_settings.update`.
+
+## Site Settings singleton (refinado)
+
+- `singletonKey: "global"` unique index.
+- `PUT /admin/site-settings` upsert — un solo documento activo.
+- `canonicalBaseUrl` validado contra dominios permitidos (`ALLOWED_CANONICAL_HOSTS` o hostname de `FRONTEND_URL`).
+
+## Env obligatorias
+
+Ver `backend/src/config/env.js` y `docs/deployment.md`.

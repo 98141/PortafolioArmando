@@ -30,6 +30,7 @@ export const projectFormSchema = z.object({
   challengesInput: z.string(),
   learningsInput: z.string(),
   imageUrl: optionalUrl,
+  imagePublicId: z.string().trim().optional(),
   imageAlt: z.string().trim().max(200),
   linksDemo: optionalUrl,
   linksGithub: optionalUrl,

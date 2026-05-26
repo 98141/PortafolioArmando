@@ -24,6 +24,7 @@ export const defaultEducationFormValues: EducationFormValues = {
   achievementsInput: "",
   focusAreasInput: "",
   logoUrl: "",
+  logoPublicId: "",
   logoAlt: "",
   startedAt: "",
   completedAt: "",
@@ -49,7 +50,11 @@ export const formValuesToPayload = (values: EducationFormValues) => {
   };
 
   if (values.logoUrl) {
-    payload.logo = { url: values.logoUrl, alt: values.logoAlt || undefined };
+    payload.logo = {
+      url: values.logoUrl,
+      publicId: values.logoPublicId || undefined,
+      alt: values.logoAlt || undefined,
+    };
   }
 
   if (values.startedAt) {
@@ -71,6 +76,7 @@ export const educationToFormValues = (entry: Education): EducationFormValues => 
   achievementsInput: joinLines(entry.achievements),
   focusAreasInput: joinLines(entry.focusAreas),
   logoUrl: entry.logo?.url ?? "",
+  logoPublicId: entry.logo?.publicId ?? "",
   logoAlt: entry.logo?.alt ?? "",
   startedAt: toDateInput(entry.startedAt),
   completedAt: toDateInput(entry.completedAt),

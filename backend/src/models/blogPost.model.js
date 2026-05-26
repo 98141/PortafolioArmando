@@ -5,6 +5,7 @@ const { calculateReadingTime } = require("../utils/readingTime");
 const coverImageSchema = new mongoose.Schema(
   {
     url: { type: String, trim: true },
+    publicId: { type: String, trim: true },
     alt: { type: String, trim: true, maxlength: 200 },
   },
   { _id: false }
@@ -24,6 +25,7 @@ const authorSchema = new mongoose.Schema(
     name: { type: String, trim: true, maxlength: 120 },
     role: { type: String, trim: true, maxlength: 200 },
     avatarUrl: { type: String, trim: true },
+    avatarPublicId: { type: String, trim: true },
   },
   { _id: false }
 );
@@ -107,6 +109,9 @@ const blogPostSchema = new mongoose.Schema(
     lastReviewedAt: { type: Date },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    isDeleted: { type: Boolean, default: false, index: true },
+    deletedAt: { type: Date },
+    deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   },
   {
     timestamps: true,

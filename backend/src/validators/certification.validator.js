@@ -8,6 +8,7 @@ const optionalUrl = z
 const badgeSchema = z
   .object({
     url: optionalUrl,
+    publicId: z.string().trim().optional(),
     alt: z.string().trim().max(200).optional(),
   })
   .optional();
@@ -68,6 +69,10 @@ const certificationQuerySchema = z.object({
     .optional()
     .transform((v) => (v === undefined ? undefined : v === "true")),
   search: z.string().trim().optional(),
+  includeDeleted: z
+    .enum(["true", "false"])
+    .optional()
+    .transform((v) => (v === undefined ? undefined : v === "true")),
 });
 
 module.exports = {

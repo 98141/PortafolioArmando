@@ -6,27 +6,46 @@ const cookieParser = require("cookie-parser");
 const rateLimit = require("express-rate-limit");
 const mongoSanitize = require("mongo-sanitize");
 const hpp = require("hpp");
+const mongoose = require("mongoose");
+
+const { helmetConfig } = require("./config/helmet");
+const requestId = require("./middlewares/requestId");
+const globalErrorHandler = require("./middlewares/globalErrorHandler");
 
 const app = express();
+const serverStartedAt = Date.now();
 
-app.use(
-  helmet({
-    crossOriginResourcePolicy: false,
-  })
-);
+app.disable("x-powered-by");
+app.use(requestId);
+app.use(helmet(helmetConfig));
+
+const corsOrigin = process.env.FRONTEND_URL;
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin(origin, callback) {
+      if (!origin || origin === corsOrigin) {
+        callback(null, true);
+        return;
+      }
+      callback(null, false);
+    },
     credentials: true,
   })
 );
 
-app.use(express.json({ limit: "100kb" }));
-app.use(express.urlencoded({ extended: true, limit: "100kb" }));
+app.use(express.json({ limit: "500kb" }));
+app.use(express.urlencoded({ extended: true, limit: "500kb" }));
 app.use(cookieParser());
 
-app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
+morgan.token("request-id", (req) => req.requestId || "-");
+app.use(
+  morgan(
+    process.env.NODE_ENV === "production"
+      ? ':remote-addr - :request-id ":method :url" :status :res[content-length] - :response-time ms'
+      : ':method :url :status :request-id - :response-time ms'
+  )
+);
 
 app.use(
   rateLimit({
@@ -36,6 +55,8 @@ app.use(
       status: "error",
       message: "Too many requests, please try again later.",
     },
+    standardHeaders: true,
+    legacyHeaders: false,
   })
 );
 
@@ -63,12 +84,21 @@ const {
 } = require("./routes/education.routes");
 const { publicRouter: blogPublicRoutes, adminRouter: blogAdminRoutes } =
   require("./routes/blogPost.routes");
-const globalErrorHandler = require("./middlewares/globalErrorHandler");
+const uploadAdminRoutes = require("./routes/upload.routes");
+const {
+  publicRouter: siteSettingsPublicRoutes,
+  adminRouter: siteSettingsAdminRoutes,
+} = require("./routes/siteSettings.routes");
 
-app.get("/api/health", (req, res) => {
+app.get("/api/health", (_req, res) => {
   res.status(200).json({
     status: "success",
-    message: "Portfolio API is running",
+    data: {
+      uptime: Math.floor((Date.now() - serverStartedAt) / 1000),
+      timestamp: new Date().toISOString(),
+      env: process.env.NODE_ENV || "development",
+      dbConnected: mongoose.connection.readyState === 1,
+    },
   });
 });
 
@@ -83,6 +113,9 @@ app.use("/api/education", educationPublicRoutes);
 app.use("/api/admin/education", educationAdminRoutes);
 app.use("/api/blog", blogPublicRoutes);
 app.use("/api/admin/blog", blogAdminRoutes);
+app.use("/api/admin/uploads", uploadAdminRoutes);
+app.use("/api/site-settings", siteSettingsPublicRoutes);
+app.use("/api/admin/site-settings", siteSettingsAdminRoutes);
 
 app.use((req, res) => {
   res.status(404).json({

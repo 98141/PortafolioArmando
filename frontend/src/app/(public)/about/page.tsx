@@ -5,12 +5,21 @@ import GlassCard from "@/src/components/ui/GlassCard";
 import SectionHeader from "@/src/components/ui/SectionHeader";
 import TechBadge from "@/src/components/ui/TechBadge";
 import { cn } from "@/src/lib/cn";
+import JsonLd from "@/src/components/seo/JsonLd";
+import { personJsonLd } from "@/src/lib/jsonLd";
+import { getPublicSiteSettings } from "@/src/lib/publicSiteSettings";
+import { buildMetadata } from "@/src/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Sobre mí | Armando Mora",
-  description:
-    "Perfil profesional dual: desarrollo full stack y ciberseguridad aplicada.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getPublicSiteSettings();
+  return buildMetadata({
+    title: "Sobre mí | Armando Mora",
+    description: "Perfil profesional dual: desarrollo full stack y ciberseguridad aplicada.",
+    path: "/about",
+    seo: settings.seo,
+    branding: settings.branding,
+  });
+}
 
 const levelWidth = {
   advanced: "w-full",
@@ -24,9 +33,12 @@ const levelLabel = {
   foundational: "Fundacional",
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const settings = await getPublicSiteSettings();
+  const base = settings.seo?.canonicalBaseUrl || "https://armandomora.dev";
   return (
     <>
+      <JsonLd data={personJsonLd(settings, base)} />
       <PageHero
         eyebrow="About"
         title="Sobre mí"

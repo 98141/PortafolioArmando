@@ -2,8 +2,12 @@ const Project = require("../models/project.model");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const { getPagination, paginationMeta } = require("../utils/pagination");
+const { applySoftDeleteFilter } = require("../utils/softDelete");
+const { performSoftDelete, performRestore } = require("../utils/crudHelpers");
+const { writeAudit } = require("../services/audit.service");
 
 const SORT_ORDER = { priority: 1, createdAt: -1 };
+const ENTITY = "project";
 
 const buildSearchFilter = (search) => {
   if (!search) return {};
@@ -31,6 +35,7 @@ const buildListFilter = (query, { publicOnly = false } = {}) => {
   if (query.status) filter.status = query.status;
   if (query.isFeatured !== undefined) filter.isFeatured = query.isFeatured;
 
+  applySoftDeleteFilter(filter, query, { publicOnly });
   return { ...filter, ...buildSearchFilter(query.search) };
 };
 
@@ -64,7 +69,11 @@ const getPublicProjects = catchAsync(async (req, res) => {
 const getPublicFeaturedProjects = catchAsync(async (req, res) => {
   const limit = Math.min(12, Math.max(1, Number(req.query.limit) || 6));
 
-  const projects = await Project.find({ isActive: true, isFeatured: true })
+  const projects = await Project.find({
+    isActive: true,
+    isFeatured: true,
+    isDeleted: { $ne: true },
+  })
     .sort(SORT_ORDER)
     .limit(limit);
 
@@ -78,6 +87,7 @@ const getPublicProjectBySlug = catchAsync(async (req, res, next) => {
   const project = await Project.findOne({
     slug: req.params.slug,
     isActive: true,
+    isDeleted: { $ne: true },
   });
 
   if (!project) {
@@ -115,6 +125,14 @@ const createProject = catchAsync(async (req, res, next) => {
       updatedBy: req.user._id,
     });
 
+    await writeAudit({
+      actor: req.user,
+      action: `${ENTITY}.create`,
+      entityType: ENTITY,
+      entityId: project._id,
+      req,
+    });
+
     res.status(201).json({
       status: "success",
       data: { project: formatProject(project) },
@@ -139,6 +157,14 @@ const updateProject = catchAsync(async (req, res, next) => {
       return next(new AppError("Project not found", 404));
     }
 
+    await writeAudit({
+      actor: req.user,
+      action: `${ENTITY}.update`,
+      entityType: ENTITY,
+      entityId: project._id,
+      req,
+    });
+
     res.status(200).json({
       status: "success",
       data: { project: formatProject(project) },
@@ -151,20 +177,47 @@ const updateProject = catchAsync(async (req, res, next) => {
   }
 });
 
-/**
- * Hard delete. Sprint 4 may add soft delete (isActive=false or deletedAt).
- */
 const deleteProject = catchAsync(async (req, res, next) => {
-  const project = await Project.findByIdAndDelete(req.params.id);
+  try {
+    const project = await performSoftDelete(Project, req.params.id, req);
 
-  if (!project) {
-    return next(new AppError("Project not found", 404));
+    await writeAudit({
+      actor: req.user,
+      action: `${ENTITY}.soft_delete`,
+      entityType: ENTITY,
+      entityId: project._id,
+      req,
+      severity: "warning",
+    });
+
+    res.status(200).json({
+      status: "success",
+      message: "Project deleted successfully",
+    });
+  } catch (err) {
+    return next(err);
   }
+});
 
-  res.status(200).json({
-    status: "success",
-    message: "Project deleted successfully",
-  });
+const restoreProject = catchAsync(async (req, res, next) => {
+  try {
+    const project = await performRestore(Project, req.params.id, req);
+
+    await writeAudit({
+      actor: req.user,
+      action: `${ENTITY}.restore`,
+      entityType: ENTITY,
+      entityId: project._id,
+      req,
+    });
+
+    res.status(200).json({
+      status: "success",
+      data: { project: formatProject(project) },
+    });
+  } catch (err) {
+    return next(err);
+  }
 });
 
 module.exports = {
@@ -176,4 +229,5 @@ module.exports = {
   createProject,
   updateProject,
   deleteProject,
+  restoreProject,
 };

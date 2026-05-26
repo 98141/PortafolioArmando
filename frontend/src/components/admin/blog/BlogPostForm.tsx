@@ -10,6 +10,8 @@ import type { BlogPostFormValues, BlogCategory, BlogStatus } from "@/src/types/b
 import { blogCategoryLabels, blogStatusLabels } from "@/src/lib/blogPostLabels";
 import MarkdownPreview from "@/src/components/admin/blog/MarkdownPreview";
 import { cn } from "@/src/lib/cn";
+import FileUploadField from "@/src/components/admin/uploads/FileUploadField";
+import type { UploadResponse } from "@/src/services/uploadService";
 
 const inputClass =
   "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm outline-none transition focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20";
@@ -38,6 +40,7 @@ export default function BlogPostForm({
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<BlogPostFormValues>({
     resolver: zodResolver(blogPostFormSchema),
@@ -45,6 +48,29 @@ export default function BlogPostForm({
   });
 
   const contentValue = watch("content");
+  const coverUrl = watch("coverUrl");
+  const coverPublicId = watch("coverPublicId") || "";
+  const coverPreviewValue: UploadResponse | null = coverUrl
+    ? {
+        url: coverUrl,
+        secureUrl: coverUrl,
+        publicId: coverPublicId,
+        resourceType: "image",
+        originalName: "Cover",
+      }
+    : null;
+
+  const authorAvatarUrl = watch("authorAvatarUrl");
+  const authorAvatarPublicId = watch("authorAvatarPublicId") || "";
+  const authorAvatarPreviewValue: UploadResponse | null = authorAvatarUrl
+    ? {
+        url: authorAvatarUrl,
+        secureUrl: authorAvatarUrl,
+        publicId: authorAvatarPublicId,
+        resourceType: "image",
+        originalName: "Avatar",
+      }
+    : null;
 
   return (
     <form
@@ -129,6 +155,7 @@ export default function BlogPostForm({
               className={inputClass}
               {...register("coverUrl")}
             />
+            <input type="hidden" {...register("coverPublicId")} />
             {errors.coverUrl && (
               <p className="mt-1 text-xs text-red-400">{errors.coverUrl.message}</p>
             )}
@@ -138,6 +165,28 @@ export default function BlogPostForm({
               Cover alt
             </label>
             <input id="coverAlt" className={inputClass} {...register("coverAlt")} />
+          </div>
+          <div className="sm:col-span-2">
+            <FileUploadField
+              label="Subir cover (imagen)"
+              value={coverPreviewValue}
+              onChange={(asset) => {
+                setValue(
+                  "coverUrl",
+                  asset?.secureUrl || asset?.url || "",
+                  { shouldValidate: true, shouldDirty: true }
+                );
+                setValue("coverPublicId", asset?.publicId || "", {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                });
+              }}
+              uploadType="blog-cover"
+              accept="image/png,image/jpeg,image/webp,image/gif"
+              maxSize={5 * 1024 * 1024}
+              helperText="Subida Cloudinary (mantén también soporte URL manual)."
+              previewType="image"
+            />
           </div>
           <div>
             <label htmlFor="category" className={labelClass}>
@@ -238,6 +287,34 @@ export default function BlogPostForm({
               className={inputClass}
               {...register("authorAvatarUrl")}
             />
+            <input type="hidden" {...register("authorAvatarPublicId")} />
+            {errors.authorAvatarUrl && (
+              <p className="mt-1 text-xs text-red-400">{errors.authorAvatarUrl.message}</p>
+            )}
+
+            <div className="mt-4">
+              <FileUploadField
+                label="Subir avatar (imagen)"
+                value={authorAvatarPreviewValue}
+                onChange={(asset) => {
+                  setValue(
+                    "authorAvatarUrl",
+                    asset?.secureUrl || asset?.url || "",
+                    { shouldValidate: true, shouldDirty: true }
+                  );
+                  setValue(
+                    "authorAvatarPublicId",
+                    asset?.publicId || "",
+                    { shouldValidate: true, shouldDirty: true }
+                  );
+                }}
+                uploadType="author-avatar"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                maxSize={5 * 1024 * 1024}
+                helperText="Cloudinary opcional: puedes pegar URL manual también."
+                previewType="image"
+              />
+            </div>
           </div>
         </div>
       </section>

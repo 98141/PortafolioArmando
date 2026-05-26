@@ -34,7 +34,7 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
             alt={post.coverImage.alt ?? post.title}
             fill
             className="object-cover"
-            unoptimized
+            sizes="(max-width: 768px) 100vw, 400px"
           />
           {featured && (
             <span className="absolute left-3 top-3 rounded-lg bg-violet-600/90 px-2 py-0.5 text-xs font-medium text-white">

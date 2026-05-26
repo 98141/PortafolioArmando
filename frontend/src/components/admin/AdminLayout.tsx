@@ -9,6 +9,7 @@ import {
   Award,
   GraduationCap,
   FileText,
+  Settings,
   LogOut,
   Menu,
   X,
@@ -23,6 +24,8 @@ const navItems = [
   { label: "Certificados", href: "/admin/certifications", icon: Award },
   { label: "Educación", href: "/admin/education", icon: GraduationCap },
   { label: "Blog", href: "/admin/blog", icon: FileText },
+  { label: "CV", href: "/admin/cv", icon: FileText },
+  { label: "Site Settings", href: "/admin/settings", icon: Settings },
 ];
 
 interface AdminLayoutProps {

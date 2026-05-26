@@ -12,6 +12,7 @@ export type AcademicLevel =
 
 export interface EducationLogo {
   url?: string;
+  publicId?: string;
   alt?: string;
 }
 
@@ -47,6 +48,7 @@ export interface EducationFormValues {
   achievementsInput: string;
   focusAreasInput: string;
   logoUrl: string;
+  logoPublicId?: string;
   logoAlt: string;
   startedAt: string;
   completedAt: string;

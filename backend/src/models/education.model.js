@@ -4,6 +4,7 @@ const slugify = require("../utils/slugify");
 const logoSchema = new mongoose.Schema(
   {
     url: { type: String, trim: true },
+    publicId: { type: String, trim: true },
     alt: { type: String, trim: true, maxlength: 200 },
   },
   { _id: false }
@@ -73,6 +74,9 @@ const educationSchema = new mongoose.Schema(
     },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    isDeleted: { type: Boolean, default: false, index: true },
+    deletedAt: { type: Date },
+    deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   },
   {
     timestamps: true,

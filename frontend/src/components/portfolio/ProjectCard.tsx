@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { GithubIcon } from "@/src/components/ui/SocialIcons";
 import type { Project } from "@/src/types/project";
@@ -27,13 +28,16 @@ export default function ProjectCard({ project }: ProjectCardProps) {
             fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 33vw"
-            unoptimized
           />
         </div>
       )}
       <div className="flex flex-1 flex-col p-6">
         <div className="flex flex-wrap items-start justify-between gap-2">
-          <h3 className="text-lg font-semibold text-zinc-100">{project.title}</h3>
+          <h3 className="text-lg font-semibold text-zinc-100">
+            <Link href={`/projects/${project.slug}`} className="hover:text-cyan-300">
+              {project.title}
+            </Link>
+          </h3>
           <ProjectStatusBadge status={project.status} />
         </div>
         <div className="mt-2 flex flex-wrap gap-1.5">
@@ -49,7 +53,10 @@ export default function ProjectCard({ project }: ProjectCardProps) {
             <TechBadge key={tech} label={tech} />
           ))}
         </div>
-        <div className="mt-5 flex gap-4 border-t border-white/5 pt-4">
+        <div className="mt-5 flex flex-wrap gap-4 border-t border-white/5 pt-4">
+          <Link href={`/projects/${project.slug}`} className="inline-flex items-center gap-1.5 text-xs text-purple-300 hover:text-purple-200">
+            Ver detalle
+          </Link>
           {project.links?.demo && (
             <a
               href={project.links.demo}

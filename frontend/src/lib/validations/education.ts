@@ -27,6 +27,7 @@ export const educationFormSchema = z.object({
   achievementsInput: z.string(),
   focusAreasInput: z.string(),
   logoUrl: optionalUrl,
+  logoPublicId: z.string().trim().optional(),
   logoAlt: z.string().trim().max(200),
   startedAt: z.string(),
   completedAt: z.string(),

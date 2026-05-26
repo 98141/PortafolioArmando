@@ -8,6 +8,7 @@ const {
   createEducation,
   updateEducation,
   deleteEducation,
+  restoreEducation,
 } = require("../controllers/education.controller");
 const validateRequest = require("../middlewares/validateRequest");
 const protect = require("../middlewares/protect");
@@ -32,6 +33,7 @@ adminRouter.get("/", validateQuery, getAdminEducation);
 adminRouter.get("/:id", getAdminEducationById);
 adminRouter.post("/", validateRequest(createEducationSchema), createEducation);
 adminRouter.patch("/:id", validateRequest(updateEducationSchema), updateEducation);
+adminRouter.post("/:id/restore", restoreEducation);
 adminRouter.delete("/:id", deleteEducation);
 
 module.exports = { publicRouter, adminRouter };
