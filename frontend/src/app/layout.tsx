@@ -18,6 +18,9 @@ export const metadata: Metadata = {
     "MERN",
     "Next.js",
   ],
+  alternates: {
+    types: { "application/rss+xml": "/rss.xml" },
+  },
 };
 
 export default function RootLayout({

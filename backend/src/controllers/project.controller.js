@@ -27,12 +27,13 @@ const buildListFilter = (query, { publicOnly = false } = {}) => {
 
   if (publicOnly) {
     filter.isActive = true;
+    filter.status = "completed";
   } else if (query.isActive !== undefined) {
     filter.isActive = query.isActive;
   }
 
   if (query.category) filter.category = query.category;
-  if (query.status) filter.status = query.status;
+  if (!publicOnly && query.status) filter.status = query.status;
   if (query.isFeatured !== undefined) filter.isFeatured = query.isFeatured;
 
   applySoftDeleteFilter(filter, query, { publicOnly });
@@ -44,12 +45,19 @@ const formatProject = (doc) => {
   return project;
 };
 
+const PUBLIC_PROJECT_PROJECTION = "-longDescription -features -challenges -learnings";
+
 const listProjects = async (req, res, { publicOnly }) => {
   const { page, limit, skip } = getPagination(req.query);
   const filter = buildListFilter(req.query, { publicOnly });
 
+  const query = Project.find(filter).sort(SORT_ORDER).skip(skip).limit(limit);
+  if (publicOnly) {
+    query.select(PUBLIC_PROJECT_PROJECTION);
+  }
+
   const [projects, total] = await Promise.all([
-    Project.find(filter).sort(SORT_ORDER).skip(skip).limit(limit),
+    query,
     Project.countDocuments(filter),
   ]);
 
@@ -71,11 +79,13 @@ const getPublicFeaturedProjects = catchAsync(async (req, res) => {
 
   const projects = await Project.find({
     isActive: true,
+    status: "completed",
     isFeatured: true,
     isDeleted: { $ne: true },
   })
     .sort(SORT_ORDER)
-    .limit(limit);
+    .limit(limit)
+    .select(PUBLIC_PROJECT_PROJECTION);
 
   res.status(200).json({
     status: "success",
@@ -87,6 +97,7 @@ const getPublicProjectBySlug = catchAsync(async (req, res, next) => {
   const project = await Project.findOne({
     slug: req.params.slug,
     isActive: true,
+    status: "completed",
     isDeleted: { $ne: true },
   });
 

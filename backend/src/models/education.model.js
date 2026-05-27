@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const slugify = require("../utils/slugify");
+const { softDeleteFields } = require("../utils/softDelete");
 
 const logoSchema = new mongoose.Schema(
   {
@@ -74,9 +75,7 @@ const educationSchema = new mongoose.Schema(
     },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    isDeleted: { type: Boolean, default: false, index: true },
-    deletedAt: { type: Date },
-    deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    ...softDeleteFields,
   },
   {
     timestamps: true,

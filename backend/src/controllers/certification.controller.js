@@ -28,12 +28,13 @@ const buildListFilter = (query, { publicOnly = false } = {}) => {
 
   if (publicOnly) {
     filter.isActive = true;
+    filter.status = { $ne: "archived" };
   } else if (query.isActive !== undefined) {
     filter.isActive = query.isActive;
   }
 
   if (query.category) filter.category = query.category;
-  if (query.status) filter.status = query.status;
+  if (!publicOnly && query.status) filter.status = query.status;
   if (query.isFeatured !== undefined) filter.isFeatured = query.isFeatured;
 
   applySoftDeleteFilter(filter, query, { publicOnly });
@@ -42,12 +43,19 @@ const buildListFilter = (query, { publicOnly = false } = {}) => {
 
 const formatCertification = (doc) => (doc.toObject ? doc.toObject() : doc);
 
+const PUBLIC_CERT_PROJECTION = "-description";
+
 const listCertifications = async (req, res, { publicOnly }) => {
   const { page, limit, skip } = getPagination(req.query);
   const filter = buildListFilter(req.query, { publicOnly });
 
+  const query = Certification.find(filter).sort(SORT_ORDER).skip(skip).limit(limit);
+  if (publicOnly) {
+    query.select(PUBLIC_CERT_PROJECTION);
+  }
+
   const [certifications, total] = await Promise.all([
-    Certification.find(filter).sort(SORT_ORDER).skip(skip).limit(limit),
+    query,
     Certification.countDocuments(filter),
   ]);
 
@@ -70,10 +78,12 @@ const getFeaturedCertifications = catchAsync(async (req, res) => {
   const certifications = await Certification.find({
     isActive: true,
     isFeatured: true,
+    status: { $ne: "archived" },
     isDeleted: { $ne: true },
   })
     .sort(SORT_ORDER)
-    .limit(limit);
+    .limit(limit)
+    .select(PUBLIC_CERT_PROJECTION);
 
   res.status(200).json({
     status: "success",
@@ -85,6 +95,7 @@ const getPublicCertificationBySlug = catchAsync(async (req, res, next) => {
   const certification = await Certification.findOne({
     slug: req.params.slug,
     isActive: true,
+    status: { $ne: "archived" },
     isDeleted: { $ne: true },
   });
 

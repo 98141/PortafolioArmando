@@ -20,12 +20,13 @@ const buildPublicId = (file) => {
 };
 
 const buildUploadResponse = (result, originalName) => {
-  const resourceType =
-    result.resource_type === "raw"
-      ? "raw"
-      : result.resource_type === "image"
-        ? "image"
-        : "image";
+  if (result.resource_type !== "raw" && result.resource_type !== "image") {
+    throw new AppError(
+      `Unexpected Cloudinary resource_type: ${result.resource_type}`,
+      500
+    );
+  }
+  const resourceType = result.resource_type;
 
   return {
     url: result.url,

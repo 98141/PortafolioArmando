@@ -16,7 +16,6 @@ const buildSearchFilter = (search) => {
     $or: [
       { title: regex },
       { excerpt: regex },
-      { content: regex },
       { tags: regex },
       { relatedTopics: regex },
       { "author.name": regex },

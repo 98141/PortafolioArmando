@@ -16,6 +16,7 @@ const app = express();
 const serverStartedAt = Date.now();
 
 app.disable("x-powered-by");
+app.set("trust proxy", 1);
 app.use(requestId);
 app.use(helmet(helmetConfig));
 
@@ -50,7 +51,7 @@ app.use(
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100,
+    max: 300,
     message: {
       status: "error",
       message: "Too many requests, please try again later.",
@@ -96,8 +97,6 @@ app.get("/api/health", (_req, res) => {
     data: {
       uptime: Math.floor((Date.now() - serverStartedAt) / 1000),
       timestamp: new Date().toISOString(),
-      env: process.env.NODE_ENV || "development",
-      dbConnected: mongoose.connection.readyState === 1,
     },
   });
 });

@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const slugify = require("../utils/slugify");
+const { softDeleteFields } = require("../utils/softDelete");
 
 const imageSchema = new mongoose.Schema(
   {
@@ -126,9 +127,7 @@ const projectSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    isDeleted: { type: Boolean, default: false, index: true },
-    deletedAt: { type: Date },
-    deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    ...softDeleteFields,
   },
   {
     timestamps: true,

@@ -42,12 +42,19 @@ const buildListFilter = (query, { publicOnly = false } = {}) => {
 
 const formatEducation = (doc) => (doc.toObject ? doc.toObject() : doc);
 
+const PUBLIC_EDUCATION_PROJECTION = "-description";
+
 const listEducation = async (req, res, { publicOnly }) => {
   const { page, limit, skip } = getPagination(req.query);
   const filter = buildListFilter(req.query, { publicOnly });
 
+  const query = Education.find(filter).sort(SORT_ORDER).skip(skip).limit(limit);
+  if (publicOnly) {
+    query.select(PUBLIC_EDUCATION_PROJECTION);
+  }
+
   const [education, total] = await Promise.all([
-    Education.find(filter).sort(SORT_ORDER).skip(skip).limit(limit),
+    query,
     Education.countDocuments(filter),
   ]);
 
@@ -73,7 +80,8 @@ const getFeaturedEducation = catchAsync(async (req, res) => {
     isDeleted: { $ne: true },
   })
     .sort(SORT_ORDER)
-    .limit(limit);
+    .limit(limit)
+    .select(PUBLIC_EDUCATION_PROJECTION);
 
   res.status(200).json({
     status: "success",

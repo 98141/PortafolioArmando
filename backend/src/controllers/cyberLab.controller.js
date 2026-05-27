@@ -19,7 +19,6 @@ const buildSearchFilter = (search) => {
       { shortDescription: regex },
       { tools: regex },
       { tags: regex },
-      { findings: regex },
     ],
   };
 };
@@ -29,13 +28,14 @@ const buildListFilter = (query, { publicOnly = false } = {}) => {
 
   if (publicOnly) {
     filter.isActive = true;
+    filter.status = "completed";
   } else if (query.isActive !== undefined) {
     filter.isActive = query.isActive;
   }
 
   if (query.category) filter.category = query.category;
   if (query.severity) filter.severity = query.severity;
-  if (query.status) filter.status = query.status;
+  if (!publicOnly && query.status) filter.status = query.status;
   if (query.isFeatured !== undefined) filter.isFeatured = query.isFeatured;
 
   applySoftDeleteFilter(filter, query, { publicOnly });
@@ -46,12 +46,20 @@ const formatCyberLab = (doc) => {
   return doc.toObject ? doc.toObject() : doc;
 };
 
+const PUBLIC_CYBERLAB_PROJECTION =
+  "-findings -mitigations -methodology -evidence -report -references -fullDescription";
+
 const listCyberLabs = async (req, res, { publicOnly }) => {
   const { page, limit, skip } = getPagination(req.query);
   const filter = buildListFilter(req.query, { publicOnly });
 
+  const query = CyberLab.find(filter).sort(SORT_ORDER).skip(skip).limit(limit);
+  if (publicOnly) {
+    query.select(PUBLIC_CYBERLAB_PROJECTION);
+  }
+
   const [labs, total] = await Promise.all([
-    CyberLab.find(filter).sort(SORT_ORDER).skip(skip).limit(limit),
+    query,
     CyberLab.countDocuments(filter),
   ]);
 
@@ -73,11 +81,13 @@ const getFeaturedCyberLabs = catchAsync(async (req, res) => {
 
   const labs = await CyberLab.find({
     isActive: true,
+    status: "completed",
     isFeatured: true,
     isDeleted: { $ne: true },
   })
     .sort(SORT_ORDER)
-    .limit(limit);
+    .limit(limit)
+    .select(PUBLIC_CYBERLAB_PROJECTION);
 
   res.status(200).json({
     status: "success",
@@ -89,6 +99,7 @@ const getCyberLabBySlug = catchAsync(async (req, res, next) => {
   const lab = await CyberLab.findOne({
     slug: req.params.slug,
     isActive: true,
+    status: "completed",
     isDeleted: { $ne: true },
   });
 

@@ -9,7 +9,11 @@ const PORT = process.env.PORT || 5000;
 async function startServer() {
   try {
     validateEnv();
-    await mongoose.connect(process.env.MONGO_URI);
+    await mongoose.connect(process.env.MONGO_URI, {
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 30000,
+      maxPoolSize: 10,
+    });
     console.log("MongoDB connected successfully");
 
     app.listen(PORT, () => {
