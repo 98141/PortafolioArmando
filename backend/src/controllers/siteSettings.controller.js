@@ -2,6 +2,7 @@ const SiteSettings = require("../models/siteSettings.model");
 const catchAsync = require("../utils/catchAsync");
 const { validateCanonicalBaseUrl } = require("../utils/canonicalUrl");
 const { writeAudit } = require("../services/audit.service");
+const { deleteFromCloudinary } = require("../services/upload.service");
 
 const SETTINGS_KEY = "global";
 
@@ -121,8 +122,35 @@ const updateAdminSiteSettings = catchAsync(async (req, res) => {
   });
 });
 
+const deleteCv = catchAsync(async (req, res) => {
+  const settings = await getOrCreateSingleton();
+  const publicId = settings.cv?.publicId;
+
+  if (publicId) {
+    await deleteFromCloudinary(publicId, "raw", "cv-delete");
+  }
+
+  await SiteSettings.findOneAndUpdate(
+    { singletonKey: SETTINGS_KEY },
+    { $unset: { cv: 1 }, $set: { updatedBy: req.user?._id } },
+    { new: true }
+  );
+
+  await writeAudit({
+    actor: req.user,
+    action: "site_settings.cv_delete",
+    entityType: "site_settings",
+    entityId: settings._id,
+    req,
+    severity: "info",
+  });
+
+  res.status(200).json({ status: "success" });
+});
+
 module.exports = {
   getPublicSiteSettings,
   getAdminSiteSettings,
   updateAdminSiteSettings,
+  deleteCv,
 };

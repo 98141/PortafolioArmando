@@ -16,4 +16,8 @@ export const siteSettingsService = {
     const { data } = await api.put<SiteSettingsResponse>("/admin/site-settings", payload);
     return data.data.settings;
   },
+
+  async deleteCv() {
+    await api.delete("/admin/site-settings/cv");
+  },
 };

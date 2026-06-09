@@ -8,6 +8,7 @@ const {
 const { validateDeletePayload } = require("../utils/validateUploadDelete");
 const { writeAudit } = require("../services/audit.service");
 const { logSecurityEvent } = require("../utils/securityLogger");
+const SiteSettings = require("../models/siteSettings.model");
 
 const requireFile = (req) => {
   if (!req.file) {
@@ -100,7 +101,32 @@ const uploadAuthorAvatar = catchAsync(async (req, res) => {
 
 const uploadCvPdf = catchAsync(async (req, res) => {
   const file = requireFile(req);
+
+  const existing = await SiteSettings.findOne({ singletonKey: "global" });
+  if (existing?.cv?.publicId) {
+    try {
+      await deleteFromCloudinary(existing.cv.publicId, "raw", "cv-replace");
+    } catch (_) {}
+  }
+
   const data = await uploadPdfToCloudinary(file, "portfolio/cv", "cv");
+
+  await SiteSettings.findOneAndUpdate(
+    { singletonKey: "global" },
+    {
+      $set: {
+        cv: {
+          url: data.secureUrl,
+          publicId: data.publicId,
+          fileName: data.originalName,
+          updatedAt: new Date(),
+        },
+        updatedBy: req.user?._id,
+      },
+    },
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  );
+
   await respondUpload(req, res, data, "cv");
 });
 

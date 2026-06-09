@@ -9,7 +9,9 @@
       "Bash(dir \"c:\\\\Users\\\\Asus ExpertBook\\\\Desktop\\\\Desarrollo_MBT\\\\PortafolioArmando\\\\frontend\\\\node_modules\\\\next\\\\dist\\\\docs\\\\01-app\\\\03-api-reference\")",
       "Bash(dir \"c:\\\\Users\\\\Asus ExpertBook\\\\Desktop\\\\Desarrollo_MBT\\\\PortafolioArmando\\\\frontend\\\\node_modules\\\\next\\\\dist\\\\docs\\\\01-app\\\\03-api-reference\\\\03-file-conventions\")",
       "Bash(del \"c:\\\\Users\\\\Asus ExpertBook\\\\Desktop\\\\Desarrollo_MBT\\\\PortafolioArmando\\\\frontend\\\\src\\\\middleware.ts\")",
-      "Bash(node -e \"require\\('./src/app'\\)\")"
+      "Bash(node -e \"require\\('./src/app'\\)\")",
+      "Bash(Get-ChildItem -Path . -Force)",
+      "Bash(Select-Object Name, FullName)"
     ]
   }
 }

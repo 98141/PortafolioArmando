@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -67,7 +67,7 @@ export default function EducationTimeline() {
             <div className="space-y-8">
               {entries.map((entry, i) => (
                 <article key={entry._id} className="relative sm:pl-12">
-                  <div className="absolute left-2.5 top-1.5 hidden h-3 w-3 rounded-full border-2 border-cyan-400 bg-[#050508] sm:block" />
+                  <div className="absolute left-2.5 top-1.5 hidden h-3 w-3 rounded-full border-2 border-cyan-400 bg-[#080c18] sm:block" />
                   <EducationEntryCard
                     entry={entry}
                     showAchievements={i === 0 ? 2 : undefined}

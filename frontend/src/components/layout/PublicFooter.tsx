@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { Mail } from "lucide-react";
 import { navLinks, profile, socialLinks } from "@/src/data/portfolioData";
 import { GithubIcon, LinkedinIcon } from "@/src/components/ui/SocialIcons";
@@ -33,7 +33,7 @@ export default function PublicFooter({ settings }: { settings?: SiteSettings }) 
       : socialLinks;
 
   return (
-    <footer className="border-t border-white/5 bg-[#050508]/90">
+    <footer className="border-t border-white/5 bg-[#080c18]/90">
       <div className="mx-auto max-w-6xl px-4 py-12 lg:px-8">
         <div className="grid gap-10 md:grid-cols-3">
           <div>

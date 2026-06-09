@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -52,7 +52,7 @@ export default function EducationPageClient() {
             />
             {entries.map((entry) => (
               <article key={entry._id} className="relative pl-12">
-                <div className="absolute left-3 top-2 h-4 w-4 rounded-full border-2 border-cyan-400 bg-[#050508] shadow-[0_0_12px_rgba(34,211,238,0.4)]" />
+                <div className="absolute left-3 top-2 h-4 w-4 rounded-full border-2 border-cyan-400 bg-[#080c18] shadow-[0_0_12px_rgba(34,211,238,0.4)]" />
                 <EducationEntryCard entry={entry} />
               </article>
             ))}

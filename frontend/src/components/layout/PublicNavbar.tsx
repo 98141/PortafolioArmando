@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -22,7 +22,7 @@ export default function PublicNavbar({ brandName }: PublicNavbarProps) {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/5 bg-[#050508]/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-white/5 bg-[#080c18]/80 backdrop-blur-xl">
       <nav
         className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 lg:px-8"
         aria-label="Navegación principal"
@@ -77,7 +77,7 @@ export default function PublicNavbar({ brandName }: PublicNavbarProps) {
       {open && (
         <div
           id="mobile-menu"
-          className="border-t border-white/5 bg-[#050508]/95 px-4 py-4 lg:hidden"
+          className="border-t border-white/5 bg-[#080c18]/95 px-4 py-4 lg:hidden"
         >
           <ul className="space-y-1">
             {navLinks.map((link) => (

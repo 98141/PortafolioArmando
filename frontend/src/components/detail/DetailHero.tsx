@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 interface DetailHeroProps {
   title: string;
@@ -9,7 +9,7 @@ interface DetailHeroProps {
 
 export default function DetailHero({ title, subtitle, description, breadcrumb }: DetailHeroProps) {
   return (
-    <header className="border-b border-white/5 bg-[#050508]/60 px-4 py-8 lg:px-8">
+    <header className="border-b border-white/5 bg-[#080c18]/60 px-4 py-8 lg:px-8">
       <div className="mx-auto max-w-5xl">
         <nav className="mb-4 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
           {breadcrumb.map((item, i) => (
