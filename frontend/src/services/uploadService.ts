@@ -1,5 +1,4 @@
 import { api } from "@/src/services/api";
-import type { InternalAxiosRequestConfig } from "axios";
 
 export type UploadResourceType = "image" | "raw";
 
@@ -15,21 +14,35 @@ export interface UploadResponse {
 
 type UploadFile = File;
 
-/** Upload requests must never be retried by the auth refresh interceptor. */
-const uploadRequestConfig = (): InternalAxiosRequestConfig & { _retry?: boolean } =>
-  ({ _retry: true }) as InternalAxiosRequestConfig & { _retry?: boolean };
+const resolveUploadBase = () =>
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
 
+/**
+ * Uses native fetch instead of the axios instance so the browser sets
+ * Content-Type: multipart/form-data with the correct boundary automatically.
+ * The axios instance default "Content-Type: application/json" would otherwise
+ * prevent multer from parsing the multipart body.
+ */
 const uploadTo = async (url: string, file: UploadFile): Promise<UploadResponse> => {
   const formData = new FormData();
   formData.append("file", file);
 
-  const { data } = await api.post<{ status: string; data: UploadResponse }>(
-    url,
-    formData,
-    uploadRequestConfig()
-  );
+  const response = await fetch(`${resolveUploadBase()}${url}`, {
+    method: "POST",
+    body: formData,
+    credentials: "include",
+  });
 
-  return data.data;
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({})) as { message?: string };
+    const err = Object.assign(new Error(body?.message || "Upload failed"), {
+      response: { data: body, status: response.status },
+    });
+    throw err;
+  }
+
+  const json = (await response.json()) as { status: string; data: UploadResponse };
+  return json.data;
 };
 
 export const uploadService = {
