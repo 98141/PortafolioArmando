@@ -1,4 +1,5 @@
 import { FileText, Shield } from "lucide-react";
+import Link from "next/link";
 import type { CyberLab } from "@/src/types/cyberLab";
 import { cyberLabCategoryLabels } from "@/src/lib/cyberLabLabels";
 import GlassCard from "@/src/components/ui/GlassCard";
@@ -25,7 +26,11 @@ export default function CyberLabCard({ lab }: CyberLabCardProps) {
         <CyberSeverityBadge severity={lab.severity} />
       </div>
 
-      <h3 className="mt-4 text-lg font-semibold text-zinc-100">{lab.title}</h3>
+      <h3 className="mt-4 text-lg font-semibold text-zinc-100">
+        <Link href={`/cybersecurity/${lab.slug}`} className="hover:text-cyan-300">
+          {lab.title}
+        </Link>
+      </h3>
       {lab.subtitle && (
         <p className="mt-1 text-xs text-zinc-500">{lab.subtitle}</p>
       )}
@@ -61,17 +66,22 @@ export default function CyberLabCard({ lab }: CyberLabCardProps) {
 
       <div className="mt-5 flex items-center justify-between border-t border-white/5 pt-4 text-xs text-zinc-500">
         <span>{year}</span>
-        {lab.report?.url && (
-          <a
-            href={lab.report.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-purple-400 hover:text-purple-300"
-          >
-            <FileText className="h-3.5 w-3.5" aria-hidden="true" />
-            {lab.report.label ?? "Reporte PDF"}
-          </a>
-        )}
+        <div className="flex items-center gap-3">
+          <Link href={`/cybersecurity/${lab.slug}`} className="text-cyan-300 hover:text-cyan-200">
+            Ver detalle
+          </Link>
+          {lab.report?.url && (
+            <a
+              href={lab.report.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-purple-400 hover:text-purple-300"
+            >
+              <FileText className="h-3.5 w-3.5" aria-hidden="true" />
+              {lab.report.label ?? "Reporte PDF"}
+            </a>
+          )}
+        </div>
       </div>
     </GlassCard>
   );

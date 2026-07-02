@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -9,6 +9,7 @@ import {
   Award,
   GraduationCap,
   FileText,
+  Settings,
   LogOut,
   Menu,
   X,
@@ -20,9 +21,11 @@ const navItems = [
   { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { label: "Proyectos", href: "/admin/projects", icon: FolderKanban },
   { label: "Cyber Labs", href: "/admin/cyber-labs", icon: Shield },
-  { label: "Certificados", href: "#", icon: Award, disabled: true },
-  { label: "Educación", href: "#", icon: GraduationCap, disabled: true },
-  { label: "Blog", href: "#", icon: FileText, disabled: true },
+  { label: "Certificados", href: "/admin/certifications", icon: Award },
+  { label: "Educación", href: "/admin/education", icon: GraduationCap },
+  { label: "Blog", href: "/admin/blog", icon: FileText },
+  { label: "CV", href: "/admin/cv", icon: FileText },
+  { label: "Site Settings", href: "/admin/settings", icon: Settings },
 ];
 
 interface AdminLayoutProps {
@@ -41,7 +44,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#050508] text-zinc-100">
+    <div className="min-h-screen bg-[#080c18] text-zinc-100">
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -left-32 top-0 h-96 w-96 rounded-full bg-blue-600/10 blur-3xl" />
         <div className="absolute -right-32 bottom-0 h-96 w-96 rounded-full bg-purple-600/10 blur-3xl" />
@@ -75,19 +78,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 item.href === "/admin/dashboard"
                   ? pathname === item.href
                   : pathname.startsWith(item.href);
-
-              if (item.disabled) {
-                return (
-                  <span
-                    key={item.label}
-                    className="flex cursor-not-allowed items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-zinc-600"
-                  >
-                    <Icon className="h-4 w-4" />
-                    {item.label}
-                    <span className="ml-auto text-[10px] uppercase">Pronto</span>
-                  </span>
-                );
-              }
 
               return (
                 <Link

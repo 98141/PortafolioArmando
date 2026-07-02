@@ -8,6 +8,7 @@ const {
   createCyberLab,
   updateCyberLab,
   deleteCyberLab,
+  restoreCyberLab,
 } = require("../controllers/cyberLab.controller");
 const validateRequest = require("../middlewares/validateRequest");
 const protect = require("../middlewares/protect");
@@ -32,6 +33,7 @@ adminRouter.get("/", validateQuery, getAdminCyberLabs);
 adminRouter.get("/:id", getAdminCyberLabById);
 adminRouter.post("/", validateRequest(createCyberLabSchema), createCyberLab);
 adminRouter.patch("/:id", validateRequest(updateCyberLabSchema), updateCyberLab);
+adminRouter.post("/:id/restore", restoreCyberLab);
 adminRouter.delete("/:id", deleteCyberLab);
 
 module.exports = { publicRouter, adminRouter };

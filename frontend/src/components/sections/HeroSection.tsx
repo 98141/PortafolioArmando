@@ -6,7 +6,9 @@ import { ArrowRight, Download, Mail, Shield } from "lucide-react";
 import { mainLines, metrics, profile } from "@/src/data/portfolioData";
 import TechBadge from "@/src/components/ui/TechBadge";
 
-export default function HeroSection() {
+export default function HeroSection({ cvUrl }: { cvUrl?: string }) {
+  const effectiveCvUrl = cvUrl || profile.cvUrl;
+  const hasCv = Boolean(cvUrl);
   return (
     <section className="relative overflow-hidden px-4 pb-20 pt-16 lg:px-8 lg:pt-24">
       <div className="mx-auto max-w-6xl">
@@ -49,12 +51,17 @@ export default function HeroSection() {
               Ver laboratorios
             </Link>
             <a
-              href={profile.cvUrl}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm text-zinc-300 transition hover:border-white/20"
-              aria-label="Descargar CV (próximamente)"
+              href={effectiveCvUrl}
+              target={hasCv ? "_blank" : undefined}
+              rel={hasCv ? "noopener noreferrer" : undefined}
+              className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm text-zinc-300 transition hover:border-white/20 disabled:pointer-events-none disabled:opacity-60"
+              aria-label={hasCv ? "Descargar CV" : "CV no disponible"}
+              onClick={(e) => {
+                if (!hasCv) e.preventDefault();
+              }}
             >
               <Download className="h-4 w-4" aria-hidden="true" />
-              Descargar CV
+              {hasCv ? "Descargar CV" : "CV próximamente"}
             </a>
             <Link
               href="/contact"

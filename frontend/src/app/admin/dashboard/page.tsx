@@ -10,6 +10,7 @@ import {
   GraduationCap,
   Shield,
   ArrowRight,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/src/lib/cn";
 
@@ -35,24 +36,32 @@ const dashboardCards = [
     description: "Certificaciones profesionales",
     icon: Award,
     accent: "from-indigo-500/20 to-indigo-600/5",
-    href: "#",
-    active: false,
+    href: "/admin/certifications",
+    active: true,
   },
   {
     title: "Educación",
     description: "Formación académica y cursos",
     icon: GraduationCap,
     accent: "from-cyan-500/20 to-cyan-600/5",
-    href: "#",
-    active: false,
+    href: "/admin/education",
+    active: true,
   },
   {
     title: "Blog",
-    description: "Artículos técnicos y writeups",
+    description: "Knowledge Hub — artículos técnicos y writeups",
     icon: FileText,
     accent: "from-violet-500/20 to-violet-600/5",
-    href: "#",
-    active: false,
+    href: "/admin/blog",
+    active: true,
+  },
+  {
+    title: "Configuración",
+    description: "Site Settings, SEO default y CV público",
+    icon: Settings,
+    accent: "from-fuchsia-500/20 to-fuchsia-600/5",
+    href: "/admin/settings",
+    active: true,
   },
 ];
 
@@ -64,7 +73,7 @@ export default function AdminDashboardPage() {
           <div>
             <h2 className="text-2xl font-bold text-zinc-100">Dashboard</h2>
             <p className="mt-1 text-sm text-zinc-400">
-              Sprint 4 — CMS de proyectos y cyber labs activos. Otros módulos en próximos sprints.
+              Knowledge Hub — gestiona proyectos, labs, certificaciones, educación y blog técnico.
             </p>
           </div>
 

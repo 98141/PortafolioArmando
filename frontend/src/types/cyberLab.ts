@@ -24,12 +24,14 @@ export type CyberLabStatus = "planned" | "in_progress" | "completed" | "archived
 
 export interface CyberLabEvidence {
   url?: string;
+  publicId?: string;
   alt?: string;
   caption?: string;
 }
 
 export interface CyberLabReport {
   url?: string;
+  publicId?: string;
   label?: string;
 }
 
@@ -79,6 +81,7 @@ export interface CyberLabFormValues {
   tagsInput: string;
   reportUrl: string;
   reportLabel: string;
+  reportPublicId?: string;
   evidenceInput: string;
   isFeatured: boolean;
   isActive: boolean;

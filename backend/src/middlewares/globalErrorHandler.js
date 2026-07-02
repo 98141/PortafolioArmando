@@ -49,15 +49,7 @@ const globalErrorHandler = (err, req, res, _next) => {
   err.status = err.status || "error";
 
   if (process.env.NODE_ENV === "development") {
-    let error = { ...err, message: err.message, name: err.name };
-
-    if (err.name === "CastError") error = handleCastErrorDB();
-    if (err.code === 11000) error = handleDuplicateFieldsDB(err);
-    if (err.name === "ValidationError") error = handleValidationErrorDB(err);
-    if (err.name === "JsonWebTokenError") error = handleJWTError();
-    if (err.name === "TokenExpiredError") error = handleJWTExpiredError();
-
-    return sendErrorDev(error, res);
+    return sendErrorDev(err, res);
   }
 
   let error = { ...err, message: err.message, name: err.name };
@@ -65,6 +57,9 @@ const globalErrorHandler = (err, req, res, _next) => {
   if (err.name === "CastError") error = handleCastErrorDB();
   if (err.code === 11000) error = handleDuplicateFieldsDB(err);
   if (err.name === "ValidationError") error = handleValidationErrorDB(err);
+  if (err.code === "LIMIT_FILE_SIZE") error = new AppError("File too large", 413);
+  if (err.code === "LIMIT_UNEXPECTED_FILE")
+    error = new AppError("Unexpected file field", 400);
   if (err.name === "JsonWebTokenError") error = handleJWTError();
   if (err.name === "TokenExpiredError") error = handleJWTExpiredError();
 

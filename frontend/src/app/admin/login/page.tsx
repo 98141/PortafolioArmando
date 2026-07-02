@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -50,14 +50,14 @@ export default function AdminLoginPage() {
 
   if (!isInitialized) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#050508]">
+      <div className="flex min-h-screen items-center justify-center bg-[#080c18]">
         <div className="h-10 w-10 animate-spin rounded-full border-2 border-blue-500/30 border-t-blue-400" />
       </div>
     );
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#050508] px-4">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#080c18] px-4">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-1/4 top-1/4 h-72 w-72 rounded-full bg-blue-600/15 blur-3xl" />
         <div className="absolute bottom-1/4 right-1/4 h-72 w-72 rounded-full bg-purple-600/15 blur-3xl" />

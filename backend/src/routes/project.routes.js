@@ -8,6 +8,7 @@ const {
   createProject,
   updateProject,
   deleteProject,
+  restoreProject,
 } = require("../controllers/project.controller");
 const validateRequest = require("../middlewares/validateRequest");
 const protect = require("../middlewares/protect");
@@ -32,6 +33,7 @@ adminRouter.get("/", validateQuery, getAdminProjects);
 adminRouter.get("/:id", getAdminProjectById);
 adminRouter.post("/", validateRequest(createProjectSchema), createProject);
 adminRouter.patch("/:id", validateRequest(updateProjectSchema), updateProject);
+adminRouter.post("/:id/restore", restoreProject);
 adminRouter.delete("/:id", deleteProject);
 
 module.exports = { publicRouter, adminRouter };

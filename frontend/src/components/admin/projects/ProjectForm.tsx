@@ -3,6 +3,7 @@
 import { Star } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMemo } from "react";
 import { projectFormSchema } from "@/src/lib/validations/project";
 import {
   defaultProjectFormValues,
@@ -12,6 +13,8 @@ import type { ProjectFormValues } from "@/src/types/project";
 import { projectCategoryLabels, projectStatusLabels } from "@/src/lib/projectLabels";
 import type { ProjectCategory, ProjectStatus } from "@/src/types/project";
 import { cn } from "@/src/lib/cn";
+import FileUploadField from "@/src/components/admin/uploads/FileUploadField";
+import type { UploadResponse } from "@/src/services/uploadService";
 
 const inputClass =
   "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm outline-none transition focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20";
@@ -37,6 +40,8 @@ export default function ProjectForm({
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<ProjectFormValues>({
     resolver: zodResolver(projectFormSchema),
@@ -46,6 +51,22 @@ export default function ProjectForm({
   const handleFormSubmit = async (values: ProjectFormValues) => {
     await onSubmit(formValuesToPayload(values));
   };
+
+  const imageUrl = watch("imageUrl");
+  const imagePublicId = watch("imagePublicId") || "";
+  const imagePreviewValue: UploadResponse | null = useMemo(
+    () =>
+      imageUrl
+        ? {
+            url: imageUrl,
+            secureUrl: imageUrl,
+            publicId: imagePublicId,
+            resourceType: "image",
+            originalName: "Imagen de proyecto",
+          }
+        : null,
+    [imageUrl, imagePublicId]
+  );
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-8" noValidate>
@@ -184,9 +205,6 @@ export default function ProjectForm({
 
       <section className="glass-panel space-y-4 rounded-2xl p-6">
         <h2 className="font-semibold text-zinc-100">Imagen y enlaces</h2>
-        <p className="text-xs text-zinc-500">
-          URLs por ahora. Subida Cloudinary en sprint posterior.
-        </p>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="imageUrl" className={labelClass}>
@@ -196,6 +214,7 @@ export default function ProjectForm({
             {errors.imageUrl && (
               <p className="mt-1 text-xs text-red-400">{errors.imageUrl.message}</p>
             )}
+            <input type="hidden" {...register("imagePublicId")} />
           </div>
           <div>
             <label htmlFor="imageAlt" className={labelClass}>
@@ -203,6 +222,29 @@ export default function ProjectForm({
             </label>
             <input id="imageAlt" className={inputClass} {...register("imageAlt")} />
           </div>
+
+          <div className="sm:col-span-2">
+            <FileUploadField
+              label="Subir imagen (Cloudinary)"
+              value={imagePreviewValue}
+              onChange={(asset) => {
+                setValue("imageUrl", asset?.secureUrl || asset?.url || "", {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                });
+                setValue("imagePublicId", asset?.publicId || "", {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                });
+              }}
+              uploadType="project-image"
+              accept="image/png,image/jpeg,image/webp,image/gif"
+              maxSize={5 * 1024 * 1024}
+              helperText="Puedes subir una imagen o pegar una URL manual."
+              previewType="image"
+            />
+          </div>
+
           <div>
             <label htmlFor="linksDemo" className={labelClass}>
               Demo

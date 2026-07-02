@@ -3,6 +3,7 @@ import type {
   CyberLab,
   EducationEntry,
   ExpertiseArea,
+  LegacyBlogPost,
   Metric,
   NavLink,
   Project,
@@ -38,6 +39,7 @@ export const navLinks: NavLink[] = [
   { label: "Ciberseguridad", href: "/cybersecurity" },
   { label: "Certificaciones", href: "/certifications" },
   { label: "Educación", href: "/education" },
+  { label: "Blog", href: "/blog" },
   { label: "Sobre mí", href: "/about" },
   { label: "Contacto", href: "/contact" },
 ];
@@ -424,6 +426,48 @@ export const aboutStory = {
     "Mi propuesta de valor es cerrar la brecha entre desarrollo y seguridad para que los equipos entreguen productos confiables desde el primer sprint.",
 };
 
+export const blogPosts: LegacyBlogPost[] = [
+  {
+    id: "secure-jwt-cookies",
+    title: "JWT en cookies httpOnly: guía práctica para MERN",
+    excerpt:
+      "Patrones de autenticación segura con access/refresh tokens, rotación y mitigación de XSS en aplicaciones full stack modernas.",
+    content:
+      "## Contexto\n\nEn aplicaciones MERN, almacenar tokens en `localStorage` expone la sesión a XSS.\n\n## Recomendación\n\nUsar cookies **httpOnly**, **Secure** y **SameSite** con refresh rotation.\n\n```js\nres.cookie('accessToken', token, { httpOnly: true, secure: true });\n```\n\n## Conclusión\n\nLa seguridad de sesión empieza en el diseño, no en parches tardíos.",
+    category: "appsec",
+    tags: ["jwt", "mern", "auth"],
+    date: "2026-03-01",
+    readingTime: 8,
+    featured: true,
+  },
+  {
+    id: "owasp-top10-review",
+    title: "OWASP Top 10 en revisión de código",
+    excerpt:
+      "Checklist accionable para code reviews orientados a AppSec sin frenar la entrega del equipo de desarrollo.",
+    content:
+      "## Enfoque\n\nPriorizar hallazgos por impacto y explotabilidad.\n\n- Validación de entrada\n- Control de acceso\n- Gestión de secretos\n\n## Cierre\n\nIntegrar seguridad en el SDLC reduce costo de remediación.",
+    category: "cybersecurity",
+    tags: ["owasp", "code-review"],
+    date: "2026-02-15",
+    readingTime: 6,
+    featured: true,
+  },
+  {
+    id: "nextjs-app-router-cms",
+    title: "Arquitectura CMS con Next.js App Router",
+    excerpt:
+      "Cómo estructurar un knowledge hub técnico con API REST, React Query y panel admin modular.",
+    content:
+      "## Capas\n\n1. API Express + MongoDB\n2. Servicios tipados en frontend\n3. Admin CRUD con validación Zod\n\n## Resultado\n\nPlataforma mantenible tipo engineering blog enterprise.",
+    category: "development",
+    tags: ["nextjs", "cms", "architecture"],
+    date: "2026-01-20",
+    readingTime: 10,
+  },
+];
+
 export const featuredProjects = projects.filter((p) => p.featured).slice(0, 3);
 export const featuredLabs = cyberLabs.filter((l) => l.featured).slice(0, 3);
 export const featuredCertifications = certifications.slice(0, 4);
+export const featuredBlogPosts = blogPosts.filter((p) => p.featured).slice(0, 3);

@@ -20,16 +20,45 @@ export const joinLines = (items: string[] = []): string => items.join("\n");
 export const parseEvidenceInput = (value: string): CyberLabEvidence[] => {
   const items: CyberLabEvidence[] = [];
   for (const line of parseLines(value)) {
-    const [url, alt, caption] = line.split("|").map((p) => p.trim());
+    const parts = line.split("|").map((p) => p.trim());
+    const url = parts[0];
     if (!url) continue;
-    items.push({ url, alt: alt || undefined, caption: caption || undefined });
+
+    // Backwards compatible:
+    // - legacy: url|alt|caption
+    // - new:    url|publicId|alt|caption
+    if (parts.length >= 4) {
+      const publicId = parts[1];
+      const alt = parts[2];
+      const caption = parts[3];
+      items.push({
+        url,
+        publicId: publicId || undefined,
+        alt: alt || undefined,
+        caption: caption || undefined,
+      });
+    } else {
+      const alt = parts[1];
+      const caption = parts[2];
+      items.push({
+        url,
+        publicId: undefined,
+        alt: alt || undefined,
+        caption: caption || undefined,
+      });
+    }
   }
   return items;
 };
 
 export const formatEvidenceInput = (evidence: CyberLabEvidence[] = []): string =>
   evidence
-    .map((e) => [e.url ?? "", e.alt ?? "", e.caption ?? ""].join("|"))
+    .map((e) => {
+      if (e.publicId) {
+        return [e.url ?? "", e.publicId ?? "", e.alt ?? "", e.caption ?? ""].join("|");
+      }
+      return [e.url ?? "", e.alt ?? "", e.caption ?? ""].join("|");
+    })
     .join("\n");
 
 export const formValuesToPayload = (values: CyberLabFormValues) => {
@@ -56,6 +85,7 @@ export const formValuesToPayload = (values: CyberLabFormValues) => {
   if (values.reportUrl) {
     payload.report = {
       url: values.reportUrl,
+      publicId: values.reportPublicId || undefined,
       label: values.reportLabel || "Security Report (PDF)",
     };
   }
@@ -86,6 +116,7 @@ export const labToFormValues = (lab: CyberLab): CyberLabFormValues => ({
   tagsInput: joinCommaList(lab.tags),
   reportUrl: lab.report?.url ?? "",
   reportLabel: lab.report?.label ?? "",
+  reportPublicId: lab.report?.publicId ?? "",
   evidenceInput: formatEvidenceInput(lab.evidence),
   isFeatured: lab.isFeatured,
   isActive: lab.isActive,
@@ -110,6 +141,7 @@ export const defaultCyberLabFormValues: CyberLabFormValues = {
   tagsInput: "defensive, professional, documented",
   reportUrl: "",
   reportLabel: "Security Assessment Report",
+  reportPublicId: "",
   evidenceInput: "",
   isFeatured: false,
   isActive: true,

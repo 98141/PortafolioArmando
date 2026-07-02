@@ -377,3 +377,488 @@ Público. Detalle por slug (activo).
   "message": "Cyber lab deleted successfully"
 }
 ```
+
+---
+
+# Certifications (Sprint 5)
+
+## GET /certifications
+
+Público. Solo `isActive: true`.
+
+**Query:** `page`, `limit`, `category`, `status`, `isFeatured`, `search`
+
+**Response 200:**
+
+```json
+{
+  "status": "success",
+  "data": {
+    "certifications": [],
+    "pagination": { "page": 1, "limit": 12, "total": 0, "totalPages": 0 }
+  }
+}
+```
+
+Orden: `priority` ASC, `createdAt` DESC.
+
+---
+
+## GET /certifications/featured
+
+Público. Certificaciones con `isActive: true` e `isFeatured: true`.
+
+**Query:** `limit` (default 6, max 12)
+
+---
+
+## GET /certifications/:slug
+
+Público. Detalle por slug (activo).
+
+---
+
+## GET /admin/certifications
+
+**Admin** — Lista con filtros y paginación.
+
+---
+
+## GET /admin/certifications/:id
+
+**Admin** — Detalle por `_id`.
+
+---
+
+## POST /admin/certifications
+
+**Admin** — Crear certificación.
+
+**Body ejemplo:**
+
+```json
+{
+  "title": "CompTIA Security+",
+  "issuer": "CompTIA",
+  "credentialId": "ABC123",
+  "credentialUrl": "https://www.comptia.org/verify",
+  "badge": { "url": "https://example.com/badge.png", "alt": "Security+" },
+  "description": "Fundamentos de ciberseguridad.",
+  "category": "cybersecurity",
+  "skills": ["Network security", "Cryptography"],
+  "issuedAt": "2025-06-01T00:00:00.000Z",
+  "status": "active",
+  "isFeatured": true,
+  "isActive": true,
+  "priority": 10
+}
+```
+
+---
+
+## PATCH /admin/certifications/:id
+
+**Admin** — Actualización parcial.
+
+---
+
+## DELETE /admin/certifications/:id
+
+**Admin** — Hard delete.
+
+---
+
+# Education (Sprint 5)
+
+## GET /education
+
+Público. Solo `isActive: true`.
+
+**Query:** `page`, `limit`, `academicLevel`, `isFeatured`, `search`
+
+**Response 200:**
+
+```json
+{
+  "status": "success",
+  "data": {
+    "education": [],
+    "pagination": { "page": 1, "limit": 12, "total": 0, "totalPages": 0 }
+  }
+}
+```
+
+---
+
+## GET /education/featured
+
+Público. Entradas con `isActive: true` e `isFeatured: true`.
+
+**Query:** `limit` (default 6, max 12)
+
+---
+
+## GET /education/:slug
+
+Público. Detalle por slug (activo).
+
+---
+
+## GET /admin/education
+
+**Admin** — Lista con filtros y paginación.
+
+---
+
+## GET /admin/education/:id
+
+**Admin** — Detalle por `_id`.
+
+---
+
+## POST /admin/education
+
+**Admin** — Crear formación académica.
+
+**Body ejemplo:**
+
+```json
+{
+  "title": "Ingeniería en Sistemas",
+  "institution": "Universidad Centroamericana",
+  "academicLevel": "undergraduate",
+  "fieldOfStudy": "Ingeniería de software",
+  "achievements": ["Proyecto integrador full stack"],
+  "focusAreas": ["Desarrollo seguro", "Redes"],
+  "isCurrent": true,
+  "isFeatured": true,
+  "isActive": true,
+  "priority": 5
+}
+```
+
+---
+
+## PATCH /admin/education/:id
+
+**Admin** — Actualización parcial.
+
+---
+
+## DELETE /admin/education/:id
+
+**Admin** — Hard delete.
+
+---
+
+# Blog / Knowledge Hub (Sprint 6)
+
+## GET /blog
+
+Público. Solo `isActive: true` y `status: published`. No incluye `content` Markdown completo (para reducir payload).
+
+**Query:** `page`, `limit`, `category`, `tag`, `isFeatured`, `search`
+
+**Response 200:**
+
+```json
+{
+  "status": "success",
+  "data": {
+    "posts": [],
+    "pagination": { "page": 1, "limit": 12, "total": 0, "totalPages": 0 }
+  }
+}
+```
+
+Orden: `priority` ASC, `publishedAt` DESC, `createdAt` DESC.
+
+`readingTime` se calcula automáticamente desde `content` (~200 palabras/min).
+
+---
+
+## GET /blog/featured
+
+Público. Posts publicados, activos y destacados. No incluye `content`.
+
+**Query:** `limit` (default 6, max 12)
+
+---
+
+## GET /blog/:slug
+
+Público. Detalle por slug (publicado y activo). Incluye `content` Markdown completo.
+
+---
+
+## GET /admin/blog
+
+**Admin** — Lista con filtros (incluye drafts).
+
+---
+
+## GET /admin/blog/:id
+
+**Admin** — Detalle por `_id`.
+
+---
+
+## POST /admin/blog
+
+**Admin** — Crear artículo.
+
+**Body ejemplo:**
+
+```json
+{
+  "title": "JWT en cookies httpOnly: guía práctica",
+  "excerpt": "Patrones de autenticación segura con access/refresh tokens y rotación.",
+  "content": "## Introducción\n\nContenido en Markdown...",
+  "category": "appsec",
+  "tags": ["jwt", "mern", "auth"],
+  "status": "published",
+  "seo": {
+    "title": "JWT httpOnly MERN",
+    "description": "Guía de auth segura"
+  },
+  "author": {
+    "name": "Armando Mora",
+    "role": "Software Developer | Cybersecurity Specialist"
+  },
+  "isFeatured": true,
+  "isActive": true,
+  "priority": 10
+}
+```
+
+---
+
+## PATCH /admin/blog/:id
+
+**Admin** — Actualización parcial.
+
+---
+
+## DELETE /admin/blog/:id
+
+**Admin** — Hard delete.
+
+**Response 200:**
+
+```json
+{
+  "status": "success",
+  "message": "Blog post deleted successfully"
+}
+```
+
+---
+
+# Uploads Admin (Cloudinary) (Sprint 7)
+
+Base path: `POST/DELETE /api/admin/uploads`
+
+Requisitos comunes:
+- Acceso **Admin** (JWT en cookies, `protect` + `restrictTo("admin")`)
+- `multipart/form-data` con campo `file`
+- **Rate limit**: 10 uploads por IP / 15 min (solo POST)
+- Validaciones: extensión peligrosa, `mimetype`, **magic bytes** (`file-type`), tamaño
+- Endpoints de imagen rechazan PDF; endpoints PDF rechazan imágenes
+
+## POST /admin/uploads/project-image
+
+Imagen. Tipo: `image/jpeg|image/png|image/webp|image/gif`. Magic bytes validados. Tamaño máx: `5MB`.
+
+## POST /admin/uploads/cyber-evidence
+
+Imagen. Tipo: `image/jpeg|image/png|image/webp|image/gif`. Magic bytes validados. Tamaño máx: `5MB`.
+
+## POST /admin/uploads/cyber-report
+
+PDF. Tipo: `application/pdf`. Magic bytes validados. Tamaño máx: `10MB`.
+
+## POST /admin/uploads/certification-badge
+
+Imagen. Tipo: `image/jpeg|image/png|image/webp|image/gif`. Magic bytes validados. Tamaño máx: `5MB`.
+
+## POST /admin/uploads/education-logo
+
+Imagen. Tipo: `image/jpeg|image/png|image/webp|image/gif`. Magic bytes validados. Tamaño máx: `5MB`.
+
+## POST /admin/uploads/blog-cover
+
+Imagen. Tipo: `image/jpeg|image/png|image/webp|image/gif`. Magic bytes validados. Tamaño máx: `5MB`.
+
+## POST /admin/uploads/author-avatar
+
+Imagen. Tipo: `image/jpeg|image/png|image/webp|image/gif`. Magic bytes validados. Tamaño máx: `5MB`.
+
+## POST /admin/uploads/cv
+
+PDF. Tipo: `application/pdf`. Magic bytes validados. Tamaño máx: `10MB`.
+
+## DELETE /admin/uploads
+
+Admin. Elimina un asset en Cloudinary.
+
+**Reglas:**
+- `resourceType` solo `image` o `raw`
+- `publicId` debe comenzar con `portfolio/`
+- Rechaza IDs fuera del namespace o con caracteres inválidos
+
+**Body ejemplo:**
+```json
+{
+  "publicId": "portfolio/asset-public-id",
+  "resourceType": "image|raw"
+}
+```
+
+## Respuesta estándar (success)
+
+```json
+{
+  "status": "success",
+  "data": {
+    "url": "...",
+    "secureUrl": "...",
+    "publicId": "...",
+    "resourceType": "image|raw",
+    "format": "...",
+    "bytes": 12345,
+    "originalName": "..."
+  }
+}
+```
+
+---
+
+# Site Settings (Sprint 8)
+
+## GET /site-settings
+
+Público. Devuelve configuración pública del sitio (perfil, branding, CV, SEO, redes activas, disponibilidad).
+
+**Notas:**
+- Endpoint seguro para consumo público.
+- Devuelve fallback vacío si no hay configuración previa.
+
+## GET /admin/site-settings
+
+Admin. Obtiene el documento singleton de configuración para edición.
+
+## PUT /admin/site-settings
+
+Admin. Crea/actualiza el singleton activo de Site Settings.
+
+**Reglas:**
+- Solo un documento activo (`isActive: true`).
+- URLs y email validados en backend.
+- `social` ordenable por `priority`.
+
+**Body base (resumen):**
+```json
+{
+  "profile": {
+    "fullName": "Armando Mora",
+    "professionalTitle": "Software Developer | Cybersecurity Specialist",
+    "email": "contacto@armandomora.dev",
+    "linkedin": "https://linkedin.com/in/armandomora"
+  },
+  "branding": {
+    "logo": { "url": "https://..." },
+    "avatar": { "url": "https://..." }
+  },
+  "cv": {
+    "url": "https://res.cloudinary.com/.../portfolio/cv.pdf",
+    "publicId": "portfolio/cv/..."
+  },
+  "seo": {
+    "siteName": "Armando Mora",
+    "defaultTitle": "Armando Mora | Software & Cybersecurity",
+    "defaultDescription": "Portafolio profesional",
+    "canonicalBaseUrl": "https://armandomora.dev"
+  },
+  "social": [
+    {
+      "platform": "linkedin",
+      "label": "LinkedIn",
+      "url": "https://linkedin.com/in/armandomora",
+      "isActive": true,
+      "priority": 10
+    }
+  ],
+  "availability": {
+    "status": "available",
+    "message": "Disponible para proyectos selectivos"
+  }
+}
+```
+
+---
+
+# SEO Runtime (Sprint 8)
+
+- `sitemap.xml` (`frontend/src/app/sitemap.ts`):
+  - Incluye rutas estáticas públicas.
+  - Incluye slugs dinámicos de proyectos, cyber labs, certificaciones, educación y blog published.
+  - Si la API falla, conserva rutas estáticas mínimas.
+- `robots.txt` (`frontend/src/app/robots.ts`):
+  - Permite indexado público.
+  - Bloquea `/admin`.
+  - Expone URL de sitemap.
+- `rss.xml` (`frontend/src/app/rss.xml/route.ts`):
+  - Feed RSS de posts published del blog.
+- OG image fallback: ogImage → avatar → logo (Site Settings).
+
+---
+
+# Production Hardening (Sprint FINAL)
+
+## GET /health
+
+Público. Estado operacional del API.
+
+**Respuesta:**
+```json
+{
+  "status": "success",
+  "data": {
+    "status": "ok",
+    "uptime": 123.45,
+    "timestamp": "2026-05-26T12:00:00.000Z",
+    "env": "production",
+    "dbConnected": true
+  }
+}
+```
+
+Headers: incluye `X-Request-Id`.
+
+## Soft delete y restore (CMS)
+
+Entidades: projects, cyber-labs, certifications, education, blog.
+
+**Delete admin:** soft delete (`isDeleted: true`).
+
+**Query admin:** `?includeDeleted=true` incluye eliminados.
+
+**Restore admin:** `POST /api/admin/{entity}/:id/restore`
+
+Público nunca expone registros con `isDeleted: true`.
+
+## Audit log
+
+Eventos persistidos en MongoDB (`AuditLog`). Escritura automática en CRUD CMS, uploads, auth y site settings.
+
+Acciones típicas: `{entity}.create`, `{entity}.update`, `{entity}.delete`, `{entity}.restore`, `upload.success`, `upload.delete`, `auth.login`, `auth.login_failed`, `site_settings.update`.
+
+## Site Settings singleton (refinado)
+
+- `singletonKey: "global"` unique index.
+- `PUT /admin/site-settings` upsert — un solo documento activo.
+- `canonicalBaseUrl` validado contra dominios permitidos (`ALLOWED_CANONICAL_HOSTS` o hostname de `FRONTEND_URL`).
+
+## Env obligatorias
+
+Ver `backend/src/config/env.js` y `docs/deployment.md`.

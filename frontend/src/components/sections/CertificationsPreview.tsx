@@ -1,17 +1,35 @@
-import Link from "next/link";
-import { ArrowRight, Award } from "lucide-react";
-import { featuredCertifications } from "@/src/data/portfolioData";
-import GlassCard from "@/src/components/ui/GlassCard";
-import SectionHeader from "@/src/components/ui/SectionHeader";
-import TechBadge from "@/src/components/ui/TechBadge";
+"use client";
 
-const statusMap = {
-  completed: { label: "Completada", variant: "status" as const },
-  "in-progress": { label: "En curso", variant: "cyan" as const },
-  planned: { label: "Planificada", variant: "default" as const },
-};
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { certificationService } from "@/src/services/certificationService";
+import { featuredCertifications as fallbackFeatured } from "@/src/data/portfolioData";
+import { mapLegacyCertification } from "@/src/lib/legacyCertificationMapper";
+import type { Certification } from "@/src/types/certification";
+import SectionHeader from "@/src/components/ui/SectionHeader";
+import CertificationCard from "@/src/components/portfolio/CertificationCard";
 
 export default function CertificationsPreview() {
+  const [fallback, setFallback] = useState<Certification[] | null>(null);
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["featured-certifications"],
+    queryFn: () => certificationService.getFeaturedCertifications(4),
+    staleTime: 60_000,
+    retry: 1,
+  });
+
+  useEffect(() => {
+    if (isError) {
+      setFallback(fallbackFeatured.map(mapLegacyCertification));
+    }
+  }, [isError]);
+
+  const certifications = data ?? fallback ?? [];
+  const showFallbackNote = isError && fallback;
+
   return (
     <section className="px-4 py-16 lg:px-8">
       <div className="mx-auto max-w-6xl">
@@ -30,27 +48,23 @@ export default function CertificationsPreview() {
           </Link>
         </div>
 
-        <div className="mt-10 grid gap-4 sm:grid-cols-2">
-          {featuredCertifications.map((cert) => {
-            const st = statusMap[cert.status];
-            return (
-              <GlassCard key={cert.id} className="flex gap-4 p-5" hover>
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/10">
-                  <Award className="h-5 w-5 text-amber-400" aria-hidden="true" />
-                </div>
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="font-medium text-zinc-100">{cert.title}</h3>
-                    <TechBadge label={st.label} variant={st.variant} />
-                  </div>
-                  <p className="mt-1 text-sm text-zinc-500">
-                    {cert.issuer} · {cert.date}
-                  </p>
-                </div>
-              </GlassCard>
-            );
-          })}
-        </div>
+        {showFallbackNote && (
+          <p className="mt-4 text-xs text-amber-200/80" role="status">
+            Datos de respaldo (API no disponible) — portfolioData.ts
+          </p>
+        )}
+
+        {isLoading && !fallback ? (
+          <div className="mt-10 flex justify-center py-12">
+            <div className="h-10 w-10 animate-spin rounded-full border-2 border-amber-500/30 border-t-amber-400" />
+          </div>
+        ) : (
+          <div className="mt-10 grid gap-4 sm:grid-cols-2">
+            {certifications.map((cert) => (
+              <CertificationCard key={cert._id} certification={cert} compact />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

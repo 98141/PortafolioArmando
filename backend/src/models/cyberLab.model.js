@@ -1,9 +1,11 @@
 const mongoose = require("mongoose");
 const slugify = require("../utils/slugify");
+const { softDeleteFields } = require("../utils/softDelete");
 
 const evidenceSchema = new mongoose.Schema(
   {
     url: { type: String, trim: true },
+    publicId: { type: String, trim: true },
     alt: { type: String, trim: true, maxlength: 200 },
     caption: { type: String, trim: true, maxlength: 300 },
   },
@@ -13,6 +15,7 @@ const evidenceSchema = new mongoose.Schema(
 const reportSchema = new mongoose.Schema(
   {
     url: { type: String, trim: true },
+    publicId: { type: String, trim: true },
     label: { type: String, trim: true, maxlength: 150 },
   },
   { _id: false }
@@ -105,6 +108,7 @@ const cyberLabSchema = new mongoose.Schema(
     completedAt: { type: Date },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    ...softDeleteFields,
   },
   {
     timestamps: true,

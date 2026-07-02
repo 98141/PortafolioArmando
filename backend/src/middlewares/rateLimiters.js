@@ -26,7 +26,20 @@ const loginRateLimit = rateLimit({
   skipSuccessfulRequests: false,
 });
 
+/** POST upload endpoints only — DELETE is not counted toward this limit. */
+const uploadRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: rateLimitResponse(
+    "Too many upload attempts, please try again in 15 minutes."
+  ),
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: false,
+});
+
 module.exports = {
   authRateLimit,
   loginRateLimit,
+  uploadRateLimit,
 };

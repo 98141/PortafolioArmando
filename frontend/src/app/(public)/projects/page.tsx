@@ -1,12 +1,19 @@
 import type { Metadata } from "next";
 import PageHero from "@/src/components/portfolio/PageHero";
 import ProjectsGrid from "@/src/components/portfolio/ProjectsGrid";
+import { getPublicSiteSettings } from "@/src/lib/publicSiteSettings";
+import { buildMetadata } from "@/src/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Proyectos | Armando Mora",
-  description:
-    "Proyectos de desarrollo full stack, APIs, e-commerce y herramientas de seguridad.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getPublicSiteSettings();
+  return buildMetadata({
+    title: "Proyectos | Armando Mora",
+    description: "Proyectos de desarrollo full stack, APIs, e-commerce y herramientas de seguridad.",
+    path: "/projects",
+    seo: settings.seo,
+    branding: settings.branding,
+  });
+}
 
 export default function ProjectsPage() {
   return (

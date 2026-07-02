@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -7,7 +7,11 @@ import { Menu, Shield, X } from "lucide-react";
 import { navLinks, profile } from "@/src/data/portfolioData";
 import { cn } from "@/src/lib/cn";
 
-export default function PublicNavbar() {
+interface PublicNavbarProps {
+  brandName?: string;
+}
+
+export default function PublicNavbar({ brandName }: PublicNavbarProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -18,7 +22,7 @@ export default function PublicNavbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/5 bg-[#050508]/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-white/5 bg-[#080c18]/80 backdrop-blur-xl">
       <nav
         className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 lg:px-8"
         aria-label="Navegación principal"
@@ -28,8 +32,7 @@ export default function PublicNavbar() {
             <Shield className="h-4 w-4 text-white" aria-hidden="true" />
           </span>
           <span className="font-semibold text-zinc-100 transition group-hover:text-white">
-            {profile.name.split(" ")[0]}
-            <span className="text-gradient"> Mora</span>
+            {brandName || profile.name}
           </span>
         </Link>
 
@@ -74,7 +77,7 @@ export default function PublicNavbar() {
       {open && (
         <div
           id="mobile-menu"
-          className="border-t border-white/5 bg-[#050508]/95 px-4 py-4 lg:hidden"
+          className="border-t border-white/5 bg-[#080c18]/95 px-4 py-4 lg:hidden"
         >
           <ul className="space-y-1">
             {navLinks.map((link) => (

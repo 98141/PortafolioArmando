@@ -47,6 +47,7 @@ export const cyberLabFormSchema = z.object({
   tagsInput: z.string(),
   reportUrl: optionalUrl,
   reportLabel: z.string().trim().max(150),
+  reportPublicId: z.string().trim().optional(),
   evidenceInput: z.string(),
   isFeatured: z.boolean(),
   isActive: z.boolean(),

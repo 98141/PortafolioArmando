@@ -14,6 +14,7 @@ let refreshPromise: Promise<void> | null = null;
 const shouldSkipRefresh = (url?: string) => {
   if (!url) return true;
   return (
+    url.includes("/admin/uploads") ||
     url.includes("/auth/login") ||
     url.includes("/auth/register-admin") ||
     url.includes("/auth/refresh-token") ||
