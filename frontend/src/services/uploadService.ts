@@ -1,4 +1,5 @@
 import { api } from "@/src/services/api";
+import axios, { type InternalAxiosRequestConfig } from "axios";
 
 export type UploadResourceType = "image" | "raw";
 
