@@ -28,9 +28,11 @@ export async function generateMetadata() {
 }
 
 export default async function HomePage() {
-  const settings = await getPublicSiteSettings();
-  const totals = await Promise.all((["projects", "cybersecurity", "certifications", "education"] as Resource[]).map(resource =>
-    getPublicList(resource, { limit: 1 }).then(result => result.pagination.total).catch(() => null)));
+  const [settings, totals] = await Promise.all([
+    getPublicSiteSettings(),
+    Promise.all((["projects", "cybersecurity", "certifications", "education"] as Resource[]).map(resource =>
+      getPublicList(resource, { limit: 1 }).then(result => result.pagination.total).catch(() => null))),
+  ]);
   const labels = ["Proyectos", "Laboratorios", "Certificaciones", "Estudios"];
   const metrics = totals.flatMap((total, index) => total === null ? [] : [{ value: String(total), label: labels[index], description: "Publicados en este portafolio" }]);
   const base = siteOrigin;

@@ -1,7 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { ArrowRight, Download, Mail, Shield } from "lucide-react";
 import { mainLines } from "@/src/data/portfolioData";
 import TechBadge from "@/src/components/ui/TechBadge";
@@ -11,10 +8,7 @@ export default function HeroSection({ cvUrl, profile, metrics }: { profile: { fu
   return (
     <section className="relative overflow-hidden px-4 pb-20 pt-16 lg:px-8 lg:pt-24">
       <div className="mx-auto max-w-6xl">
-        <motion.div
-          initial={false}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+        <div
           className="max-w-3xl"
         >
           <div className="mb-6 flex flex-wrap gap-2">
@@ -61,28 +55,22 @@ export default function HeroSection({ cvUrl, profile, metrics }: { profile: { fu
               Contactar
             </Link>
           </div>
-        </motion.div>
+        </div>
 
-        <motion.div
-          initial={false}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
+        <div
           className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
         >
-          {metrics.map((metric, i) => (
-            <motion.div
+          {metrics.map((metric) => (
+            <div
               key={metric.label}
-              initial={false}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 + i * 0.08 }}
               className="glass-panel rounded-2xl p-5"
             >
               <p className="text-2xl font-bold text-gradient">{metric.value}</p>
               <p className="mt-1 text-sm font-medium text-zinc-200">{metric.label}</p>
               <p className="mt-2 text-xs text-zinc-400">{metric.description}</p>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

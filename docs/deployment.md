@@ -1,4 +1,4 @@
-# Despliegue — Sprint 0
+# Despliegue — actualizado al Sprint 5
 
 ## Configuración del release
 
@@ -42,14 +42,19 @@ npm ci --prefix frontend
 npm test --prefix backend
 npm run test:config --prefix frontend
 npm run test:security --prefix frontend
+npm run test:public --prefix frontend
 npm run build --prefix frontend
 npm run typecheck --prefix frontend
 npm run lint --prefix frontend
+npm run test:release --prefix frontend
+npm run test:performance --prefix frontend
 npm audit --prefix frontend
 npm audit --prefix backend
 ```
 
-El lint mantiene deuda previa documentada en `docs/sprint-1.md`. Un build correcto no implica que el lint esté resuelto. No usar opciones para ignorar fallos de TypeScript ni `npm audit fix --force` como parte del despliegue.
+El lint quedó sin errores ni advertencias en Sprint 4 y se exige junto con las pruebas y el build. No usar opciones para ignorar fallos de TypeScript ni `npm audit fix --force` como parte del despliegue. `test:public` usa una API en memoria y no escribe en producción. `test:release` y `test:performance` arrancan el build existente en el puerto 3100 y lo detienen al terminar; requieren ese puerto libre. La medición comprueba un máximo de 210 KiB de JS y 14 KiB de CSS gzip por página pública, calculado sobre sus archivos iniciales; no mide Core Web Vitals.
+
+`.github/workflows/quality.yml` ejecuta los mismos controles en push, pull request y ejecución manual con Node/npm fijados. No publica ni usa secretos de MongoDB, Cloudinary o Resend. El build y el smoke consultan la API pública HTTPS, por lo que una caída de esa API puede fallar el trabajo. La ejecución remota de Actions debe verificarse después de subir el cambio. Revisar `npm audit` antes de cada entrega; no se aplica una actualización automática de dependencias desde CI.
 
 En una terminal, arrancar el release local:
 
@@ -113,7 +118,7 @@ Sprint 1 mantiene cookies host-only en la API y valida la sesión mediante `/api
 
 ## Validación después de publicar
 
-- `GET https://api.armandomora.com.co/api/health` debe responder 200. Este endpoint informa uptime y fecha; confirmar la conexión de base de datos también en los logs de arranque y con una lectura autenticada.
+- `GET https://api.armandomora.com.co/api/health` debe responder 200: comprueba el proceso. `GET /api/ready` debe responder 200 y `data.ready=true`: comprueba la conexión y un ping a MongoDB. Devuelve 503 ante desconexión, error, espera mayor de 1 segundo o cierre en curso. Ambas respuestas usan `no-store`; los pings se agrupan y su resultado se conserva internamente hasta 5 segundos para limitar carga. Confirmar además una lectura autenticada; el ping no valida permisos de todas las colecciones, Cloudinary ni Resend.
 - Verificar canonical y Open Graph HTTPS en las ocho páginas públicas; `/robots.txt` debe anunciar `https://armandomora.com.co/sitemap.xml`.
 - Verificar `/sitemap.xml` y `/rss.xml`; ninguna URL debe contener localhost ni el dominio antiguo `.dev`.
 - Abrir una página en navegador y revisar las peticiones: la API debe ser `https://api.armandomora.com.co/api`. Inspeccionar los chunks **realmente servidos** después de invalidar caché.
@@ -127,6 +132,18 @@ Sprint 1 mantiene cookies host-only en la API y valida la sesión mediante `/api
 1. Antes de publicar, conservar la carpeta/artefacto del release anterior y una copia segura de su configuración en el alojamiento. Registrar commit, versiones de Node/npm y fecha del build.
 2. Si falla el smoke, volver a apuntar la aplicación a la carpeta anterior y restaurar las variables correspondientes; reiniciar mediante el panel y limpiar caché del proxy/CDN.
 3. Restaurar código, `.next`, archivos públicos y lockfiles como un conjunto. Si se reconstruye, usar `npm ci` con el lockfile y el runtime correspondientes; nunca mezclar `.next` nuevo con dependencias antiguas.
-4. Repetir el smoke público y la comprobación de API. El release anterior contiene vulnerabilidades conocidas: usarlo solo como contingencia temporal, registrar la incidencia y preparar un release corregido.
+4. Repetir el smoke público y la comprobación de API. Elegir un release conocido y validado. No retroceder a versiones anteriores a las correcciones de seguridad de Sprint 1 salvo contingencia temporal documentada.
 
 Sprint 1 añade `sessionId` opcional a User, sin migración destructiva ni cambio de credenciales; los nuevos logins lo generan. Al hacer rollback se pierde la revocación de acceso por sid: no restaurar una versión antigua salvo contingencia documentada. El despliegue y las redirecciones del alojamiento deben comprobarse allí antes de declarar cerrada la validación de producción.
+
+## Operación y recuperación
+
+- Configurar en el alojamiento un monitor de `/api/ready` cada 60 segundos y alertar tras tres fallos consecutivos. Usar `/api/health` para distinguir un proceso caído de un problema de base de datos; evitar reiniciar continuamente una aplicación solo porque MongoDB esté caído. Estos monitores no quedan activados por este repositorio.
+- Al recibir SIGTERM/SIGINT, el backend deja de aceptar conexiones, termina peticiones activas y desconecta MongoDB. El límite total es de 10 segundos; si lo supera, fuerza el cierre y termina con código 1. Configurar el supervisor con una gracia mayor de 10 segundos y verificar su señal real de parada en Passenger/hosting. Un cierre forzado de Windows no ejecuta este protocolo. No se ha probado aún con el supervisor de producción.
+- Consultar logs por `request-id`, estado HTTP y duración; revisar errores 5xx, límites 429, rechazos de Resend y errores de limpieza de archivos. No registrar cuerpos de contacto, contraseñas, cookies ni variables privadas. Ajustar rotación/retención en el alojamiento y conservar el identificador de release en el registro de cada publicación.
+- Antes de publicar, verificar la última copia de MongoDB y su fecha, y conservar una copia cifrada de las variables privadas fuera del repositorio. Propuesta inicial: copia diaria de base de datos, retención de 7 diarias y 4 semanales; confirmar capacidad y retención real del proveedor. El código no crea ni verifica estas copias.
+- MongoDB guarda referencias a Cloudinary, no sustituye una copia de los archivos. Conservar los originales de imágenes y CV o comprobar el mecanismo de copia/restauración del proveedor. Registrar los recursos nuevos de cada release antes de cualquier limpieza.
+- Ensayar una restauración en una base separada con credenciales de prueba y correo desactivado. Verificar conteos, un proyecto, un artículo, ajustes, referencias de archivos y acceso al panel. Registrar fecha, duración y resultado antes de afirmar que existe recuperación probada. Nunca restaurar sobre la base activa para ensayar.
+- Para rollback de este sprint no hay migración de datos. Recuperar frontend y backend del mismo release, repetir disponibilidad, navegación y sesión, y revisar las causas antes de reintentar. No restaurar datos antiguos por un simple fallo de código: se perderían las ediciones posteriores.
+
+Referencias de implementación: [cierre HTTP en Node 24](https://nodejs.org/docs/latest-v24.x/api/http.html#serverclosecallback), [setup-node](https://github.com/actions/setup-node) y [checkout](https://github.com/actions/checkout).

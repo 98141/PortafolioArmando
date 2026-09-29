@@ -100,7 +100,10 @@ try {
       assert.match(html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, ""), /Registro de prueba SSR/, "Content must be in rendered HTML, not only RSC scripts");
       const detail = await check(`/${route}/fixture-one`, 200, /Registro de prueba SSR/);
       assert.match(detail, /BreadcrumbList/);
-      if (route === "blog") assert.match(detail, /property="og:type" content="article"/);
+      if (route === "blog") {
+        assert.match(detail, /property="og:type" content="article"/);
+        assert.match(detail.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, ""), /<h2[^>]*>Texto servido desde el servidor<\/h2>/, "Markdown must be rendered in the initial HTML");
+      }
       await check(`/${route}/missing`, 404);
       await check(`/${route}/outage`, 500);
     }

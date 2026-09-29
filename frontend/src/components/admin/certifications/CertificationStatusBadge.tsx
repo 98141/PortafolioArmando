@@ -1,5 +1,3 @@
-"use client";
-
 import type { CertificationStatus } from "@/src/types/certification";
 import {
   certificationStatusLabels,

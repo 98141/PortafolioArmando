@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Providers from "@/src/components/layout/Providers";
 
 export const metadata: Metadata = {
   robots: {
@@ -14,5 +15,5 @@ export const metadata: Metadata = {
 };
 
 export default function AdminRouteLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return <Providers>{children}</Providers>;
 }

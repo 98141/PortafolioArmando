@@ -1,0 +1,42 @@
+name: Quality and production build
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      NEXT_PUBLIC_SITE_URL: https://armandomora.com.co
+      NEXT_PUBLIC_API_URL: https://api.armandomora.com.co/api
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24.15.0"
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+      - run: npm install --global npm@11.12.1
+      - run: npm ci --prefix backend
+      - run: npm ci --prefix frontend
+      - run: npm test --prefix backend
+      - run: npm run test:config --prefix frontend
+      - run: npm run test:security --prefix frontend
+      - run: npm run lint --prefix frontend
+      - run: npm run test:public --prefix frontend
+      # Build/release checks read public API content; no DB or email credentials.
+      - run: npm run build --prefix frontend
+      - run: npm run typecheck --prefix frontend
+      - run: node frontend/scripts/with-production.mjs scripts/verify-release.mjs
+      - run: node frontend/scripts/with-production.mjs scripts/measure-public.mjs --check

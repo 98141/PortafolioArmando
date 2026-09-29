@@ -1,0 +1,143 @@
+{
+  "measuredAt": "2026-09-29T16:40:36.366Z",
+  "node": "v24.15.0",
+  "method": "Initial HTML external assets; sum of per-file local gzip bytes; not browser transfer or Core Web Vitals",
+  "routes": [
+    {
+      "path": "/",
+      "html": {
+        "bytes": 56106,
+        "gzipBytes": 8176
+      },
+      "js": {
+        "files": 12,
+        "bytes": 639959,
+        "gzipBytes": 200625
+      },
+      "css": {
+        "files": 1,
+        "bytes": 65139,
+        "gzipBytes": 11018
+      }
+    },
+    {
+      "path": "/about",
+      "html": {
+        "bytes": 32877,
+        "gzipBytes": 5982
+      },
+      "js": {
+        "files": 11,
+        "bytes": 625170,
+        "gzipBytes": 195034
+      },
+      "css": {
+        "files": 1,
+        "bytes": 65139,
+        "gzipBytes": 11018
+      }
+    },
+    {
+      "path": "/projects",
+      "html": {
+        "bytes": 26768,
+        "gzipBytes": 5364
+      },
+      "js": {
+        "files": 11,
+        "bytes": 643115,
+        "gzipBytes": 201445
+      },
+      "css": {
+        "files": 1,
+        "bytes": 65139,
+        "gzipBytes": 11018
+      }
+    },
+    {
+      "path": "/blog",
+      "html": {
+        "bytes": 28547,
+        "gzipBytes": 5625
+      },
+      "js": {
+        "files": 12,
+        "bytes": 643764,
+        "gzipBytes": 201875
+      },
+      "css": {
+        "files": 1,
+        "bytes": 65139,
+        "gzipBytes": 11018
+      }
+    },
+    {
+      "path": "/contact",
+      "html": {
+        "bytes": 29816,
+        "gzipBytes": 6034
+      },
+      "js": {
+        "files": 12,
+        "bytes": 630051,
+        "gzipBytes": 196980
+      },
+      "css": {
+        "files": 1,
+        "bytes": 65139,
+        "gzipBytes": 11018
+      }
+    },
+    {
+      "path": "/cybersecurity",
+      "html": {
+        "bytes": 28822,
+        "gzipBytes": 5773
+      },
+      "js": {
+        "files": 12,
+        "bytes": 643764,
+        "gzipBytes": 201875
+      },
+      "css": {
+        "files": 1,
+        "bytes": 65139,
+        "gzipBytes": 11018
+      }
+    },
+    {
+      "path": "/certifications",
+      "html": {
+        "bytes": 27229,
+        "gzipBytes": 5403
+      },
+      "js": {
+        "files": 12,
+        "bytes": 643764,
+        "gzipBytes": 201875
+      },
+      "css": {
+        "files": 1,
+        "bytes": 65139,
+        "gzipBytes": 11018
+      }
+    },
+    {
+      "path": "/education",
+      "html": {
+        "bytes": 27212,
+        "gzipBytes": 5441
+      },
+      "js": {
+        "files": 12,
+        "bytes": 643764,
+        "gzipBytes": 201875
+      },
+      "css": {
+        "files": 1,
+        "bytes": 65139,
+        "gzipBytes": 11018
+      }
+    }
+  ]
+}

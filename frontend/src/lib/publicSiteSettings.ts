@@ -1,9 +1,10 @@
 import type { SiteSettings } from "@/src/types/siteSettings";
+import { cache } from "react";
 import { apiBaseUrl } from "@/src/lib/publicConfig";
 
 const fallback: SiteSettings = {};
 
-export const getPublicSiteSettings = async (): Promise<SiteSettings> => {
+export const getPublicSiteSettings = cache(async (): Promise<SiteSettings> => {
   try {
     const res = await fetch(`${apiBaseUrl}/site-settings`, {
       next: { revalidate: 120 },
@@ -15,4 +16,4 @@ export const getPublicSiteSettings = async (): Promise<SiteSettings> => {
   } catch {
     return fallback;
   }
-};
+});

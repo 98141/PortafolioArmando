@@ -1,6 +1,3 @@
-"use client";
-
-import { motion } from "framer-motion";
 import { Code2, Lock, Shield } from "lucide-react";
 import { expertiseAreas } from "@/src/data/portfolioData";
 import GlassCard from "@/src/components/ui/GlassCard";
@@ -23,15 +20,11 @@ export default function ExpertiseSection() {
           description="Tres pilares que definen mi enfoque profesional."
         />
         <div className="mt-10 grid gap-6 md:grid-cols-3">
-          {expertiseAreas.map((area, i) => {
+          {expertiseAreas.map((area) => {
             const Icon = icons[area.icon];
             return (
-              <motion.div
+              <div
                 key={area.id}
-                initial={false}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-40px" }}
-                transition={{ delay: i * 0.1 }}
               >
                 <GlassCard className="h-full p-6" hover>
                   <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-gradient-to-br from-blue-500/20 to-purple-500/10">
@@ -47,7 +40,7 @@ export default function ExpertiseSection() {
                     ))}
                   </div>
                 </GlassCard>
-              </motion.div>
+              </div>
             );
           })}
         </div>

@@ -13,7 +13,7 @@ const requestId = require("./middlewares/requestId");
 const globalErrorHandler = require("./middlewares/globalErrorHandler");
 
 const app = express();
-const serverStartedAt = Date.now();
+app.locals.draining = false;
 
 app.disable("x-powered-by");
 app.set("trust proxy", Number(process.env.TRUST_PROXY || 0));
@@ -48,6 +48,13 @@ app.use(
       : ':method :url :status :request-id - :response-time ms'
   )
 );
+
+// Health probes must not consume the shared visitor request quota.
+const { createHealthRouter } = require("./routes/health.routes");
+app.use("/api", createHealthRouter({
+  connection: require("mongoose").connection,
+  isDraining: () => app.locals.draining,
+}));
 
 app.use(
   rateLimit({
@@ -89,16 +96,6 @@ const {
   publicRouter: siteSettingsPublicRoutes,
   adminRouter: siteSettingsAdminRoutes,
 } = require("./routes/siteSettings.routes");
-
-app.get("/api/health", (_req, res) => {
-  res.status(200).json({
-    status: "success",
-    data: {
-      uptime: Math.floor((Date.now() - serverStartedAt) / 1000),
-      timestamp: new Date().toISOString(),
-    },
-  });
-});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/contact", require("./routes/contact.routes").createContactRouter());

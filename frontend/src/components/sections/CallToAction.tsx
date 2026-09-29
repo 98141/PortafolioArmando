@@ -1,7 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 
 
@@ -9,10 +6,7 @@ export default function CallToAction() {
   return (
     <section className="px-4 py-20 lg:px-8">
       <div className="mx-auto max-w-6xl">
-        <motion.div
-          initial={false}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
+        <div
           className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-blue-600/20 via-purple-600/15 to-cyan-600/10 p-8 sm:p-12"
         >
           <div className="relative z-10 max-w-2xl">
@@ -42,7 +36,7 @@ export default function CallToAction() {
             className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-purple-500/20 blur-3xl"
             aria-hidden="true"
           />
-        </motion.div>
+        </div>
       </div>
     </section>
   );

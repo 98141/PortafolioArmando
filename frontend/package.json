@@ -12,14 +12,15 @@
     "verify:release": "node scripts/verify-release.mjs",
     "typecheck": "tsc --noEmit --incremental false",
     "test:security": "node --test tests/security/*.test.mjs",
-    "test:public": "node scripts/verify-public.mjs"
+    "test:public": "node scripts/verify-public.mjs",
+    "test:release": "node scripts/with-production.mjs scripts/verify-release.mjs",
+    "test:performance": "node scripts/with-production.mjs scripts/measure-public.mjs --check"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@tanstack/react-query": "^5.100.14",
     "axios": "^1.20.0",
     "clsx": "^2.1.1",
-    "framer-motion": "^12.40.0",
     "lucide-react": "^1.16.0",
     "next": "16.3.6",
     "react": "19.2.4",

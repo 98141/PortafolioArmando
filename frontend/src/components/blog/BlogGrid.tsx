@@ -1,5 +1,3 @@
-"use client";
-
 import type { BlogPost } from "@/src/types/blogPost";
 import BlogCard from "@/src/components/blog/BlogCard";
 
