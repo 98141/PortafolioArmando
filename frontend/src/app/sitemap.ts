@@ -1,7 +1,5 @@
 import type { MetadataRoute } from "next";
-
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://armandomora.dev";
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+import { siteOrigin as baseUrl, apiBaseUrl as apiUrl } from "@/src/lib/publicConfig";
 
 const staticRoutes = [
   "",

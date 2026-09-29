@@ -1,3 +1,4 @@
+import { siteOrigin } from "@/src/lib/publicConfig";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import ProjectDetail from "@/src/components/detail/ProjectDetail";
@@ -34,11 +35,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ProjectDetailPage({ params }: Props) {
   const { slug } = await params;
   try {
-    const [project, settings] = await Promise.all([
-      projectService.getProjectBySlug(slug),
-      getPublicSiteSettings(),
-    ]);
-    const base = settings.seo?.canonicalBaseUrl || "https://armandomora.dev";
+    const project = await projectService.getProjectBySlug(slug);
+    const base = siteOrigin;
     return (
       <>
         <JsonLd data={creativeWorkJsonLd(project, base, "projects")} />

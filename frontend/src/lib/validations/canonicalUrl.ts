@@ -1,3 +1,4 @@
+import { siteOrigin } from "@/src/lib/publicConfig";
 const BLOCKED_PROTOCOLS = new Set(["javascript:", "data:", "vbscript:", "file:"]);
 
 const getAllowedHosts = (): string[] => {
@@ -8,7 +9,7 @@ const getAllowedHosts = (): string[] => {
 
   if (fromEnv.length > 0) return fromEnv;
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://armandomora.dev";
+  const siteUrl = siteOrigin;
   try {
     return [new URL(siteUrl).hostname.toLowerCase()];
   } catch {

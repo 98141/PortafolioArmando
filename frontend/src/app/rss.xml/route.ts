@@ -1,8 +1,7 @@
 import { getPublicSiteSettings } from "@/src/lib/publicSiteSettings";
 import { defaultSeoFallback } from "@/src/lib/seo";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || defaultSeoFallback.canonicalBaseUrl;
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+import { siteOrigin as siteUrl, apiBaseUrl as apiUrl } from "@/src/lib/publicConfig";
 
 const escapeXml = (value: string) =>
   value

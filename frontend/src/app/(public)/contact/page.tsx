@@ -1,3 +1,4 @@
+import { siteOrigin } from "@/src/lib/publicConfig";
 import type { Metadata } from "next";
 import { Mail, MapPin } from "lucide-react";
 import { profile, socialLinks } from "@/src/data/portfolioData";
@@ -39,7 +40,7 @@ export default async function ContactPage() {
           href: s.href,
           external: s.icon !== "email",
         }));
-  const base = settings.seo?.canonicalBaseUrl || "https://armandomora.dev";
+  const base = siteOrigin;
 
   return (
     <>

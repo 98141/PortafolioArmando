@@ -1,4 +1,6 @@
 import type { NextConfig } from "next";
+import { PHASE_PRODUCTION_BUILD, PHASE_PRODUCTION_SERVER } from "next/constants";
+import { validateProductionEnv } from "./config/production-env.mjs";
 
 const nextConfig: NextConfig = {
   images: {
@@ -14,4 +16,9 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default function config(phase: string): NextConfig {
+  if (phase === PHASE_PRODUCTION_BUILD || phase === PHASE_PRODUCTION_SERVER) {
+    validateProductionEnv(process.env);
+  }
+  return nextConfig;
+}

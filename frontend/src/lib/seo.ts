@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import type { SiteBranding, SiteSeo } from "@/src/types/siteSettings";
+import { siteOrigin } from "@/src/lib/publicConfig";
 
 export const defaultSeoFallback = {
   siteName: "Armando Mora",
   defaultTitle: "Armando Mora | Software & Cybersecurity",
   defaultDescription:
     "Portafolio profesional: desarrollo full stack, ciberseguridad aplicada y arquitectura segura.",
-  canonicalBaseUrl: "https://armandomora.dev",
+  canonicalBaseUrl: siteOrigin,
   keywords: [
     "Armando Mora",
     "MERN",
@@ -80,7 +81,7 @@ export const buildMetadata = ({
   imageUrl?: string;
   noIndex?: boolean;
 }): Metadata => {
-  const baseUrl = seo?.canonicalBaseUrl || defaultSeoFallback.canonicalBaseUrl;
+  const baseUrl = siteOrigin;
   const canonical = buildCanonicalUrl(baseUrl, path);
   const resolvedTitle = title || seo?.defaultTitle || defaultSeoFallback.defaultTitle;
   const resolvedDescription = truncateDescription(

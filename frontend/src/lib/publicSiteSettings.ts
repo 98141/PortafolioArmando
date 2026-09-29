@@ -1,12 +1,11 @@
 import type { SiteSettings } from "@/src/types/siteSettings";
+import { apiBaseUrl } from "@/src/lib/publicConfig";
 
 const fallback: SiteSettings = {};
 
-const resolveApiUrl = () => process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
-
 export const getPublicSiteSettings = async (): Promise<SiteSettings> => {
   try {
-    const res = await fetch(`${resolveApiUrl()}/site-settings`, {
+    const res = await fetch(`${apiBaseUrl}/site-settings`, {
       next: { revalidate: 120 },
     });
     if (!res.ok) return fallback;

@@ -1,3 +1,4 @@
+import { siteOrigin } from "@/src/lib/publicConfig";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import CyberLabDetail from "@/src/components/detail/CyberLabDetail";
@@ -33,11 +34,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CyberLabDetailPage({ params }: Props) {
   const { slug } = await params;
   try {
-    const [lab, settings] = await Promise.all([
-      cyberLabService.getCyberLabBySlug(slug),
-      getPublicSiteSettings(),
-    ]);
-    const base = settings.seo?.canonicalBaseUrl || "https://armandomora.dev";
+    const lab = await cyberLabService.getCyberLabBySlug(slug);
+    const base = siteOrigin;
     return (
       <>
         <JsonLd data={creativeWorkJsonLd(lab, base, "cybersecurity")} />

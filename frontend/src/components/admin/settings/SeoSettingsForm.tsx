@@ -38,7 +38,10 @@ export default function SeoSettingsForm({ register }: Props) {
         </div>
         <div className="sm:col-span-2">
           <label className={labelClass}>Canonical base URL</label>
-          <input className={inputClass} placeholder="https://armandomora.dev" {...register("seo.canonicalBaseUrl")} />
+          <input className={inputClass} placeholder="https://armandomora.com.co" {...register("seo.canonicalBaseUrl")} />
+          <p className="mt-2 text-xs text-zinc-400">
+            El dominio público se configura al desplegar el sitio. Este valor de referencia no lo cambia.
+          </p>
         </div>
         <div>
           <label className={labelClass}>OG image URL</label>

@@ -1,3 +1,4 @@
+import { siteOrigin } from "@/src/lib/publicConfig";
 import HeroSection from "@/src/components/sections/HeroSection";
 import ProfessionalSummary from "@/src/components/sections/ProfessionalSummary";
 import ExpertiseSection from "@/src/components/sections/ExpertiseSection";
@@ -25,7 +26,7 @@ export async function generateMetadata() {
 
 export default async function HomePage() {
   const settings = await getPublicSiteSettings();
-  const base = settings.seo?.canonicalBaseUrl || "https://armandomora.dev";
+  const base = siteOrigin;
   return (
     <>
       <JsonLd data={[personJsonLd(settings, base), websiteJsonLd(settings, base)]} />

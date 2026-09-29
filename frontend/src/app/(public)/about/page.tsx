@@ -1,3 +1,4 @@
+import { siteOrigin } from "@/src/lib/publicConfig";
 import type { Metadata } from "next";
 import { aboutStory, mainLines, profile, skillGroups } from "@/src/data/portfolioData";
 import PageHero from "@/src/components/portfolio/PageHero";
@@ -35,7 +36,7 @@ const levelLabel = {
 
 export default async function AboutPage() {
   const settings = await getPublicSiteSettings();
-  const base = settings.seo?.canonicalBaseUrl || "https://armandomora.dev";
+  const base = siteOrigin;
   return (
     <>
       <JsonLd data={personJsonLd(settings, base)} />

@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Providers from "@/src/components/layout/Providers";
+import { siteOrigin } from "@/src/lib/publicConfig";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteOrigin),
   title: {
     default: "Armando Mora | Software & Cybersecurity",
     template: "%s",

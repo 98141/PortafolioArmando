@@ -1,5 +1,6 @@
+import { apiBaseUrl } from "@/src/lib/publicConfig";
 import { api } from "@/src/services/api";
-import axios, { type InternalAxiosRequestConfig } from "axios";
+import type { InternalAxiosRequestConfig } from "axios";
 
 export type UploadResourceType = "image" | "raw";
 
@@ -15,8 +16,7 @@ export interface UploadResponse {
 
 type UploadFile = File;
 
-const resolveUploadBase = () =>
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
+const resolveUploadBase = () => apiBaseUrl;
 
 /**
  * Uses native fetch instead of the axios instance so the browser sets

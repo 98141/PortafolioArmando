@@ -1,7 +1,8 @@
+import { apiBaseUrl } from "@/src/lib/publicConfig";
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: apiBaseUrl,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",

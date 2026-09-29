@@ -1,3 +1,4 @@
+import { siteOrigin, apiBaseUrl } from "@/src/lib/publicConfig";
 import type { Metadata } from "next";
 import BlogPostPageClient from "@/src/app/(public)/blog/[slug]/BlogPostPageClient";
 import JsonLd from "@/src/components/seo/JsonLd";
@@ -11,7 +12,7 @@ interface BlogPostPageProps {
 
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
+  const apiUrl = apiBaseUrl;
 
   try {
     const [res, settings] = await Promise.all([
@@ -39,9 +40,8 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
-  const settings = await getPublicSiteSettings();
-  const base = settings.seo?.canonicalBaseUrl || "https://armandomora.dev";
+  const apiUrl = apiBaseUrl;
+  const base = siteOrigin;
   let jsonLd: Record<string, unknown> | null = null;
 
   try {
