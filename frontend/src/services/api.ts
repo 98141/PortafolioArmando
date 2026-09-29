@@ -4,65 +4,47 @@ import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 export const api = axios.create({
   baseURL: apiBaseUrl,
   withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  headers: { "Content-Type": "application/json" },
 });
 
-let isRefreshing = false;
+type SessionRequest = InternalAxiosRequestConfig & { _retry?: boolean; _sessionRevision?: number };
+let sessionRevision = 0;
 let refreshPromise: Promise<void> | null = null;
 
-const shouldSkipRefresh = (url?: string) => {
-  if (!url) return true;
-  return (
-    url.includes("/admin/uploads") ||
-    url.includes("/auth/login") ||
-    url.includes("/auth/register-admin") ||
-    url.includes("/auth/refresh-token") ||
-    url.includes("/auth/logout")
-  );
-};
+export function refreshSession(): Promise<void> {
+  if (!refreshPromise) {
+    refreshPromise = api.post("/auth/refresh-token")
+      .then(() => { sessionRevision += 1; })
+      .finally(() => { refreshPromise = null; });
+  }
+  return refreshPromise;
+}
+
+api.interceptors.request.use((request: SessionRequest) => {
+  request._sessionRevision = sessionRevision;
+  return request;
+});
 
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & {
-      _retry?: boolean;
-    };
-
-    if (
-      error.response?.status !== 401 ||
-      !originalRequest ||
-      originalRequest._retry ||
-      shouldSkipRefresh(originalRequest.url)
-    ) {
-      return Promise.reject(error);
+    const request = error.config as SessionRequest | undefined;
+    const privateRequest = /^\/(?:auth\/me(?:$|\?)|admin(?:\/|$))/.test(request?.url || "");
+    if (typeof window === "undefined" || error.response?.status !== 401 || !request || request._retry || !privateRequest) {
+      throw error;
     }
-
-    originalRequest._retry = true;
-
-    if (!isRefreshing) {
-      isRefreshing = true;
-      refreshPromise = api
-        .post("/auth/refresh-token")
-        .then(() => undefined)
-        .catch((refreshError) => {
-          if (typeof window !== "undefined" && !window.location.pathname.includes("/admin/login")) {
-            window.location.href = "/admin/login";
-          }
-          return Promise.reject(refreshError);
-        })
-        .finally(() => {
-          isRefreshing = false;
-          refreshPromise = null;
-        });
-    }
-
+    request._retry = true;
     try {
-      await refreshPromise;
-      return api(originalRequest);
+      // A late 401 from the old access token can reuse the already refreshed session.
+      if (request._sessionRevision === sessionRevision) await refreshSession();
+      return await api(request);
     } catch (refreshError) {
-      return Promise.reject(refreshError);
+      if (axios.isAxiosError(refreshError) && [401, 403].includes(refreshError.response?.status || 0)
+        && window.location.pathname.startsWith("/admin") && window.location.pathname !== "/admin/login") {
+        // A full navigation clears in-memory admin state after session expiry.
+        window.location.replace(new URL("/admin/login", window.location.origin).href);
+      }
+      throw refreshError;
     }
   }
 );

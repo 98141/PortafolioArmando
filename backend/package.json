@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run test:smoke && npm run verify:uploads && npm run test:security",
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "seed:admin": "node src/scripts/seedAdmin.js",
     "verify:uploads": "node src/scripts/verifyUploadSecurity.js",
-    "test:smoke": "node tests/smoke/env.smoke.js && node tests/smoke/canonical.smoke.js"
+    "test:smoke": "node tests/smoke/env.smoke.js && node tests/smoke/canonical.smoke.js",
+    "test:security": "node --test tests/security/*.test.js"
   },
   "keywords": [],
   "author": "",

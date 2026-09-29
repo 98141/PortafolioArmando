@@ -9,6 +9,7 @@ const { validateDeletePayload } = require("../utils/validateUploadDelete");
 const { writeAudit } = require("../services/audit.service");
 const { logSecurityEvent } = require("../utils/securityLogger");
 const SiteSettings = require("../models/siteSettings.model");
+const { isAssetReferenced, cleanupUnreferencedAsset } = require("../services/assetReferences.service");
 
 const requireFile = (req) => {
   if (!req.file) {
@@ -102,30 +103,32 @@ const uploadAuthorAvatar = catchAsync(async (req, res) => {
 const uploadCvPdf = catchAsync(async (req, res) => {
   const file = requireFile(req);
 
-  const existing = await SiteSettings.findOne({ singletonKey: "global" });
-  if (existing?.cv?.publicId) {
-    try {
-      await deleteFromCloudinary(existing.cv.publicId, "raw", "cv-replace");
-    } catch (_) {}
-  }
-
   const data = await uploadPdfToCloudinary(file, "portfolio/cv", "cv");
 
-  await SiteSettings.findOneAndUpdate(
-    { singletonKey: "global" },
-    {
-      $set: {
-        cv: {
-          url: data.secureUrl,
-          publicId: data.publicId,
-          fileName: data.originalName,
-          updatedAt: new Date(),
+  let previous;
+  try {
+    previous = await SiteSettings.findOneAndUpdate(
+      { singletonKey: "global" },
+      {
+        $set: {
+          cv: {
+            url: data.secureUrl,
+            publicId: data.publicId,
+            fileName: data.originalName,
+            updatedAt: new Date(),
+          },
+          updatedBy: req.user?._id,
         },
-        updatedBy: req.user?._id,
       },
-    },
-    { upsert: true, new: true, setDefaultsOnInsert: true }
-  );
+      { upsert: true, new: false, runValidators: true, setDefaultsOnInsert: true }
+    );
+  } catch (error) {
+    await cleanupUnreferencedAsset(data.publicId, "raw", req, "cv-save-failed");
+    throw error;
+  }
+  if (previous?.cv?.publicId !== data.publicId) {
+    await cleanupUnreferencedAsset(previous?.cv?.publicId, "raw", req, "cv-replace");
+  }
 
   await respondUpload(req, res, data, "cv");
 });
@@ -133,6 +136,9 @@ const uploadCvPdf = catchAsync(async (req, res) => {
 const deleteUploadedAsset = catchAsync(async (req, res, next) => {
   const { publicId, resourceType } = req.body || {};
   const validated = validateDeletePayload(publicId, resourceType);
+  if (await isAssetReferenced(validated.publicId)) {
+    return next(new AppError("Asset is still referenced by saved content", 409));
+  }
 
   try {
     await deleteFromCloudinary(

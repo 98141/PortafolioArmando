@@ -1,196 +1,70 @@
-# Seguridad — Autenticación Admin
+# Seguridad — Sprint 1
 
-## Resumen
+Actualizado: 2026-09-29. Implementación local verificada; validación del alojamiento pendiente.
 
-El panel administrativo usa autenticación basada en **JWT** con tokens almacenados en **cookies httpOnly**. El frontend **no** usa `localStorage` ni `sessionStorage` para tokens; solo Zustand para datos públicos del usuario. La sesión se valida contra el backend (`GET /api/auth/me`) con `withCredentials: true`.
+## Sesión y límites de confianza
 
-Las respuestas de usuario usan lista blanca de campos (`_id`, `name`, `email`, `role`, `isActive`, `lastLogin`, timestamps) — nunca `password` ni `refreshTokenHash`.
+La API es la autoridad de autenticación y autorización. Las cookies `accessToken` y `refreshToken` son HttpOnly, host-only y Path=/; no se comparten mediante Domain con el frontend. No se guardan tokens en localStorage ni sessionStorage. Zustand conserva únicamente el usuario filtrado y estado de interfaz.
 
-## Flujo de autenticación
+El proxy de Next sirve la estructura del panel con `Cache-Control: private, no-store` y `X-Robots-Tag: noindex, nofollow`. No interpreta la ausencia de cookies de otro host como un cierre de sesión. `ProtectedRoute` consulta `/api/auth/me` antes de mostrar el contenido; todas las rutas privadas de Express exigen `protect` y `restrictTo("admin")`. La estructura HTML del panel puede responder 200 sin sesión; eso no concede acceso a datos privados. Cualquier futura lectura privada del servidor Next deberá autorizarse expresamente.
 
-1. **Login** (`POST /api/auth/login`): el servidor valida credenciales, genera access + refresh JWT, guarda el hash SHA-256 del refresh token en MongoDB y establece dos cookies httpOnly.
-2. **Acceso a rutas protegidas**: el middleware `protect` lee la cookie `accessToken`, verifica el JWT y adjunta `req.user`.
-3. **Refresh** (`POST /api/auth/refresh-token`): si el access token expiró, el cliente (interceptor Axios) intenta renovar usando la cookie `refreshToken`. El servidor valida el JWT, compara el hash en BD con comparación timing-safe, emite nuevos tokens y **rota** el refresh (nuevo hash en BD).
-4. **Logout** (`POST /api/auth/logout`): **público** — siempre responde 200, borra cookies httpOnly y revoca `refreshTokenHash` si puede identificar al usuario por access/refresh cookie (aunque estén expirados). No falla si no hay sesión activa.
-5. **getMe** (`GET /api/auth/me`): devuelve el usuario autenticado sin campos sensibles.
+- Login crea un `sessionId` aleatorio, incluido como `sid` en los JWT. Solo se permite HS256. Cada token tiene un `jti` aleatorio, aunque se emita en el mismo segundo.
+- MongoDB almacena el identificador de sesión y el hash SHA-256 del refresh. `protect` verifica firma, expiración, usuario activo, contraseña vigente y sesión actual. Los DTO excluyen contraseña, hash y sessionId.
+- Refresh compara el hash y reemplaza el valor mediante una actualización condicional atómica por usuario, sid y hash anterior. Solo una petición puede consumir el mismo refresh. Un token antiguo se rechaza y no revoca una sesión posterior.
+- Logout elimina las cookies y revoca hash y sessionId de la sesión identificada. También invalida inmediatamente sus access tokens, sin esperar su expiración. Tokens firmados pero expirados pueden identificar esa sesión únicamente para revocarla. Un fallo de persistencia se comunica como error; no se afirma que la revocación remota tuvo éxito.
+- Se mantiene una sesión activa por usuario. Otro login invalida la anterior. Las sesiones emitidas antes de este sprint, sin sid, requieren volver a iniciar sesión.
 
-## Cookies
+El cliente comparte una promesa de refresh entre peticiones concurrentes y reutiliza una renovación ya completada para respuestas 401 tardías. Solo reintenta una vez peticiones privadas. No renueva automáticamente fallos públicos ni fallos de login, ni lo hace durante SSR. Un fallo 401/403 definitivo devuelve al login; un fallo temporal del servidor no fuerza esa navegación. Uploads con fetch mantienen el FormData y reintentan una vez tras un 401; `protect` se ejecuta antes de Multer o Cloudinary.
 
-| Cookie         | Contenido      | Duración (default) | Flags                          |
-|----------------|----------------|--------------------|--------------------------------|
-| `accessToken`  | JWT access     | `JWT_ACCESS_EXPIRES_IN` (15m) | `httpOnly`, `secure`*, `sameSite` |
-| `refreshToken` | JWT refresh    | `JWT_REFRESH_EXPIRES_IN` (7d)   | `httpOnly`, `secure`*, `sameSite` |
+Las comprobaciones iniciales de sesión se agrupan. Una respuesta antigua de `/me` no puede restaurar el estado después de login/logout. Si falla el cierre de sesión, la interfaz muestra el error y permite reintentarlo.
 
-\* `secure` activo en producción o si `COOKIE_SECURE=true`.
+## Cookies, CORS y CSRF
 
-Variables relevantes:
+En producción las cookies requieren Secure. SameSite es `lax` por defecto: los hosts HTTPS `armandomora.com.co` y `api.armandomora.com.co` pertenecen al mismo sitio aunque sus orígenes sean distintos. `none` solo se admite con Secure y si la arquitectura realmente lo necesita. No añadir Domain para resolver problemas de navegación del panel.
 
-- `COOKIE_SECURE` — forzar cookies solo por HTTPS
-- `COOKIE_SAME_SITE` — `lax` (dev) o `none` (cross-site en prod con HTTPS)
+CORS permite exactamente `FRONTEND_URL`, con credenciales. Además, toda escritura (métodos distintos de GET, HEAD y OPTIONS) exige una cabecera Origin idéntica a ese valor. Un origen ausente, `null`, ajeno o un subdominio no autorizado recibe 403 antes de procesar el cuerpo. Las herramientas HTTP de administración deben enviar ese Origin además de las cookies; la cabecera por sí sola no autentica.
 
-El frontend debe estar en `FRONTEND_URL` y CORS debe usar `credentials: true`.
+La comprobación de origen complementa las cookies: CORS por sí solo no bloquea la ejecución de un POST malicioso. Los GET públicos ya no crean la configuración del sitio. GET/HEAD/OPTIONS deben seguir libres de mutaciones de negocio en futuras rutas.
 
-## Rotación de refresh token
+## Validación y arranque
 
-Cada refresh exitoso:
+- Express 5 expone query mediante un getter. El middleware materializa y sanea una copia por petición, y `validateRequest` conserva los valores transformados por Zod. Los controladores reciben booleanos, números, defaults y cadenas recortadas reales.
+- Parámetros query repetidos se rechazan con 400. Se eliminan operadores Mongo de body/query; las claves desconocidas de los esquemas se descartan.
+- `FRONTEND_URL` es un origen HTTP(S) exacto, sin slash final, ruta, credenciales, query ni fragment. Producción exige HTTPS.
+- PORT: entero 1–65535. TRUST_PROXY: número de saltos confiables, cero por defecto. Configurarlo según la topología real, nunca confiar indiscriminadamente en cabeceras reenviadas.
+- Secretos JWT distintos, al menos 32 caracteres en producción y sin placeholders habituales. Duraciones positivas con sufijo s/m/h/d. La validación ocurre antes de cargar la aplicación y Cloudinary.
 
-1. Invalida el refresh anterior (nuevo hash en BD).
-2. Emite nuevo par access + refresh.
-3. Si el refresh no coincide con el hash almacenado, se invalida la sesión (posible reutilización robada).
+## Archivos
 
-## Rutas protegidas
+Se conservan los controles existentes: autenticación/rol, límites de frecuencia, Multer en memoria, tamaños máximos, extensiones, MIME y magic bytes. Las credenciales de Cloudinary siguen únicamente en el backend.
 
-- Middleware `protect`: exige access token válido y usuario activo.
-- Middleware `restrictTo("admin")`: exige rol admin (usado en `/api/auth/me` y CMS `/api/admin/*`).
-- **CMS Proyectos:** rutas `/api/admin/projects` requieren cookie admin. Público `/api/projects` solo `isActive: true`.
-- **CMS Cyber Labs:** rutas `/api/admin/cyber-labs` requieren cookie admin. Público `/api/cyber-labs` solo `isActive: true`. Hallazgos y mitigaciones no se exponen a usuarios no autenticados en endpoints futuros de detalle restringido (actualmente mismo payload en slug público — considerar campo `publicSummary` en Sprint 6+ si se requiere ocultar detalles).
-- **CMS Certifications:** `/api/admin/certifications` protegido; público `/api/certifications` solo `isActive: true`. `credentialUrl` y `credentialId` son públicos cuando el registro está activo (credenciales verificables).
-- **CMS Education:** `/api/admin/education` protegido; público `/api/education` solo `isActive: true`.
-- **CMS Blog:** `/api/admin/blog` protegido; público `/api/blog` solo `isActive: true` y `status: published`. Drafts y archivados nunca se exponen en rutas públicas. El contenido Markdown completo se entrega en detalle por slug — sanitizar XSS en render frontend (react-markdown sin `rehype-raw`).
-- Rate limit en rutas `/api/auth/*` (20 intentos / 15 min por IP).
-- Rate limit **más estricto** en `POST /api/auth/login` (5 intentos / 15 min por IP).
+- Los public_id incorporan UUID y `overwrite: false`, evitando colisiones de nombre y tiempo.
+- Seleccionar o quitar un archivo en un formulario modifica el valor pendiente; no destruye el archivo guardado. Si falla la subida, se conserva el valor anterior.
+- Los archivos generales reemplazados o abandonados se conservan por seguridad. No existe aún un recolector automático de huérfanos. Su limpieza debe comprobar referencias y no ejecutarse mientras otro editor esté guardando el mismo asset.
+- El CV se gestiona en `/admin/cv`. El PUT general de Site Settings ignora `cv`, evitando que un formulario antiguo restaure una referencia borrada. La entrada manual de URL del antiguo formulario se retiró para mantener una sola ruta de actualización del CV.
+- Reemplazo de CV: subir, guardar y obtener la versión anterior mediante una operación atómica de MongoDB, comprobar referencias y limpiar el asset anterior. Si falla el guardado, solo se limpia el nuevo asset si la BD confirma que no está referenciado; una respuesta de persistencia incierta nunca justifica borrarlo a ciegas.
+- Borrado de CV: eliminar la referencia primero; después intentar limpiar el archivo. Un fallo de limpieza no deshace una operación de BD ya confirmada y queda registrado como `upload.cleanup_failed` con publicId, tipo y motivo para seguimiento.
+- El endpoint DELETE genérico devuelve 409 para archivos referenciados en proyectos, galerías, laboratorios, certificados, educación, blog y ajustes, incluidos registros con soft delete. Exige namespace `portfolio/` y tipo válido.
+- Cloudinary debe confirmar `ok` o `not found`; otros resultados se consideran fallo.
 
-## Recomendaciones para producción
+MongoDB y Cloudinary no comparten una transacción. La comprobación de referencias y el borrado no constituyen una exclusión mutua entre editores; no reutilizar manualmente IDs que otro proceso esté limpiando. La limpieza automática fiable con reservas/outbox queda para una evolución posterior.
 
-1. **Deshabilitar** `POST /api/auth/register-admin` (`ALLOW_REGISTER_ADMIN=false`).
-2. Usar secretos JWT largos y únicos (`JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`).
-3. `NODE_ENV=production`, `COOKIE_SECURE=true`, HTTPS en frontend y API.
-4. Si frontend y API están en dominios distintos: `COOKIE_SAME_SITE=none` y HTTPS obligatorio.
-5. Crear el primer admin con `npm run seed:admin` o registro único controlado, luego deshabilitar registro.
-6. Revisar logs y monitoreo de intentos fallidos de login.
-7. Considerar MFA y bloqueo por intentos en sprints futuros.
-8. Rotar secretos JWT si hay compromiso.
+## JSON-LD y cabeceras
 
-## Mensajes de error
+El JSON se serializa escapando `<` como `\u003c`, de modo que un valor del CMS con `</script>` no pueda cerrar el elemento. Se preservan los datos al hacer JSON.parse.
 
-Los errores operativos no exponen stack ni detalles internos en producción. Login devuelve mensaje genérico: *"Invalid email or password"*.
+Next añade nosniff, DENY, política de referrer, permisos de cámara/micrófono/geolocalización desactivados, HSTS en producción y una CSP limitada a `object-src`, `base-uri` y `frame-ancestors`. Esta CSP **no restringe scripts**: una política completa con nonces y compatibilidad con el renderizado requiere trabajo adicional. Express mantiene Helmet; su CSP sigue desactivada para la API JSON.
 
----
+## Verificación y operación
 
-# Seguridad — Uploads (Cloudinary) (Sprint 7 + 7.1)
+`npm test --prefix backend` ejecuta smoke, validación de uploads y las pruebas de seguridad. `npm run test:security --prefix frontend` verifica JSON-LD, proxy, renovación, uploads y estado de sesión. `npm run verify:release --prefix frontend` verifica el artefacto y HTTP del release arrancado.
 
-## Superficie de ataque
-- Los endpoints de subida están bajo `/api/admin/uploads/*` y están protegidos con `protect` + `restrictTo("admin")`.
-- No existe endpoint público para subir/eliminar assets.
+Las pruebas HTTP usan Express, JWT, cookies serializadas y Multer reales, con modelos de MongoDB y llamadas Cloudinary sustituidos por fixtures. No prueban la topología TLS real, almacenamiento real ni comportamiento de cookies en un navegador entre los subdominios de producción. Antes de publicar, completar el procedimiento de [deployment.md](deployment.md).
 
-## Controles del backend
-- **Multer en `memoryStorage`**: evita escribir archivos en disco local.
-- **Rate limit específico**:
-  - `POST /api/admin/uploads/*`: máximo **10 uploads por IP cada 15 minutos**.
-  - Respuesta JSON: `{ "status": "error", "message": "Too many upload attempts..." }`.
-  - `DELETE` no cuenta hacia este límite.
-- **Límites por tipo**:
-  - Imágenes: `5MB` máximo.
-  - PDFs: `10MB` máximo.
-- **Validación por capas**:
-  1. Extensión peligrosa bloqueada (`.exe`, `.js`, `.html`, `.php`, `.svg`, etc.).
-  2. `mimetype` declarado (Multer).
-  3. **Magic bytes** con `file-type` (`fileTypeFromBuffer`) — valida contenido real del buffer.
-- **Separación estricta por endpoint**:
-  - Endpoints de imagen: solo JPEG/PNG/WebP/GIF (contenido + mimetype).
-  - Endpoints PDF (`cyber-report`, `cv`): solo `application/pdf`.
-  - Discrepancia mimetype vs contenido real → rechazo.
-  - SVG bloqueado explícitamente.
-  - Archivos sin tipo detectable → rechazo.
-- **No se confía en el nombre original**:
-  - Se genera un `public_id` sanitizado y único.
-- **Eliminación segura**:
-  - `DELETE /api/admin/uploads` requiere `publicId` y `resourceType`.
-  - `resourceType` solo acepta `image` o `raw`.
-  - `publicId` debe iniciar con `portfolio/` (namespace Cloudinary del proyecto).
-  - Rechaza path traversal (`..`, `\`, etc.).
+Persisten MFA, antivirus de PDFs, retención/archivado de auditoría y limpieza automática de huérfanos como mejoras futuras. La auditoría de dependencias del Sprint 0 no sustituye estas comprobaciones funcionales.
 
-## Cleanup en frontend
-- Al reemplazar un archivo subido, si existe `publicId` anterior se intenta borrar en Cloudinary.
-- Si el delete falla, el upload nuevo **no se bloquea**; se muestra warning al admin.
+## Referencias técnicas
 
-## Prevención de doble subida
-- Interceptor Axios no reintenta requests a `/admin/uploads` tras refresh de token.
-- Uploads envían `_retry: true` para evitar replay accidental del multipart.
-
-## Logs operativos
-- Fallos de upload/delete registran contexto mínimo (`endpoint`, `publicId`, mensaje).
-- **Nunca** se loguean API keys, cookies, tokens ni contenido de archivos.
-
-## Manejo de errores
-- Los errores del sistema responden con mensajes controlados (sin stack trace en producción).
-- Los errores de tamaño/mimetype/magic bytes inválidos responden como fallo operacional (400).
-
-## Riesgos restantes
-- Validación magic bytes reduce spoofing pero **no reemplaza antivirus** en PDFs.
-- Recomendación Sprint 8+: escaneo antivirus/clamd para PDFs antes de almacenar.
-- Rate limit por IP puede afectar admins detrás de NAT compartido (aceptable en MVP).
-
-## Secretos
-- `CLOUDINARY_API_SECRET` y demás credenciales viven **solo en el backend** (`backend/src/config/cloudinary.js`).
-- El frontend jamás expone credenciales de Cloudinary.
-
----
-
-# Seguridad — Site Settings y SEO público (Sprint 8)
-
-## Controles en backend
-- `PUT /api/admin/site-settings` protegido con `protect` + `restrictTo("admin")`.
-- `GET /api/site-settings` expone solo configuración pública del sitio (sin secretos operativos).
-- Validación de URLs y email en validator backend.
-- Modelo tratado como singleton activo para evitar documentos competidores.
-
-## Superficie pública y privacidad
-- Navbar, footer, hero, contacto y metadata consumen Site Settings con fallback local si API falla.
-- Campos vacíos (ej. teléfono) no se muestran si no existen.
-- Descarga de CV pública abre en nueva pestaña con `rel="noopener noreferrer"`.
-- Admin marcado como `noindex,nofollow` desde layout de App Router.
-
-## SEO y rastreo
-- Metadata dinámica por slug en secciones públicas.
-- `robots.txt` bloquea `/admin`.
-- `sitemap.xml` usa fallback estático si falla la API.
-- JSON-LD se genera de forma tolerante a campos faltantes.
-
-# Seguridad — Production Hardening (Sprint FINAL)
-
-## Helmet y headers HTTP
-- Configuración centralizada en `backend/src/config/helmet.js`.
-- CSP compatible con frontend Next.js (sin romper assets del cliente).
-- Headers activos: `referrerPolicy`, `frameguard`, `noSniff`, `crossOriginOpenerPolicy`, `originAgentCluster`, `hidePoweredBy`.
-
-## CORS
-- Solo origen `FRONTEND_URL` (sin wildcard).
-- `credentials: true` para cookies httpOnly.
-
-## Request correlation
-- Cada request recibe `X-Request-Id` (`backend/src/middlewares/requestId.js`).
-- Logs Morgan incluyen `requestId` para trazabilidad.
-
-## Suspicious activity logging
-- Eventos registrados sin datos sensibles (`backend/src/utils/securityLogger.js`):
-  - login fallidos repetidos
-  - uploads rechazados (magic bytes)
-  - delete uploads fallidos
-  - access denied admin
-
-## Audit logging
-- Modelo `AuditLog` persiste acciones admin y auth.
-- **Nunca** almacena passwords, tokens ni cookies.
-- Eventos: CRUD CMS, soft delete/restore, uploads, login/logout/refresh/failed login, site settings.
-
-## Soft delete
-- Entidades CMS: projects, cyber labs, certifications, education, blog.
-- Campos: `isDeleted`, `deletedAt`, `deletedBy`.
-- Público: excluye eliminados (`isDeleted !== true`).
-- Admin: filtro `includeDeleted=true` opcional; restore vía `POST /api/admin/{entity}/:id/restore`.
-
-## Site Settings singleton
-- Clave única `singletonKey: "global"` — un solo documento activo.
-- `canonicalBaseUrl` validado contra dominios permitidos (`ALLOWED_CANONICAL_HOSTS` o hostname de `FRONTEND_URL`).
-- Bloquea `javascript:`, `data:` y protocolos inseguros.
-
-## Env validation (fail-fast)
-- `backend/src/config/env.js` valida al arranque: `PORT`, `MONGO_URI`, JWT secrets, `FRONTEND_URL`, Cloudinary en producción.
-
-## Riesgos restantes
-- Rate limit por IP puede afectar admins detrás de NAT.
-- Magic bytes no reemplaza antivirus en PDFs.
-- Audit log crece indefinidamente — considerar TTL/archivado en producción.
-- MFA y bloqueo de cuenta no implementados (futuro).
-
+- [Migración a Express 5: cambios de req.query](https://expressjs.com/en/guide/migrating-5/#req.query).
+- [OWASP: prevención de CSRF y comprobación del origen](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html).
+- Guías de la versión instalada de Next 16.3.6: authentication, json-ld y headers, leídas en `frontend/node_modules/next/dist/docs/`.

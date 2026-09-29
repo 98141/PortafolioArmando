@@ -39,9 +39,9 @@ node --version
 npm --version
 npm ci --prefix backend
 npm ci --prefix frontend
-npm run test:smoke --prefix backend
-npm run verify:uploads --prefix backend
+npm test --prefix backend
 npm run test:config --prefix frontend
+npm run test:security --prefix frontend
 npm run build --prefix frontend
 npm run typecheck --prefix frontend
 npm run lint --prefix frontend
@@ -49,7 +49,7 @@ npm audit --prefix frontend
 npm audit --prefix backend
 ```
 
-El lint mantiene deuda previa documentada en `docs/sprint-0.md`. Un build correcto no implica que el lint esté resuelto. No usar opciones para ignorar fallos de TypeScript ni `npm audit fix --force` como parte del despliegue.
+El lint mantiene deuda previa documentada en `docs/sprint-1.md`. Un build correcto no implica que el lint esté resuelto. No usar opciones para ignorar fallos de TypeScript ni `npm audit fix --force` como parte del despliegue.
 
 En una terminal, arrancar el release local:
 
@@ -104,20 +104,21 @@ Usar `backend/.env.example` como inventario, no como configuración de producci�
 | `FRONTEND_URL` | `https://armandomora.com.co` (origen exacto para CORS) |
 | `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Credenciales privadas del backend |
 | `COOKIE_SECURE` | `true` con HTTPS |
-| `COOKIE_SAME_SITE` | Según la arquitectura de autenticación; no cambiar por ensayo |
+| `COOKIE_SAME_SITE` | `lax` para los dos subdominios HTTPS actuales |
+| `TRUST_PROXY` | `0` por defecto; `1` solo detrás de un proxy controlado y confirmado |
 | `ALLOW_REGISTER_ADMIN` | `false` |
 | `ALLOWED_CANONICAL_HOSTS` | `armandomora.com.co` |
 
-La autenticación con cookies entre el frontend y el subdominio API tiene una incidencia detectada que corresponde al Sprint 1. Cambiar SameSite por sí solo no resuelve el alcance host-only de la cookie ni la validación del proxy del frontend.
+Sprint 1 mantiene cookies host-only en la API y valida la sesión mediante `/api/auth/me`. Al publicar, todos los administradores deberán iniciar sesión de nuevo: las sesiones anteriores no incluyen `sid`. Usar `FRONTEND_URL=https://armandomora.com.co` sin slash final; toda escritura requiere la cabecera Origin exacta. Verificar secretos JWT distintos y de al menos 32 caracteres. Publicar backend y frontend como un release coordinado; probar login, recarga del panel, expiración/refresh, upload y logout en un navegador real.
 
 ## Validación después de publicar
 
-- `GET https://api.armandomora.com.co/api/health` debe responder 200 y confirmar conexión de base de datos.
+- `GET https://api.armandomora.com.co/api/health` debe responder 200. Este endpoint informa uptime y fecha; confirmar la conexión de base de datos también en los logs de arranque y con una lectura autenticada.
 - Verificar canonical y Open Graph HTTPS en las ocho páginas públicas; `/robots.txt` debe anunciar `https://armandomora.com.co/sitemap.xml`.
 - Verificar `/sitemap.xml` y `/rss.xml`; ninguna URL debe contener localhost ni el dominio antiguo `.dev`.
 - Abrir una página en navegador y revisar las peticiones: la API debe ser `https://api.armandomora.com.co/api`. Inspeccionar los chunks **realmente servidos** después de invalidar caché.
 - En el proxy/panel configurar redirección permanente de HTTP y `www` a `https://armandomora.com.co`, preservando ruta y query. Las etiquetas canonical no sustituyen esa redirección. Evitar reglas basadas en cabeceras reenviadas no confiables. Verificar que no haya bucles y que el certificado cubra los hosts usados.
-- Verificar login, panel y cierre de sesión; conservar evidencia de la incidencia pendiente del Sprint 1.
+- Verificar login, recarga del panel, refresh con acceso expirado, uploads y logout entre los subdominios HTTPS. Confirmar que las cookies sean HttpOnly, Secure, host-only y que no haya bucles al login. La página admin sin sesión devuelve la estructura de validación; la API privada debe devolver 401/403.
 - La paginación del sitemap (ahora solicita `limit=200`) sigue pendiente del Sprint 2. Este sprint corrige su origen, no garantiza cobertura dinámica completa.
 
 ## Rollback
@@ -127,4 +128,4 @@ La autenticación con cookies entre el frontend y el subdominio API tiene una in
 3. Restaurar código, `.next`, archivos públicos y lockfiles como un conjunto. Si se reconstruye, usar `npm ci` con el lockfile y el runtime correspondientes; nunca mezclar `.next` nuevo con dependencias antiguas.
 4. Repetir el smoke público y la comprobación de API. El release anterior contiene vulnerabilidades conocidas: usarlo solo como contingencia temporal, registrar la incidencia y preparar un release corregido.
 
-Sprint 0 no realiza migraciones de base de datos ni cambia credenciales. El despliegue y las redirecciones del alojamiento deben comprobarse allí antes de declarar cerrada la validación de producción.
+Sprint 1 añade `sessionId` opcional a User, sin migración destructiva ni cambio de credenciales; los nuevos logins lo generan. Al hacer rollback se pierde la revocación de acceso por sid: no restaurar una versión antigua salvo contingencia documentada. El despliegue y las redirecciones del alojamiento deben comprobarse allí antes de declarar cerrada la validación de producción.

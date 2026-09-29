@@ -1,5 +1,6 @@
 const cloudinary = require("../config/cloudinary");
 const { Readable } = require("stream");
+const { randomUUID } = require("node:crypto");
 const AppError = require("../utils/AppError");
 const { logUploadFailure, logDeleteFailure } = require("../utils/uploadLogger");
 
@@ -15,7 +16,7 @@ const sanitizePublicIdBase = (name = "") =>
 
 const buildPublicId = (file) => {
   const base = sanitizePublicIdBase(file?.originalname ?? "asset");
-  const unique = Date.now();
+  const unique = randomUUID();
   return `${base || "asset"}-${unique}`;
 };
 
@@ -48,6 +49,7 @@ const uploadBufferToCloudinary = (file, { folder, resource_type }) =>
         folder,
         resource_type,
         public_id: publicId,
+        overwrite: false,
       },
       (error, result) => {
         if (error) return reject(error);
@@ -55,7 +57,8 @@ const uploadBufferToCloudinary = (file, { folder, resource_type }) =>
       }
     );
 
-    Readable.from(file.buffer).pipe(uploadStream);
+    uploadStream.on("error", reject);
+    Readable.from(file.buffer).on("error", reject).pipe(uploadStream);
   });
 
 const uploadImageToCloudinary = async (file, folder, endpoint) => {
@@ -89,7 +92,10 @@ const uploadPdfToCloudinary = async (file, folder, endpoint) => {
 const deleteFromCloudinary = async (publicId, resourceType, endpoint) => {
   const resource_type = resourceType === "raw" ? "raw" : "image";
   try {
-    await cloudinary.uploader.destroy(publicId, { resource_type });
+    const result = await cloudinary.uploader.destroy(publicId, { resource_type });
+    if (!["ok", "not found"].includes(result?.result)) {
+      throw new AppError("Cloudinary did not confirm asset deletion", 502);
+    }
   } catch (err) {
     logDeleteFailure(endpoint || "delete", err, { publicId, resourceType });
     throw err.isOperational

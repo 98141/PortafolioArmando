@@ -1,4 +1,5 @@
 const User = require("../models/user.model");
+const { randomUUID } = require("node:crypto");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const sanitizeUser = require("../utils/sanitizeUser");
@@ -47,8 +48,9 @@ const issueTokensAndRespond = async (
   statusCode = 200,
   auditAction = "auth.login_success"
 ) => {
-  const accessToken = signAccessToken(user._id);
-  const refreshToken = signRefreshToken(user._id);
+  user.sessionId = randomUUID();
+  const accessToken = signAccessToken(user._id, user.sessionId);
+  const refreshToken = signRefreshToken(user._id, user.sessionId);
 
   await persistRefreshToken(user, refreshToken);
   sendAuthCookies(res, accessToken, refreshToken);
@@ -70,33 +72,29 @@ const issueTokensAndRespond = async (
 };
 
 const revokeSessionFromCookies = async (req) => {
-  const candidateIds = new Set();
+  const candidates = [];
   const refreshCookie = req.cookies?.[REFRESH_TOKEN_COOKIE];
   const accessCookie = req.cookies?.[ACCESS_TOKEN_COOKIE];
 
   if (refreshCookie) {
     const decoded = decodeRefreshTokenSafe(refreshCookie);
-    if (decoded?.id) {
-      candidateIds.add(String(decoded.id));
+    if (decoded?.id && decoded?.sid) {
+      candidates.push(decoded);
     }
   }
 
   if (accessCookie) {
     const decoded = decodeAccessTokenSafe(accessCookie);
-    if (decoded?.id) {
-      candidateIds.add(String(decoded.id));
+    if (decoded?.id && decoded?.sid) {
+      candidates.push(decoded);
     }
   }
 
   await Promise.all(
-    [...candidateIds].map(async (userId) => {
-      const user = await User.findById(userId).select("+refreshTokenHash");
-      if (!user?.refreshTokenHash) {
-        return;
-      }
-      user.refreshTokenHash = undefined;
-      await user.save({ validateBeforeSave: false });
-    })
+    candidates.map((decoded) => User.updateOne(
+      { _id: decoded.id, sessionId: decoded.sid },
+      { $unset: { refreshTokenHash: 1, sessionId: 1 } }
+    ))
   );
 };
 
@@ -169,21 +167,26 @@ const refreshToken = catchAsync(async (req, res, next) => {
   const token = req.cookies?.[REFRESH_TOKEN_COOKIE];
 
   if (!token) {
+    clearAuthCookies(res);
     return next(new AppError("Refresh token not provided", 401));
   }
 
-  const decoded = verifyRefreshToken(token);
+  let decoded;
+  try {
+    decoded = verifyRefreshToken(token);
+  } catch (error) {
+    clearAuthCookies(res);
+    return next(error);
+  }
 
-  const user = await User.findById(decoded.id).select("+refreshTokenHash");
+  const user = await User.findById(decoded.id).select("+refreshTokenHash +sessionId");
 
   if (!user || !user.isActive) {
     clearAuthCookies(res);
     return next(new AppError("Invalid refresh session", 401));
   }
 
-  if (!user.refreshTokenHash || !compareRefreshTokenHash(token, user.refreshTokenHash)) {
-    user.refreshTokenHash = undefined;
-    await user.save({ validateBeforeSave: false });
+  if (!decoded.sid || decoded.sid !== user.sessionId || !user.refreshTokenHash || !compareRefreshTokenHash(token, user.refreshTokenHash)) {
     clearAuthCookies(res);
     return next(new AppError("Invalid refresh session", 401));
   }
@@ -193,11 +196,18 @@ const refreshToken = catchAsync(async (req, res, next) => {
     return next(new AppError("User recently changed password. Please log in again.", 401));
   }
 
-  const newAccessToken = signAccessToken(user._id);
-  const newRefreshToken = signRefreshToken(user._id);
+  const newAccessToken = signAccessToken(user._id, user.sessionId);
+  const newRefreshToken = signRefreshToken(user._id, user.sessionId);
 
-  user.refreshTokenHash = hashRefreshToken(newRefreshToken);
-  await user.save({ validateBeforeSave: false });
+  const rotated = await User.findOneAndUpdate(
+    { _id: user._id, sessionId: decoded.sid, refreshTokenHash: hashRefreshToken(token), isActive: true },
+    { $set: { refreshTokenHash: hashRefreshToken(newRefreshToken) } },
+    { new: true }
+  );
+  if (!rotated) {
+    clearAuthCookies(res);
+    return next(new AppError("Refresh session already used or revoked", 401));
+  }
 
   sendAuthCookies(res, newAccessToken, newRefreshToken);
 
@@ -215,10 +225,10 @@ const refreshToken = catchAsync(async (req, res, next) => {
   });
 });
 
-/** Always succeeds: clears cookies and revokes refresh when identifiable. */
+/** Clear the browser cookies even if persistence is temporarily unavailable. */
 const logout = catchAsync(async (req, res) => {
-  await revokeSessionFromCookies(req);
   clearAuthCookies(res);
+  await revokeSessionFromCookies(req);
 
   await writeAudit({
     actor: req.user,

@@ -54,15 +54,6 @@ const brandingSchema = z
   })
   .optional();
 
-const cvSchema = z
-  .object({
-    url: optionalUrl,
-    publicId: optionalString(300),
-    fileName: optionalString(255),
-    updatedAt: z.coerce.date().optional(),
-  })
-  .optional();
-
 const seoSchema = z
   .object({
     siteName: optionalString(120),
@@ -105,7 +96,6 @@ const availabilitySchema = z
 const updateSiteSettingsSchema = z.object({
   profile: profileSchema,
   branding: brandingSchema,
-  cv: cvSchema,
   seo: seoSchema,
   social: z.array(socialItemSchema).optional().default([]),
   availability: availabilitySchema,

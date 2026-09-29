@@ -1,22 +1,11 @@
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-
-export function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  if (pathname === "/admin/login") {
-    return NextResponse.next();
-  }
-
-  const accessToken = request.cookies.get("accessToken");
-
-  if (!accessToken?.value) {
-    const loginUrl = new URL("/admin/login", request.url);
-    loginUrl.searchParams.set("from", pathname);
-    return NextResponse.redirect(loginUrl);
-  }
-
-  return NextResponse.next();
+export function proxy() {
+  // The API owns host-only cookies. The frontend cannot infer a session from them.
+  // ProtectedRoute checks /auth/me; every private API route authorizes on the server.
+  const response = NextResponse.next();
+  response.headers.set("Cache-Control", "private, no-store");
+  response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  return response;
 }
 
 export const config = {

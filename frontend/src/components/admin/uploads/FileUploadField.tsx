@@ -70,14 +70,12 @@ export default function FileUploadField({
   disabled = false,
 }: FileUploadFieldProps) {
   const [error, setError] = useState<string | null>(null);
-  const [warning, setWarning] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const uploadFn = useMemo(() => pickUploadFn(uploadType), [uploadType]);
 
   const handleFile = async (file: File | null) => {
     setError(null);
-    setWarning(null);
     if (!file) return;
 
     if (file.size > maxSize) {
@@ -85,34 +83,18 @@ export default function FileUploadField({
       return;
     }
 
-    const previous = value?.publicId ? value : null;
-
     try {
       setLoading(true);
       const uploaded = await uploadFn(file);
 
-      if (
-        previous?.publicId &&
-        previous.publicId !== uploaded.publicId
-      ) {
-        const deleted = await uploadService.tryDeleteUploadedAsset(
-          previous.publicId,
-          previous.resourceType
-        );
-        if (!deleted) {
-          setWarning(
-            "El nuevo archivo se subió correctamente, pero no se pudo eliminar el anterior en Cloudinary."
-          );
-        }
-      }
-
+      // Uploads remain staged until the parent entity is saved. Never delete its current asset here.
       onChange(uploaded);
     } catch (e: unknown) {
       const message =
         (e as { response?: { data?: { message?: string } } })?.response?.data
           ?.message || "No se pudo subir el archivo.";
       setError(message);
-      onChange(null);
+      // Preserve the current form value if the upload fails.
     } finally {
       setLoading(false);
     }
@@ -121,7 +103,6 @@ export default function FileUploadField({
   const clear = () => {
     onChange(null);
     setError(null);
-    setWarning(null);
   };
 
   return (
@@ -208,12 +189,6 @@ export default function FileUploadField({
       {error && (
         <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">
           {error}
-        </p>
-      )}
-
-      {warning && (
-        <p className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
-          {warning}
         </p>
       )}
     </div>

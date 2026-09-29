@@ -14,7 +14,13 @@ const validateRequest = (schema, source = "body") => (req, res, next) => {
     return next(new AppError(issues.join(". "), 400));
   }
 
-  req[source] = result.data;
+  if (source === "query") {
+    Object.defineProperty(req, source, {
+      value: result.data, writable: true, configurable: true, enumerable: true,
+    });
+  } else {
+    req[source] = result.data;
+  }
   next();
 };
 

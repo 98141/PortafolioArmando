@@ -37,14 +37,21 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const router = useRouter();
   const { user, logout, isLoading } = useAuthStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [logoutError, setLogoutError] = useState<string | null>(null);
 
   const handleLogout = async () => {
-    await logout();
-    router.replace("/admin/login");
+    setLogoutError(null);
+    try {
+      await logout();
+      router.replace("/admin/login");
+    } catch {
+      setLogoutError("No se pudo confirmar el cierre de sesión. Inténtalo de nuevo.");
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#080c18] text-zinc-100">
+      {logoutError && <p role="alert" className="relative z-50 bg-red-950 p-4 text-red-100">{logoutError}</p>}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -left-32 top-0 h-96 w-96 rounded-full bg-blue-600/10 blur-3xl" />
         <div className="absolute -right-32 bottom-0 h-96 w-96 rounded-full bg-purple-600/10 blur-3xl" />

@@ -4,9 +4,9 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const rateLimit = require("express-rate-limit");
-const mongoSanitize = require("mongo-sanitize");
 const hpp = require("hpp");
-const mongoose = require("mongoose");
+const sanitizeRequest = require("./middlewares/sanitizeRequest");
+const requireTrustedOrigin = require("./middlewares/requireTrustedOrigin");
 
 const { helmetConfig } = require("./config/helmet");
 const requestId = require("./middlewares/requestId");
@@ -16,7 +16,7 @@ const app = express();
 const serverStartedAt = Date.now();
 
 app.disable("x-powered-by");
-app.set("trust proxy", 1);
+app.set("trust proxy", Number(process.env.TRUST_PROXY || 0));
 app.use(requestId);
 app.use(helmet(helmetConfig));
 
@@ -35,6 +35,7 @@ app.use(
   })
 );
 
+app.use(requireTrustedOrigin);
 app.use(express.json({ limit: "500kb" }));
 app.use(express.urlencoded({ extended: true, limit: "500kb" }));
 app.use(cookieParser());
@@ -61,14 +62,12 @@ app.use(
   })
 );
 
-app.use((req, res, next) => {
-  req.body = mongoSanitize(req.body);
-  req.params = mongoSanitize(req.params);
-  req.query = mongoSanitize(req.query);
+app.use(sanitizeRequest);
+app.use(hpp({ checkQuery: false }));
+app.use(["/api/auth", "/api/admin"], (_req, res, next) => {
+  res.set("Cache-Control", "no-store");
   next();
 });
-
-app.use(hpp());
 
 const authRoutes = require("./routes/auth.routes");
 const { publicRouter: projectPublicRoutes, adminRouter: projectAdminRoutes } =

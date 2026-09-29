@@ -42,6 +42,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       select: false,
     },
+    sessionId: { type: String, select: false },
   },
   {
     timestamps: true,
@@ -49,6 +50,7 @@ const userSchema = new mongoose.Schema(
       transform(_doc, ret) {
         delete ret.password;
         delete ret.refreshTokenHash;
+        delete ret.sessionId;
         delete ret.__v;
         return ret;
       },
@@ -57,6 +59,7 @@ const userSchema = new mongoose.Schema(
       transform(_doc, ret) {
         delete ret.password;
         delete ret.refreshTokenHash;
+        delete ret.sessionId;
         delete ret.__v;
         return ret;
       },

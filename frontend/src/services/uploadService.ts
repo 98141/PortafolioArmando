@@ -1,5 +1,5 @@
 import { apiBaseUrl } from "@/src/lib/publicConfig";
-import { api } from "@/src/services/api";
+import { api, refreshSession } from "@/src/services/api";
 import type { InternalAxiosRequestConfig } from "axios";
 
 export type UploadResourceType = "image" | "raw";
@@ -28,11 +28,17 @@ const uploadTo = async (url: string, file: UploadFile): Promise<UploadResponse> 
   const formData = new FormData();
   formData.append("file", file);
 
-  const response = await fetch(`${resolveUploadBase()}${url}`, {
+  const send = () => fetch(`${resolveUploadBase()}${url}`, {
     method: "POST",
     body: formData,
     credentials: "include",
   });
+
+  let response = await send();
+  if (response.status === 401) {
+    await refreshSession();
+    response = await send();
+  }
 
   if (!response.ok) {
     const body = await response.json().catch(() => ({})) as { message?: string };

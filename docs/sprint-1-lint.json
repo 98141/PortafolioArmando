@@ -1,0 +1,518 @@
+{
+  "date": "2026-09-29",
+  "errors": 35,
+  "warnings": 9,
+  "files": [
+    {
+      "file": "frontend/src/app/(public)/blog/BlogPageClient.tsx",
+      "errors": 1,
+      "warnings": 2,
+      "messages": [
+        {
+          "line": 38,
+          "column": 7,
+          "severity": 2,
+          "rule": "react-hooks/set-state-in-effect",
+          "message": "Error: Calling setState synchronously within an effect can trigger cascading renders"
+        },
+        {
+          "line": 42,
+          "column": 9,
+          "severity": 1,
+          "rule": "react-hooks/exhaustive-deps",
+          "message": "The 'posts' logical expression could make the dependencies of useMemo Hook (at line 48) change on every render. To fix this, wrap the initialization of 'posts' in its own useMemo() Hook."
+        },
+        {
+          "line": 42,
+          "column": 9,
+          "severity": 1,
+          "rule": "react-hooks/exhaustive-deps",
+          "message": "The 'posts' logical expression could make the dependencies of useMemo Hook (at line 65) change on every render. To fix this, wrap the initialization of 'posts' in its own useMemo() Hook."
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/app/(public)/blog/[slug]/BlogPostPageClient.tsx",
+      "errors": 1,
+      "warnings": 0,
+      "messages": [
+        {
+          "line": 41,
+          "column": 9,
+          "severity": 2,
+          "rule": "react-hooks/set-state-in-effect",
+          "message": "Error: Calling setState synchronously within an effect can trigger cascading renders"
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/app/(public)/certifications/CertificationsPageClient.tsx",
+      "errors": 1,
+      "warnings": 0,
+      "messages": [
+        {
+          "line": 26,
+          "column": 7,
+          "severity": 2,
+          "rule": "react-hooks/set-state-in-effect",
+          "message": "Error: Calling setState synchronously within an effect can trigger cascading renders"
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/app/(public)/certifications/[slug]/page.tsx",
+      "errors": 3,
+      "warnings": 0,
+      "messages": [
+        {
+          "line": 39,
+          "column": 7,
+          "severity": 2,
+          "rule": "react-hooks/error-boundaries",
+          "message": "Error: Avoid constructing JSX within try/catch"
+        },
+        {
+          "line": 40,
+          "column": 9,
+          "severity": 2,
+          "rule": "react-hooks/error-boundaries",
+          "message": "Error: Avoid constructing JSX within try/catch"
+        },
+        {
+          "line": 41,
+          "column": 9,
+          "severity": 2,
+          "rule": "react-hooks/error-boundaries",
+          "message": "Error: Avoid constructing JSX within try/catch"
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/app/(public)/cybersecurity/[slug]/page.tsx",
+      "errors": 3,
+      "warnings": 0,
+      "messages": [
+        {
+          "line": 40,
+          "column": 7,
+          "severity": 2,
+          "rule": "react-hooks/error-boundaries",
+          "message": "Error: Avoid constructing JSX within try/catch"
+        },
+        {
+          "line": 41,
+          "column": 9,
+          "severity": 2,
+          "rule": "react-hooks/error-boundaries",
+          "message": "Error: Avoid constructing JSX within try/catch"
+        },
+        {
+          "line": 42,
+          "column": 9,
+          "severity": 2,
+          "rule": "react-hooks/error-boundaries",
+          "message": "Error: Avoid constructing JSX within try/catch"
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/app/(public)/education/EducationPageClient.tsx",
+      "errors": 1,
+      "warnings": 0,
+      "messages": [
+        {
+          "line": 26,
+          "column": 7,
+          "severity": 2,
+          "rule": "react-hooks/set-state-in-effect",
+          "message": "Error: Calling setState synchronously within an effect can trigger cascading renders"
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/app/(public)/education/[slug]/page.tsx",
+      "errors": 3,
+      "warnings": 0,
+      "messages": [
+        {
+          "line": 39,
+          "column": 7,
+          "severity": 2,
+          "rule": "react-hooks/error-boundaries",
+          "message": "Error: Avoid constructing JSX within try/catch"
+        },
+        {
+          "line": 40,
+          "column": 9,
+          "severity": 2,
+          "rule": "react-hooks/error-boundaries",
+          "message": "Error: Avoid constructing JSX within try/catch"
+        },
+        {
+          "line": 41,
+          "column": 9,
+          "severity": 2,
+          "rule": "react-hooks/error-boundaries",
+          "message": "Error: Avoid constructing JSX within try/catch"
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/app/(public)/projects/[slug]/page.tsx",
+      "errors": 3,
+      "warnings": 0,
+      "messages": [
+        {
+          "line": 41,
+          "column": 7,
+          "severity": 2,
+          "rule": "react-hooks/error-boundaries",
+          "message": "Error: Avoid constructing JSX within try/catch"
+        },
+        {
+          "line": 42,
+          "column": 9,
+          "severity": 2,
+          "rule": "react-hooks/error-boundaries",
+          "message": "Error: Avoid constructing JSX within try/catch"
+        },
+        {
+          "line": 43,
+          "column": 9,
+          "severity": 2,
+          "rule": "react-hooks/error-boundaries",
+          "message": "Error: Avoid constructing JSX within try/catch"
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/app/admin/blog/page.tsx",
+      "errors": 2,
+      "warnings": 0,
+      "messages": [
+        {
+          "line": 67,
+          "column": 5,
+          "severity": 2,
+          "rule": "react-hooks/set-state-in-effect",
+          "message": "Error: Calling setState synchronously within an effect can trigger cascading renders"
+        },
+        {
+          "line": 71,
+          "column": 5,
+          "severity": 2,
+          "rule": "react-hooks/set-state-in-effect",
+          "message": "Error: Calling setState synchronously within an effect can trigger cascading renders"
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/app/admin/certifications/page.tsx",
+      "errors": 2,
+      "warnings": 0,
+      "messages": [
+        {
+          "line": 67,
+          "column": 5,
+          "severity": 2,
+          "rule": "react-hooks/set-state-in-effect",
+          "message": "Error: Calling setState synchronously within an effect can trigger cascading renders"
+        },
+        {
+          "line": 71,
+          "column": 5,
+          "severity": 2,
+          "rule": "react-hooks/set-state-in-effect",
+          "message": "Error: Calling setState synchronously within an effect can trigger cascading renders"
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/app/admin/cyber-labs/[id]/edit/page.tsx",
+      "errors": 1,
+      "warnings": 0,
+      "messages": [
+        {
+          "line": 39,
+          "column": 5,
+          "severity": 2,
+          "rule": "react-hooks/set-state-in-effect",
+          "message": "Error: Calling setState synchronously within an effect can trigger cascading renders"
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/app/admin/cyber-labs/page.tsx",
+      "errors": 2,
+      "warnings": 0,
+      "messages": [
+        {
+          "line": 70,
+          "column": 5,
+          "severity": 2,
+          "rule": "react-hooks/set-state-in-effect",
+          "message": "Error: Calling setState synchronously within an effect can trigger cascading renders"
+        },
+        {
+          "line": 74,
+          "column": 5,
+          "severity": 2,
+          "rule": "react-hooks/set-state-in-effect",
+          "message": "Error: Calling setState synchronously within an effect can trigger cascading renders"
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/app/admin/education/page.tsx",
+      "errors": 2,
+      "warnings": 0,
+      "messages": [
+        {
+          "line": 66,
+          "column": 5,
+          "severity": 2,
+          "rule": "react-hooks/set-state-in-effect",
+          "message": "Error: Calling setState synchronously within an effect can trigger cascading renders"
+        },
+        {
+          "line": 70,
+          "column": 5,
+          "severity": 2,
+          "rule": "react-hooks/set-state-in-effect",
+          "message": "Error: Calling setState synchronously within an effect can trigger cascading renders"
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/app/admin/projects/[id]/edit/page.tsx",
+      "errors": 1,
+      "warnings": 0,
+      "messages": [
+        {
+          "line": 39,
+          "column": 5,
+          "severity": 2,
+          "rule": "react-hooks/set-state-in-effect",
+          "message": "Error: Calling setState synchronously within an effect can trigger cascading renders"
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/app/admin/projects/page.tsx",
+      "errors": 2,
+      "warnings": 0,
+      "messages": [
+        {
+          "line": 68,
+          "column": 5,
+          "severity": 2,
+          "rule": "react-hooks/set-state-in-effect",
+          "message": "Error: Calling setState synchronously within an effect can trigger cascading renders"
+        },
+        {
+          "line": 72,
+          "column": 5,
+          "severity": 2,
+          "rule": "react-hooks/set-state-in-effect",
+          "message": "Error: Calling setState synchronously within an effect can trigger cascading renders"
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/components/admin/blog/BlogPostForm.tsx",
+      "errors": 0,
+      "warnings": 1,
+      "messages": [
+        {
+          "line": 50,
+          "column": 24,
+          "severity": 1,
+          "rule": "react-hooks/incompatible-library",
+          "message": "Compilation Skipped: Use of incompatible library"
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/components/admin/certifications/CertificationForm.tsx",
+      "errors": 0,
+      "warnings": 1,
+      "messages": [
+        {
+          "line": 53,
+          "column": 20,
+          "severity": 1,
+          "rule": "react-hooks/incompatible-library",
+          "message": "Compilation Skipped: Use of incompatible library"
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/components/admin/cyber-labs/CyberLabForm.tsx",
+      "errors": 0,
+      "warnings": 1,
+      "messages": [
+        {
+          "line": 60,
+          "column": 28,
+          "severity": 1,
+          "rule": "react-hooks/incompatible-library",
+          "message": "Compilation Skipped: Use of incompatible library"
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/components/admin/education/EducationForm.tsx",
+      "errors": 0,
+      "warnings": 1,
+      "messages": [
+        {
+          "line": 47,
+          "column": 21,
+          "severity": 1,
+          "rule": "react-hooks/incompatible-library",
+          "message": "Compilation Skipped: Use of incompatible library"
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/components/admin/projects/ProjectForm.tsx",
+      "errors": 0,
+      "warnings": 1,
+      "messages": [
+        {
+          "line": 55,
+          "column": 20,
+          "severity": 1,
+          "rule": "react-hooks/incompatible-library",
+          "message": "Compilation Skipped: Use of incompatible library"
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/components/admin/projects/ProjectTable.tsx",
+      "errors": 0,
+      "warnings": 1,
+      "messages": [
+        {
+          "line": 4,
+          "column": 18,
+          "severity": 1,
+          "rule": "@typescript-eslint/no-unused-vars",
+          "message": "'Star' is defined but never used."
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/components/admin/settings/SiteSettingsForm.tsx",
+      "errors": 0,
+      "warnings": 1,
+      "messages": [
+        {
+          "line": 114,
+          "column": 30,
+          "severity": 1,
+          "rule": "react-hooks/incompatible-library",
+          "message": "Compilation Skipped: Use of incompatible library"
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/components/portfolio/CyberLabsGrid.tsx",
+      "errors": 1,
+      "warnings": 0,
+      "messages": [
+        {
+          "line": 49,
+          "column": 5,
+          "severity": 2,
+          "rule": "react-hooks/set-state-in-effect",
+          "message": "Error: Calling setState synchronously within an effect can trigger cascading renders"
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/components/portfolio/ProjectsGrid.tsx",
+      "errors": 1,
+      "warnings": 0,
+      "messages": [
+        {
+          "line": 75,
+          "column": 5,
+          "severity": 2,
+          "rule": "react-hooks/set-state-in-effect",
+          "message": "Error: Calling setState synchronously within an effect can trigger cascading renders"
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/components/sections/BlogPreview.tsx",
+      "errors": 1,
+      "warnings": 0,
+      "messages": [
+        {
+          "line": 26,
+          "column": 7,
+          "severity": 2,
+          "rule": "react-hooks/set-state-in-effect",
+          "message": "Error: Calling setState synchronously within an effect can trigger cascading renders"
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/components/sections/CertificationsPreview.tsx",
+      "errors": 1,
+      "warnings": 0,
+      "messages": [
+        {
+          "line": 26,
+          "column": 7,
+          "severity": 2,
+          "rule": "react-hooks/set-state-in-effect",
+          "message": "Error: Calling setState synchronously within an effect can trigger cascading renders"
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/components/sections/CyberLabsPreview.tsx",
+      "errors": 1,
+      "warnings": 0,
+      "messages": [
+        {
+          "line": 29,
+          "column": 7,
+          "severity": 2,
+          "rule": "react-hooks/set-state-in-effect",
+          "message": "Error: Calling setState synchronously within an effect can trigger cascading renders"
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/components/sections/EducationTimeline.tsx",
+      "errors": 1,
+      "warnings": 0,
+      "messages": [
+        {
+          "line": 26,
+          "column": 7,
+          "severity": 2,
+          "rule": "react-hooks/set-state-in-effect",
+          "message": "Error: Calling setState synchronously within an effect can trigger cascading renders"
+        }
+      ]
+    },
+    {
+      "file": "frontend/src/components/sections/FeaturedProjects.tsx",
+      "errors": 1,
+      "warnings": 0,
+      "messages": [
+        {
+          "line": 51,
+          "column": 7,
+          "severity": 2,
+          "rule": "react-hooks/set-state-in-effect",
+          "message": "Error: Calling setState synchronously within an effect can trigger cascading renders"
+        }
+      ]
+    }
+  ]
+}

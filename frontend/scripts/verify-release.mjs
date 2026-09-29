@@ -28,6 +28,8 @@ console.log("OK browser chunks: production API present; no application localhost
 async function get(path) {
   const response = await fetch(new URL(path, base), { signal: AbortSignal.timeout(30000) });
   assert.equal(response.status, 200, `${path} HTTP status`);
+  assert.equal(response.headers.get("x-content-type-options"), "nosniff", `${path} nosniff`);
+  assert.equal(response.headers.get("x-frame-options"), "DENY", `${path} frame protection`);
   const body = await response.text();
   assert.ok(!localAppUrl.test(body), `${path} contains a local application URL`);
   return body;
@@ -59,4 +61,10 @@ const rss = await get("/rss.xml");
 assert.ok(rss.includes(`<link>${site}/blog</link>`), "RSS origin");
 const admin = await get("/admin/login");
 assert.match(admin, /<meta name="robots" content="[^"]*noindex/);
+const dashboard = await fetch(new URL("/admin/dashboard", base), { redirect: "manual" });
+assert.equal(dashboard.status, 200, "Admin shell must allow API-owned session validation");
+assert.match(dashboard.headers.get("cache-control") || "", /no-store/, "Admin must not be cached");
+assert.equal(dashboard.headers.get("x-robots-tag"), "noindex, nofollow");
+assert.ok((await dashboard.text()).includes("Validando sesión"), "Anonymous HTML must render the session gate");
 console.log(`OK robots, sitemap (${locations.length} URLs), RSS and admin noindex`);
+console.log("OK security headers and uncached admin shell with session gate");

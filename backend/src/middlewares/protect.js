@@ -13,7 +13,7 @@ const protect = catchAsync(async (req, res, next) => {
 
   const decoded = verifyAccessToken(token);
 
-  const currentUser = await User.findById(decoded.id);
+  const currentUser = await User.findById(decoded.id).select("+sessionId +refreshTokenHash");
 
   if (!currentUser) {
     return next(new AppError("The user belonging to this token no longer exists.", 401));
@@ -21,6 +21,10 @@ const protect = catchAsync(async (req, res, next) => {
 
   if (!currentUser.isActive) {
     return next(new AppError("Your account has been deactivated.", 401));
+  }
+
+  if (!decoded.sid || decoded.sid !== currentUser.sessionId || !currentUser.refreshTokenHash) {
+    return next(new AppError("Session revoked. Please log in again.", 401));
   }
 
   if (currentUser.changedPasswordAfter(decoded.iat)) {

@@ -1,6 +1,8 @@
 # API Spec — Autenticación
 
-Base URL: `http://localhost:5000/api` (desarrollo)
+Base URL: `http://localhost:5000/api` (desarrollo), `https://api.armandomora.com.co/api` (producción).
+
+Sprint 1: POST/PUT/PATCH/DELETE requieren `Origin` idéntico a `FRONTEND_URL`; ausente o distinto devuelve 403. Las cookies de sesión son HttpOnly y host-only. Un login nuevo invalida la sesión anterior.
 
 Todas las respuestas de error siguen:
 
@@ -113,7 +115,7 @@ No requiere body. Lee cookie `refreshToken`.
 }
 ```
 
-Nuevas cookies access + refresh (rotación).
+Nuevas cookies access + refresh (rotación atómica, tokens únicos). Un refresh ya consumido devuelve 401; el cliente no debe ejecutar renovaciones simultáneas.
 
 ### Errores principales
 
@@ -127,7 +129,7 @@ Nuevas cookies access + refresh (rotación).
 
 ## POST /auth/logout
 
-**Público** — No requiere access token válido. Siempre limpia cookies. Revoca refresh en BD si identifica usuario por cookies (válidas o expiradas).
+No requiere access token vigente, pero exige Origin confiable. Limpia cookies y revoca hash y sessionId de la sesión identificada mediante tokens firmados, incluso expirados. Si la persistencia falla devuelve error; sin sesión es idempotente.
 
 ### Response 200
 
@@ -138,11 +140,11 @@ Nuevas cookies access + refresh (rotación).
 }
 ```
 
-Limpia cookies y `refreshTokenHash` en BD.
+Limpia cookies, `refreshTokenHash` y `sessionId`. Los access tokens de esa sesión quedan revocados.
 
 ### Errores principales
 
-Ninguno operacional esperado — responde 200 incluso sin sesión previa.
+200 sin sesión previa; 403 si Origin no es confiable; error 5xx si no puede confirmarse la revocación en la base de datos.
 
 ---
 
@@ -695,9 +697,13 @@ Imagen. Tipo: `image/jpeg|image/png|image/webp|image/gif`. Magic bytes validados
 
 ## POST /admin/uploads/cv
 
+Sube y guarda el CV antes de limpiar el anterior. Fallo de guardado conserva el CV publicado; fallos de limpieza se auditan.
+
 PDF. Tipo: `application/pdf`. Magic bytes validados. Tamaño máx: `10MB`.
 
 ## DELETE /admin/uploads
+
+Devuelve 409 si el asset está referenciado por contenido guardado, incluido soft delete.
 
 Admin. Elimina un asset en Cloudinary.
 
@@ -749,6 +755,8 @@ Admin. Obtiene el documento singleton de configuración para edición.
 
 ## PUT /admin/site-settings
 
+El campo `cv` se ignora. Administrarlo mediante POST `/admin/uploads/cv` o DELETE `/admin/site-settings/cv`; no reenviar copias antiguas desde el formulario de ajustes.
+
 Admin. Crea/actualiza el singleton activo de Site Settings.
 
 **Reglas:**
@@ -769,15 +777,11 @@ Admin. Crea/actualiza el singleton activo de Site Settings.
     "logo": { "url": "https://..." },
     "avatar": { "url": "https://..." }
   },
-  "cv": {
-    "url": "https://res.cloudinary.com/.../portfolio/cv.pdf",
-    "publicId": "portfolio/cv/..."
-  },
   "seo": {
     "siteName": "Armando Mora",
     "defaultTitle": "Armando Mora | Software & Cybersecurity",
     "defaultDescription": "Portafolio profesional",
-    "canonicalBaseUrl": "https://armandomora.dev"
+    "canonicalBaseUrl": "https://armandomora.com.co"
   },
   "social": [
     {
@@ -824,11 +828,8 @@ Público. Estado operacional del API.
 {
   "status": "success",
   "data": {
-    "status": "ok",
     "uptime": 123.45,
-    "timestamp": "2026-05-26T12:00:00.000Z",
-    "env": "production",
-    "dbConnected": true
+    "timestamp": "2026-05-26T12:00:00.000Z"
   }
 }
 ```

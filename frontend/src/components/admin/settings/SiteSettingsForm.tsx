@@ -71,7 +71,7 @@ const mapToFormValues = (settings: SiteSettings): SiteSettingsFormValues => ({
 const mapToPayload = (values: SiteSettingsFormValues): SiteSettings => ({
   profile: values.profile,
   branding: values.branding,
-  cv: values.cv,
+
   seo: {
     ...values.seo,
     keywords: (values.seo.keywordsText || "")
@@ -90,7 +90,6 @@ export default function SiteSettingsForm({ initialSettings, loading, error, onSu
     register,
     control,
     handleSubmit,
-    setValue,
     watch,
     formState: { errors },
   } = useForm<SiteSettingsFormValues>({
@@ -112,12 +111,7 @@ export default function SiteSettingsForm({ initialSettings, loading, error, onSu
 
       <ProfileSettingsForm register={register} />
       <BrandingSettingsForm register={register} />
-      <CvSettingsForm
-        register={register}
-        setValue={setValue}
-        cvUrl={watch("cv.url")}
-        cvPublicId={watch("cv.publicId")}
-      />
+      <CvSettingsForm cvUrl={watch("cv.url")} />
       <SeoSettingsForm register={register} />
       <SocialLinksEditor control={control} register={register} />
 

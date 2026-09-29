@@ -30,7 +30,7 @@ const cookieSecure =
   process.env.COOKIE_SECURE === "true" ||
   (process.env.COOKIE_SECURE !== "false" && isProduction);
 
-const cookieSameSite = process.env.COOKIE_SAME_SITE || (isProduction ? "none" : "lax");
+const cookieSameSite = process.env.COOKIE_SAME_SITE || "lax";
 
 const baseCookieOptions = {
   httpOnly: true,
@@ -51,7 +51,6 @@ const refreshTokenCookieOptions = {
 
 const clearCookieOptions = {
   ...baseCookieOptions,
-  maxAge: 0,
 };
 
 module.exports = {
