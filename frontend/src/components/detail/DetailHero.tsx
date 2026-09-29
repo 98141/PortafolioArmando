@@ -11,7 +11,7 @@ export default function DetailHero({ title, subtitle, description, breadcrumb }:
   return (
     <header className="border-b border-white/5 bg-[#080c18]/60 px-4 py-8 lg:px-8">
       <div className="mx-auto max-w-5xl">
-        <nav className="mb-4 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
+        <nav aria-label="Ruta de navegación" className="mb-4 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
           {breadcrumb.map((item, i) => (
             <span key={`${item.label}-${i}`} className="inline-flex items-center gap-2">
               {item.href ? (
@@ -19,9 +19,9 @@ export default function DetailHero({ title, subtitle, description, breadcrumb }:
                   {item.label}
                 </Link>
               ) : (
-                <span className="text-zinc-300">{item.label}</span>
+                <span aria-current="page" className="text-zinc-300">{item.label}</span>
               )}
-              {i < breadcrumb.length - 1 ? <span>/</span> : null}
+              {i < breadcrumb.length - 1 ? <span aria-hidden="true">/</span> : null}
             </span>
           ))}
         </nav>

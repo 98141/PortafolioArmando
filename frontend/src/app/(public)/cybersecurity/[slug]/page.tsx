@@ -1,3 +1,4 @@
+import DetailBreadcrumbJsonLd from "@/src/components/seo/DetailBreadcrumbJsonLd";
 import { siteOrigin } from "@/src/lib/publicConfig";
 import type { Metadata } from "next";
 import CyberLabDetail from "@/src/components/detail/CyberLabDetail";
@@ -32,6 +33,7 @@ export default async function CyberLabDetailPage({ params }: Props) {
     const base = siteOrigin;
     return (
       <>
+        <DetailBreadcrumbJsonLd section="cybersecurity" slug={slug} title={lab.title} />
         <JsonLd data={creativeWorkJsonLd(lab, base, "cybersecurity")} />
         <CyberLabDetail lab={lab} />
       </>

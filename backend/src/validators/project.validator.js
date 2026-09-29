@@ -1,7 +1,10 @@
 const { z } = require("zod");
 
 const optionalUrl = z
-  .union([z.string().url("Must be a valid URL"), z.literal("")])
+  .union([z.string().url("Must be a valid URL").refine((value) => {
+    const url = new URL(value);
+    return ["https:", "http:"].includes(url.protocol) && !url.username && !url.password;
+  }, "Use an HTTP(S) URL without credentials"), z.literal("")])
   .optional()
   .transform((v) => (v === "" ? undefined : v));
 
@@ -58,6 +61,13 @@ const createProjectSchema = z.object({
     .min(20, "Short description must be at least 20 characters")
     .max(500),
   longDescription: z.string().trim().max(10000).optional(),
+  caseStudy: z.object({
+    role: z.string().trim().max(1000).optional(),
+    problem: z.string().trim().max(6000).optional(),
+    solution: z.string().trim().max(6000).optional(),
+    architecture: z.string().trim().max(6000).optional(),
+    results: z.string().trim().max(6000).optional(),
+  }).optional(),
   category: projectCategoryEnum.default("fullstack"),
   status: projectStatusEnum.default("planned"),
   technologies: stringArray,
@@ -65,7 +75,7 @@ const createProjectSchema = z.object({
   challenges: stringArray,
   learnings: stringArray,
   image: imageSchema,
-  gallery: z.array(galleryItemSchema).optional().default([]),
+  gallery: z.array(galleryItemSchema).max(12).optional().default([]),
   links: linksSchema,
   isFeatured: z.boolean().optional().default(false),
   isActive: z.boolean().optional().default(true),
@@ -74,7 +84,12 @@ const createProjectSchema = z.object({
   completedAt: z.coerce.date().optional(),
 });
 
-const updateProjectSchema = createProjectSchema.partial();
+// Defaults belong to creation only: a PATCH must not reset omitted fields.
+const updateProjectSchema = z.object(Object.fromEntries(
+  Object.entries(createProjectSchema.shape).map(([key, schema]) => [
+    key, (schema instanceof z.ZodDefault ? schema.removeDefault() : schema).optional(),
+  ])
+));
 
 const projectQuerySchema = z.object({
   page: z.coerce.number().int().min(1).optional().default(1),

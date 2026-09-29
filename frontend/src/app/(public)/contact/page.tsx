@@ -1,3 +1,4 @@
+import { resolvePublicProfile, publicSocialLinks } from "@/src/lib/publicProfile";
 import { siteOrigin } from "@/src/lib/publicConfig";
 import type { Metadata } from "next";
 import { Mail, MapPin } from "lucide-react";
@@ -23,19 +24,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ContactPage() {
   const settings = await getPublicSiteSettings();
-  const profileInfo = settings.profile || {};
-  const resolvedEmail = profileInfo.email || "armandomora14115@gmail.com";
-  const resolvedLocation = profileInfo.location || "";
-  const resolvedSocial =
-    settings.social && settings.social.length > 0
-      ? settings.social
-          .filter((s) => s.isActive !== false && s.url)
-          .map((s) => ({
-            label: s.label || s.platform || "Social",
-            href: s.url || "#",
-            external: (s.url || "").startsWith("http"),
-          }))
-      : [];
+  const profileInfo = resolvePublicProfile(settings);
+  const resolvedEmail = profileInfo.email;
+  const resolvedLocation = profileInfo.location;
+  const resolvedSocial = publicSocialLinks(settings).filter(item => item.icon !== "email");
   const base = siteOrigin;
 
   return (

@@ -32,5 +32,8 @@ export default function config(phase: string): NextConfig {
   if (phase === PHASE_PRODUCTION_BUILD || phase === PHASE_PRODUCTION_SERVER) {
     validateProductionEnv(process.env);
   }
-  return nextConfig;
+  // Keep the isolated fixture preview separate from a developer's running server.
+  return process.env.NODE_ENV === "development" && process.env.PUBLIC_FIXTURE === "1"
+    ? { ...nextConfig, distDir: ".next/fixture" }
+    : nextConfig;
 }

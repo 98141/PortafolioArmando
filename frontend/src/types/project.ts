@@ -23,6 +23,14 @@ export interface ProjectLinks {
   caseStudy?: string;
 }
 
+export interface ProjectCaseStudy {
+  role?: string;
+  problem?: string;
+  solution?: string;
+  architecture?: string;
+  results?: string;
+}
+
 export interface Project {
   _id: string;
   title: string;
@@ -30,6 +38,7 @@ export interface Project {
   subtitle?: string;
   shortDescription: string;
   longDescription?: string;
+  caseStudy?: ProjectCaseStudy;
   category: ProjectCategory;
   status: ProjectStatus;
   technologies: string[];
@@ -56,6 +65,8 @@ export interface ProjectFormValues {
   subtitle: string;
   shortDescription: string;
   longDescription: string;
+  caseStudy: Required<ProjectCaseStudy>;
+  gallery: { url: string; publicId?: string; alt: string }[];
   category: ProjectCategory;
   status: ProjectStatus;
   technologiesInput: string;

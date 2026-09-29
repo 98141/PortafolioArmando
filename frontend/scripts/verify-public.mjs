@@ -13,7 +13,7 @@ const app = express();
 app.use(cors({ origin, credentials: true }), express.json());
 // A local fixture session for inspecting admin form validation; never used by production.
 app.get("/api/auth/me", (_req, res) => res.json({ status: "success", data: { user: { _id: "fixture-admin", name: "Fixture admin", email: "admin@example.com", role: "admin", isActive: true } } }));
-let fixtureSettings = {};
+let fixtureSettings = { profile: { fullName: "Nombre CMS de prueba", professionalTitle: "Título CMS de prueba", tagline: "Presentación desde el panel", shortBio: "Biografía CMS de prueba" }, social: [] };
 app.get("/api/admin/site-settings", (_req, res) => res.json({ status: "success", data: { settings: fixtureSettings } }));
 app.put("/api/admin/site-settings", (req, res) => {
   fixtureSettings = { ...req.body, updatedAt: new Date().toISOString() };
@@ -25,7 +25,7 @@ app.use("/api/contact", createContactRouter({ env: { RESEND_API_KEY: "fixture", 
 } }));
 const base = { _id: "fixture-1", title: "Registro de prueba SSR", slug: "fixture-one", shortDescription: "Descripción de prueba para verificar renderizado del servidor.", description: "Descripción local de prueba.", createdAt: "2026-01-01T00:00:00.000Z", updatedAt: "2026-02-01T00:00:00.000Z", isActive: true, isFeatured: true, priority: 1 };
 const records = {
-  projects: { ...base, category: "fullstack", status: "completed", technologies: ["Node.js"], features: [], challenges: [], learnings: [], links: {}, longDescription: "Contenido completo del proyecto SSR." },
+  projects: { ...base, category: "fullstack", status: "completed", technologies: ["Node.js"], features: [], challenges: ["Reto documentado"], learnings: ["Aprendizaje documentado"], links: {}, longDescription: "Contenido completo del proyecto SSR.", caseStudy: { role: "Participación documentada", problem: "Problema documentado", solution: "Solución documentada", architecture: "Arquitectura documentada", results: "Resultado documentado" }, gallery: [{ url: "https://example.com/cart.png", alt: "Carrito de prueba" }] },
   "cyber-labs": { ...base, category: "appsec", status: "completed", severity: "low", tools: [], methodology: [], mitigations: [], technologies: [], objectives: [], findings: [], recommendations: [], skills: [], tags: [], fullDescription: "Prueba de laboratorio local." },
   certifications: { ...base, category: "cybersecurity", status: "active", issuer: "Institución de prueba", skills: [], technologies: [] },
   education: { ...base, institution: "Institución de prueba", academicLevel: "undergraduate", achievements: [], focusAreas: [], isCurrent: false },
@@ -34,7 +34,16 @@ const records = {
 const keys = { projects: ["projects", "project"], "cyber-labs": ["labs", "lab"], certifications: ["certifications", "certification"], education: ["education", "education"], blog: ["posts", "post"] };
 let outage = false;
 app.post("/fixture/outage", (req, res) => { outage = !!req.body.enabled; res.json({ outage }); });
-app.get("/api/site-settings", (_req, res) => res.json({ status: "success", data: { settings: {} } }));
+app.get("/api/site-settings", (_req, res) => res.json({ status: "success", data: { settings: fixtureSettings } }));
+let savedProject;
+app.post("/api/admin/projects", (req, res) => {
+  savedProject = { ...base, ...req.body, _id: "fixture-saved", slug: "tejiendo-raices" };
+  res.status(201).json({ status: "success", data: { project: savedProject } });
+});
+app.get("/api/admin/projects", (_req, res) => res.json({ status: "success", data: { projects: savedProject ? [savedProject] : [], pagination: { page: 1, limit: 12, total: savedProject ? 1 : 0, totalPages: 1 } } }));
+app.get("/api/admin/projects/:id", (_req, res) => res.json({ status: "success", data: { project: savedProject || records.projects } }));
+app.patch("/api/admin/projects/:id", (req, res) => { savedProject = { ...savedProject, ...req.body }; res.json({ status: "success", data: { project: savedProject } }); });
+app.get("/api/projects/legacy", (_req, res) => res.json({ status: "success", data: { project: { ...records.projects, slug: "legacy", caseStudy: undefined, gallery: [] } } }));
 app.get("/api/:resource/:slug", (req, res) => {
   if (req.params.slug === "outage") return res.status(503).json({ status: "error" });
   const item = records[req.params.resource];
@@ -60,7 +69,7 @@ const api = await new Promise(resolve => { const server = app.listen(0, "127.0.0
 const fixtureOrigin = `http://127.0.0.1:${api.address().port}`;
 const child = spawn(process.execPath, ["node_modules/next/dist/bin/next", "dev", "--hostname", "localhost", "--port", "3110"], {
   cwd: fileURLToPath(new URL("..", import.meta.url)),
-  env: { ...process.env, NODE_ENV: "development", NEXT_PUBLIC_API_URL: fixtureOrigin + "/api", NEXT_PUBLIC_SITE_URL: origin },
+  env: { ...process.env, NODE_ENV: "development", PUBLIC_FIXTURE: "1", NEXT_PUBLIC_API_URL: fixtureOrigin + "/api", NEXT_PUBLIC_SITE_URL: origin },
   stdio: ["ignore", "pipe", "pipe"], windowsHide: true,
 });
 let logs = "";
@@ -88,13 +97,29 @@ try {
     for (const route of ["projects", "cybersecurity", "certifications", "education", "blog"]) {
       const html = await check(`/${route}`, 200, /Registro de prueba SSR/);
       assert.match(html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, ""), /Registro de prueba SSR/, "Content must be in rendered HTML, not only RSC scripts");
-      await check(`/${route}/fixture-one`, 200, /Registro de prueba SSR/);
+      const detail = await check(`/${route}/fixture-one`, 200, /Registro de prueba SSR/);
+      assert.match(detail, /BreadcrumbList/);
+      if (route === "blog") assert.match(detail, /property="og:type" content="article"/);
       await check(`/${route}/missing`, 404);
       await check(`/${route}/outage`, 500);
     }
     await check("/projects?category=fullstack&page=2", 200, /Registro de prueba SSR 13/);
     await check("/projects?search=nonexistent", 200, /No hay resultados/);
     await check("/projects?search=outage", 500);
+    const project = await check("/projects/fixture-one", 200, /Resultado documentado/);
+    for (const content of ["Participación documentada", "Problema documentado", "Solución documentada", "Arquitectura documentada", "Reto documentado", "Aprendizaje documentado", "Carrito de prueba"]) assert.ok(project.includes(content), content);
+    const legacy = await check("/projects/legacy", 200);
+    assert.doesNotMatch(legacy.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, ""), /Mi participación|Capturas del proyecto/);
+    await check("/", 200, /Presentación desde el panel/);
+    await check("/about", 200, /Biografía CMS de prueba/);
+    await check("/contact", 200, /Nombre CMS de prueba/);
+    const og = await fetch(origin + "/og");
+    assert.equal(og.status, 200);
+    assert.match(og.headers.get("content-type"), /image\/png/);
+    const png = Buffer.from(await og.arrayBuffer());
+    assert.equal(png.readUInt32BE(16), 1200);
+    assert.equal(png.readUInt32BE(20), 630);
+    console.log("PASS case study, legacy content, CMS profile and 1200x630 social image");
     const sitemap = await check("/sitemap.xml", 200, /projects\/fixture-54/);
     assert.equal((sitemap.match(/<url>/g) || []).length, 67);
     await check("/rss.xml", 200, /Artículo local/);

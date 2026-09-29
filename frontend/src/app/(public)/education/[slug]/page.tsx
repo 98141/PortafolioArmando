@@ -1,3 +1,4 @@
+import DetailBreadcrumbJsonLd from "@/src/components/seo/DetailBreadcrumbJsonLd";
 import type { Metadata } from "next";
 import EducationDetail from "@/src/components/detail/EducationDetail";
 import JsonLd from "@/src/components/seo/JsonLd";
@@ -31,6 +32,7 @@ export default async function EducationDetailPage({ params }: Props) {
     const entry = await getPublicDetail("education", slug);
     return (
       <>
+        <DetailBreadcrumbJsonLd section="education" slug={slug} title={entry.title} />
         <JsonLd data={educationJsonLd(entry)} />
         <EducationDetail entry={entry} />
       </>

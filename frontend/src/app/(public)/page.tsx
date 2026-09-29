@@ -1,4 +1,6 @@
 import { getPublicList, type Resource } from "@/src/lib/publicContent";
+import { resolvePublicProfile } from "@/src/lib/publicProfile";
+import { httpUrl } from "@/src/lib/publicLinks";
 import { siteOrigin } from "@/src/lib/publicConfig";
 import HeroSection from "@/src/components/sections/HeroSection";
 import ProfessionalSummary from "@/src/components/sections/ProfessionalSummary";
@@ -35,8 +37,8 @@ export default async function HomePage() {
   return (
     <>
       <JsonLd data={[personJsonLd(settings, base), websiteJsonLd(settings, base)]} />
-      <HeroSection cvUrl={settings.cv?.url} metrics={metrics} />
-      <ProfessionalSummary />
+      <HeroSection cvUrl={httpUrl(settings.cv?.url)} profile={resolvePublicProfile(settings)} metrics={metrics} />
+      <ProfessionalSummary summary={resolvePublicProfile(settings).shortBio} />
       <ExpertiseSection />
       <FeaturedProjects />
       <CyberLabsPreview />

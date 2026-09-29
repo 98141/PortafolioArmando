@@ -51,6 +51,16 @@ const projectSchema = new mongoose.Schema(
       trim: true,
       maxlength: [10000, "Long description cannot exceed 10000 characters"],
     },
+    caseStudy: {
+      type: new mongoose.Schema({
+        role: { type: String, trim: true, maxlength: 1000 },
+        problem: { type: String, trim: true, maxlength: 6000 },
+        solution: { type: String, trim: true, maxlength: 6000 },
+        architecture: { type: String, trim: true, maxlength: 6000 },
+        results: { type: String, trim: true, maxlength: 6000 },
+      }, { _id: false }),
+      default: undefined,
+    },
     category: {
       type: String,
       enum: {

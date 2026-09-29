@@ -3,11 +3,10 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Download, Mail, Shield } from "lucide-react";
-import { mainLines, profile } from "@/src/data/portfolioData";
+import { mainLines } from "@/src/data/portfolioData";
 import TechBadge from "@/src/components/ui/TechBadge";
 
-export default function HeroSection({ cvUrl, metrics }: { cvUrl?: string; metrics: Array<{ value: string; label: string; description: string }> }) {
-  const effectiveCvUrl = cvUrl || profile.cvUrl;
+export default function HeroSection({ cvUrl, profile, metrics }: { profile: { fullName: string; professionalTitle: string; tagline: string }; cvUrl?: string; metrics: Array<{ value: string; label: string; description: string }> }) {
   const hasCv = Boolean(cvUrl);
   return (
     <section className="relative overflow-hidden px-4 pb-20 pt-16 lg:px-8 lg:pt-24">
@@ -28,9 +27,9 @@ export default function HeroSection({ cvUrl, metrics }: { cvUrl?: string; metric
             Portfolio Profesional
           </p>
           <h1 className="mt-4 text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
-            <span className="text-gradient">{profile.name}</span>
+            <span className="text-gradient">{profile.fullName}</span>
           </h1>
-          <p className="mt-4 text-lg text-zinc-300 sm:text-xl">{profile.title}</p>
+          <p className="mt-4 text-lg text-zinc-300 sm:text-xl">{profile.professionalTitle}</p>
           <p className="mt-6 max-w-2xl text-base leading-relaxed text-zinc-400">
             {profile.tagline}
           </p>
@@ -50,19 +49,10 @@ export default function HeroSection({ cvUrl, metrics }: { cvUrl?: string; metric
               <Shield className="h-4 w-4" aria-hidden="true" />
               Ver laboratorios
             </Link>
-            <a
-              href={effectiveCvUrl}
-              target={hasCv ? "_blank" : undefined}
-              rel={hasCv ? "noopener noreferrer" : undefined}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm text-zinc-300 transition hover:border-white/20 disabled:pointer-events-none disabled:opacity-60"
-              aria-label={hasCv ? "Descargar CV" : "CV no disponible"}
-              onClick={(e) => {
-                if (!hasCv) e.preventDefault();
-              }}
-            >
-              <Download className="h-4 w-4" aria-hidden="true" />
-              {hasCv ? "Descargar CV" : "CV próximamente"}
-            </a>
+            {hasCv && <a href={cvUrl} target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm text-zinc-300">
+              <Download className="h-4 w-4" aria-hidden="true" />Descargar CV
+            </a>}
             <Link
               href="/contact"
               className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-5 py-3 text-sm text-zinc-300 transition hover:border-purple-500/40 hover:text-purple-200"

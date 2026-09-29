@@ -14,6 +14,8 @@ import { projectCategoryLabels, projectStatusLabels } from "@/src/lib/projectLab
 import type { ProjectCategory, ProjectStatus } from "@/src/types/project";
 import { cn } from "@/src/lib/cn";
 import FileUploadField from "@/src/components/admin/uploads/FileUploadField";
+import ProjectGalleryFields from "./ProjectGalleryFields";
+import { supportedImageUrl } from "@/src/lib/publicLinks";
 import type { UploadResponse } from "@/src/services/uploadService";
 
 const inputClass =
@@ -56,7 +58,7 @@ export default function ProjectForm({
   const imagePublicId = useWatch({ control, name: "imagePublicId" }) || "";
   const imagePreviewValue: UploadResponse | null = useMemo(
     () =>
-      imageUrl
+      supportedImageUrl(imageUrl)
         ? {
             url: imageUrl,
             secureUrl: imageUrl,
@@ -156,6 +158,23 @@ export default function ProjectForm({
       </section>
 
       <section className="glass-panel space-y-4 rounded-2xl p-6">
+        <h2 className="font-semibold text-zinc-100">Caso de estudio</h2>
+        <p className="text-sm text-zinc-400">Completa solo lo que puedas respaldar. Los campos vacíos no se muestran al público. Añade cifras únicamente cuando puedas verificarlas.</p>
+        {([
+          ["role", "Mi participación", "Tu función y las partes que desarrollaste.", 1000],
+          ["problem", "El problema", "La necesidad del proyecto y sus restricciones.", 6000],
+          ["solution", "La solución", "Qué construiste para resolver esa necesidad.", 6000],
+          ["architecture", "Arquitectura y decisiones técnicas", "Componentes, integraciones y razones de las decisiones.", 6000],
+          ["results", "Resultados", "Qué quedó funcionando y qué evidencia lo respalda.", 6000],
+        ] as const).map(([field, label, hint, max]) => <div key={field}>
+          <label htmlFor={`case-study-${field}`} className={labelClass}>{label}</label>
+          <p id={`case-hint-${field}`} className="mb-2 text-xs text-zinc-400">{hint}</p>
+          <textarea id={`case-study-${field}`} rows={4} maxLength={max} className={inputClass}
+            aria-describedby={`case-hint-${field}`} aria-invalid={!!errors.caseStudy?.[field]} {...register(`caseStudy.${field}`)} />
+          {errors.caseStudy?.[field] && <p role="alert" className="text-sm text-rose-300">{errors.caseStudy[field]?.message}</p>}
+        </div>)}
+      </section>
+      <section className="glass-panel space-y-4 rounded-2xl p-6">
         <h2 className="font-semibold text-zinc-100">Tecnologías y contenido</h2>
         <div>
           <label htmlFor="technologiesInput" className={labelClass}>
@@ -170,7 +189,7 @@ export default function ProjectForm({
         </div>
         <div>
           <label htmlFor="featuresInput" className={labelClass}>
-            Features (una por línea)
+            Funcionalidades (una por línea)
           </label>
           <textarea
             id="featuresInput"
@@ -181,7 +200,7 @@ export default function ProjectForm({
         </div>
         <div>
           <label htmlFor="challengesInput" className={labelClass}>
-            Challenges (una por línea)
+            Retos (uno por línea)
           </label>
           <textarea
             id="challengesInput"
@@ -192,7 +211,7 @@ export default function ProjectForm({
         </div>
         <div>
           <label htmlFor="learningsInput" className={labelClass}>
-            Learnings (una por línea)
+            Aprendizajes (uno por línea)
           </label>
           <textarea
             id="learningsInput"
@@ -240,7 +259,7 @@ export default function ProjectForm({
               uploadType="project-image"
               accept="image/png,image/jpeg,image/webp,image/gif"
               maxSize={5 * 1024 * 1024}
-              helperText="Puedes subir una imagen o pegar una URL manual."
+              helperText="Sube una imagen a Cloudinary para mostrarla en el sitio. Las URL de otros proveedores se ofrecen como enlaces en el detalle."
               previewType="image"
             />
           </div>
@@ -334,11 +353,13 @@ export default function ProjectForm({
               className="rounded border-white/20 bg-white/5"
               {...register("isActive")}
             />
-            Activo (visible en web pública)
+            Visible cuando el estado sea Completado
           </label>
         </div>
       </section>
 
+      <ProjectGalleryFields control={control} register={register} errors={errors} />
+      {Object.keys(errors).length > 0 && <p role="alert" className="text-sm text-rose-300">Revisa los campos marcados, los enlaces y las capturas antes de guardar.</p>}
       <div className="flex flex-wrap justify-end gap-3">
         <button
           type="button"

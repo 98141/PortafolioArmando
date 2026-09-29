@@ -1,3 +1,4 @@
+import DetailBreadcrumbJsonLd from "@/src/components/seo/DetailBreadcrumbJsonLd";
 import { siteOrigin } from "@/src/lib/publicConfig";
 import type { Metadata } from "next";
 import ProjectDetail from "@/src/components/detail/ProjectDetail";
@@ -33,6 +34,7 @@ export default async function ProjectDetailPage({ params }: Props) {
     const base = siteOrigin;
     return (
       <>
+        <DetailBreadcrumbJsonLd section="projects" slug={slug} title={project.title} />
         <JsonLd data={creativeWorkJsonLd(project, base, "projects")} />
         <ProjectDetail project={project} />
       </>

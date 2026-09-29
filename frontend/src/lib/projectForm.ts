@@ -19,9 +19,11 @@ export const joinLines = (items: string[] = []): string => items.join("\n");
 export const formValuesToPayload = (values: ProjectFormValues) => {
   const payload: Record<string, unknown> = {
     title: values.title,
-    subtitle: values.subtitle || undefined,
+    subtitle: values.subtitle,
     shortDescription: values.shortDescription,
-    longDescription: values.longDescription || undefined,
+    longDescription: values.longDescription,
+    caseStudy: values.caseStudy,
+    gallery: values.gallery,
     category: values.category,
     status: values.status,
     technologies: parseCommaList(values.technologiesInput),
@@ -39,6 +41,7 @@ export const formValuesToPayload = (values: ProjectFormValues) => {
     },
   };
 
+  payload.image = {};
   if (values.imageUrl) {
     payload.image = {
       url: values.imageUrl,
@@ -62,6 +65,14 @@ export const projectToFormValues = (project: Project): ProjectFormValues => ({
   subtitle: project.subtitle ?? "",
   shortDescription: project.shortDescription,
   longDescription: project.longDescription ?? "",
+  caseStudy: {
+    role: project.caseStudy?.role ?? "",
+    problem: project.caseStudy?.problem ?? "",
+    solution: project.caseStudy?.solution ?? "",
+    architecture: project.caseStudy?.architecture ?? "",
+    results: project.caseStudy?.results ?? "",
+  },
+  gallery: (project.gallery || []).map(image => ({ url: image.url || "", alt: image.alt || "", publicId: image.publicId })),
   category: project.category,
   status: project.status,
   technologiesInput: joinCommaList(project.technologies),
@@ -87,6 +98,8 @@ export const defaultProjectFormValues: ProjectFormValues = {
   subtitle: "",
   shortDescription: "",
   longDescription: "",
+  caseStudy: { role: "", problem: "", solution: "", architecture: "", results: "" },
+  gallery: [],
   category: "fullstack",
   status: "planned",
   technologiesInput: "",

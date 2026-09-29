@@ -45,7 +45,7 @@ const formatProject = (doc) => {
   return project;
 };
 
-const PUBLIC_PROJECT_PROJECTION = "-longDescription -features -challenges -learnings";
+const PUBLIC_PROJECT_PROJECTION = "-longDescription -features -challenges -learnings -caseStudy -gallery";
 
 const listProjects = async (req, res, { publicOnly }) => {
   const { page, limit, skip } = getPagination(req.query);

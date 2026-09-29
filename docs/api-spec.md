@@ -189,9 +189,11 @@ Limpia cookies, `refreshTokenHash` y `sessionId`. Los access tokens de esa sesi�
 
 # Proyectos (Sprint 3)
 
+Ampliación 29-09-2026: `caseStudy` opcional con `role` (máximo 1000 caracteres), `problem`, `solution`, `architecture` y `results` (máximo 6000 cada uno). `gallery` admite hasta 12 elementos. Las URL de proyectos deben ser HTTP(S) sin credenciales. Los listados públicos omiten `caseStudy` y `gallery`; el detalle los incluye. PATCH conserva los campos de nivel superior omitidos; los objetos enviados, como `caseStudy`, reemplazan su valor anterior.
+
 ## GET /projects
 
-Público. Solo `isActive: true`.
+Público. Solo `isActive: true`, `status: completed` y no eliminado.
 
 **Query:** `page`, `limit` (max 50), `category`, `status`, `isFeatured`, `search`
 

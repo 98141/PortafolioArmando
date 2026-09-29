@@ -1,3 +1,4 @@
+import DetailBreadcrumbJsonLd from "@/src/components/seo/DetailBreadcrumbJsonLd";
 import type { Metadata } from "next";
 import CertificationDetail from "@/src/components/detail/CertificationDetail";
 import JsonLd from "@/src/components/seo/JsonLd";
@@ -31,6 +32,7 @@ export default async function CertificationDetailPage({ params }: Props) {
     const cert = await getPublicDetail("certifications", slug);
     return (
       <>
+        <DetailBreadcrumbJsonLd section="certifications" slug={slug} title={cert.title} />
         <JsonLd data={certificationJsonLd(cert)} />
         <CertificationDetail certification={cert} />
       </>

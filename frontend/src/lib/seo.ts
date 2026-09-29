@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { SiteBranding, SiteSeo } from "@/src/types/siteSettings";
 import { siteOrigin } from "@/src/lib/publicConfig";
+import { httpUrl } from "./publicLinks";
 
 export const defaultSeoFallback = {
   siteName: "Armando Mora",
@@ -44,11 +45,11 @@ export const buildOpenGraph = ({
   canonical: string;
   imageUrl?: string;
   siteName?: string;
-}): Metadata["openGraph"] => ({
+}) => ({
   title,
   description,
   url: canonical,
-  type: "website",
+  type: "website" as const,
   siteName: siteName || defaultSeoFallback.siteName,
   images: imageUrl ? [{ url: imageUrl, alt: title }] : undefined,
 });
@@ -58,11 +59,11 @@ export const resolveOgImageUrl = (
   branding?: Partial<SiteBranding>,
   explicit?: string
 ) =>
-  explicit ||
-  seo?.ogImage?.url ||
-  branding?.avatar?.url ||
-  branding?.logo?.url ||
-  undefined;
+  httpUrl(explicit) ||
+  httpUrl(seo?.ogImage?.url) ||
+  httpUrl(branding?.avatar?.url) ||
+  httpUrl(branding?.logo?.url) ||
+  `${siteOrigin}/og`;
 
 export const buildMetadata = ({
   title,
@@ -72,6 +73,7 @@ export const buildMetadata = ({
   branding,
   imageUrl,
   noIndex = false,
+  article,
 }: {
   title?: string;
   description?: string;
@@ -80,6 +82,7 @@ export const buildMetadata = ({
   branding?: Partial<SiteBranding>;
   imageUrl?: string;
   noIndex?: boolean;
+  article?: { publishedTime?: string; modifiedTime?: string; authors?: string[]; tags?: string[] };
 }): Metadata => {
   const baseUrl = siteOrigin;
   const canonical = buildCanonicalUrl(baseUrl, path);
@@ -96,13 +99,13 @@ export const buildMetadata = ({
     keywords,
     alternates: { canonical },
     robots: noIndex ? { index: false, follow: false } : { index: true, follow: true },
-    openGraph: buildOpenGraph({
+    openGraph: { ...buildOpenGraph({
       title: resolvedTitle,
       description: resolvedDescription,
       canonical,
       imageUrl: resolvedOgImage,
       siteName: seo?.siteName,
-    }),
+    }), ...(article ? { type: "article", ...article } : {}) },
     twitter: {
       card: "summary_large_image",
       title: resolvedTitle,

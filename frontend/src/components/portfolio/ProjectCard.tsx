@@ -1,3 +1,4 @@
+import { httpUrl, supportedImageUrl } from "@/src/lib/publicLinks";
 import Image from "next/image";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
@@ -13,6 +14,9 @@ interface ProjectCardProps {
 }
 
 export default function ProjectCard({ project }: ProjectCardProps) {
+  const imageUrl = supportedImageUrl(project.image?.url);
+  const demoUrl = httpUrl(project.links?.demo);
+  const githubUrl = httpUrl(project.links?.github);
   const year =
     project.completedAt?.slice(0, 4) ||
     project.startedAt?.slice(0, 4) ||
@@ -20,11 +24,11 @@ export default function ProjectCard({ project }: ProjectCardProps) {
 
   return (
     <GlassCard as="article" className="flex h-full flex-col overflow-hidden" hover>
-      {project.image?.url && (
+      {imageUrl && (
         <div className="relative h-40 w-full border-b border-white/5 bg-white/5">
           <Image
-            src={project.image.url}
-            alt={project.image.alt || project.title}
+            src={imageUrl}
+            alt={project.image?.alt || project.title}
             fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 33vw"
@@ -57,9 +61,9 @@ export default function ProjectCard({ project }: ProjectCardProps) {
           <Link href={`/projects/${project.slug}`} className="inline-flex items-center gap-1.5 text-xs text-purple-300 hover:text-purple-200">
             Ver detalle
           </Link>
-          {project.links?.demo && (
+          {demoUrl && (
             <a
-              href={project.links.demo}
+              href={demoUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-xs text-cyan-400 hover:text-cyan-300"
@@ -68,9 +72,9 @@ export default function ProjectCard({ project }: ProjectCardProps) {
               Demo
             </a>
           )}
-          {project.links?.github && (
+          {githubUrl && (
             <a
-              href={project.links.github}
+              href={githubUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-200"

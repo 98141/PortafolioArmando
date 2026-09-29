@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import { profile } from "@/src/data/portfolioData";
+
 
 export default function CallToAction() {
   return (
@@ -17,10 +17,10 @@ export default function CallToAction() {
         >
           <div className="relative z-10 max-w-2xl">
             <h2 className="text-2xl font-bold text-zinc-100 sm:text-3xl">
-              ¿Listo para construir algo seguro?
+              Hablemos de tu proyecto
             </h2>
             <p className="mt-4 text-zinc-300">
-              {profile.valueProposition}
+              Cuéntame qué necesitas construir, qué tienes avanzado y cuáles son las restricciones del proyecto.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link

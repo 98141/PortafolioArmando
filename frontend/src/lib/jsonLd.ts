@@ -4,15 +4,18 @@ import type { CyberLab } from "@/src/types/cyberLab";
 import type { Education } from "@/src/types/education";
 import type { Project } from "@/src/types/project";
 import type { SiteSettings } from "@/src/types/siteSettings";
+import { resolvePublicProfile, publicSocialLinks } from "./publicProfile";
+import { httpUrl } from "./publicLinks";
 
 export const personJsonLd = (settings: SiteSettings, baseUrl: string) => ({
   "@context": "https://schema.org",
   "@type": "Person",
-  name: settings.profile?.fullName || "Armando Mora",
-  jobTitle: settings.profile?.professionalTitle,
-  email: settings.profile?.email,
-  url: settings.profile?.website || baseUrl,
-  sameAs: [settings.profile?.linkedin, settings.profile?.github].filter(Boolean),
+  "@id": `${baseUrl}/#person`,
+  name: resolvePublicProfile(settings).fullName,
+  jobTitle: resolvePublicProfile(settings).professionalTitle,
+  email: resolvePublicProfile(settings).email,
+  url: baseUrl,
+  sameAs: publicSocialLinks(settings).filter(link => link.external).map(link => link.href),
 });
 
 export const websiteJsonLd = (settings: SiteSettings, baseUrl: string) => ({
@@ -31,7 +34,7 @@ export const blogPostingJsonLd = (post: BlogPost, baseUrl: string) => ({
   image: post.coverImage?.url,
   datePublished: post.publishedAt || post.createdAt,
   dateModified: post.updatedAt,
-  author: { "@type": "Person", name: post.author?.name || "Armando Mora" },
+  author: post.author?.name ? { "@type": "Person", name: post.author.name } : undefined,
   mainEntityOfPage: `${baseUrl}/blog/${post.slug}`,
 });
 
@@ -53,8 +56,14 @@ export const certificationJsonLd = (cert: Certification) => ({
   "@type": "EducationalOccupationalCredential",
   name: cert.title,
   credentialCategory: cert.category,
-  recognizedBy: cert.issuer,
-  url: cert.credentialUrl,
+  recognizedBy: { "@type": "Organization", name: cert.issuer },
+  url: httpUrl(cert.credentialUrl),
+});
+
+export const breadcrumbJsonLd = (items: { name: string; url: string }[]) => ({
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: items.map((item, index) => ({ "@type": "ListItem", position: index + 1, name: item.name, item: item.url })),
 });
 
 export const educationJsonLd = (entry: Education) => ({

@@ -1,11 +1,11 @@
 import { siteOrigin } from "@/src/lib/publicConfig";
 import type { Metadata } from "next";
-import { aboutStory, mainLines, profile, skillGroups } from "@/src/data/portfolioData";
+import { mainLines, skillGroups } from "@/src/data/portfolioData";
 import PageHero from "@/src/components/portfolio/PageHero";
 import GlassCard from "@/src/components/ui/GlassCard";
 import SectionHeader from "@/src/components/ui/SectionHeader";
 import TechBadge from "@/src/components/ui/TechBadge";
-import { cn } from "@/src/lib/cn";
+import { resolvePublicProfile } from "@/src/lib/publicProfile";
 import JsonLd from "@/src/components/seo/JsonLd";
 import { personJsonLd } from "@/src/lib/jsonLd";
 import { getPublicSiteSettings } from "@/src/lib/publicSiteSettings";
@@ -22,48 +22,24 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-const levelWidth = {
-  advanced: "w-full",
-  intermediate: "w-2/3",
-  foundational: "w-1/3",
-};
-
-const levelLabel = {
-  advanced: "Avanzado",
-  intermediate: "Intermedio",
-  foundational: "Fundacional",
-};
-
 export default async function AboutPage() {
   const settings = await getPublicSiteSettings();
   const base = siteOrigin;
+  const profile = resolvePublicProfile(settings);
   return (
     <>
       <JsonLd data={personJsonLd(settings, base)} />
       <PageHero
         eyebrow="About"
         title="Sobre mí"
-        description={profile.valueProposition}
+        description={profile.professionalTitle}
       />
       <section className="px-4 py-12 lg:px-8">
         <div className="mx-auto max-w-6xl space-y-16">
           <GlassCard className="p-6 sm:p-10">
-            <p className="text-lg leading-relaxed text-zinc-300">{aboutStory.intro}</p>
-            <div className="mt-8 grid gap-6 md:grid-cols-2">
-              <div className="rounded-2xl border border-blue-500/20 bg-blue-500/5 p-6">
-                <h2 className="font-semibold text-blue-200">Desarrollo de software</h2>
-                <p className="mt-3 text-sm leading-relaxed text-zinc-400">
-                  {aboutStory.software}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-purple-500/20 bg-purple-500/5 p-6">
-                <h2 className="font-semibold text-purple-200">Ciberseguridad</h2>
-                <p className="mt-3 text-sm leading-relaxed text-zinc-400">
-                  {aboutStory.cyber}
-                </p>
-              </div>
-            </div>
-            <p className="mt-8 text-sm leading-relaxed text-zinc-400">{aboutStory.closing}</p>
+            <h2 className="text-xl font-semibold">{profile.fullName}</h2>
+            <p className="mt-4 whitespace-pre-line text-lg leading-relaxed text-zinc-300">{profile.longBio || profile.shortBio}</p>
+            {profile.location && <p className="mt-4 text-sm text-zinc-400">{profile.location}</p>}
             <div className="mt-6 flex flex-wrap gap-2">
               {mainLines.map((line) => (
                 <TechBadge key={line} label={line} variant="cyan" />
@@ -74,8 +50,8 @@ export default async function AboutPage() {
           <div>
             <SectionHeader
               eyebrow="Skills"
-              title="Matriz de habilidades"
-              description="Nivel estimado basado en proyectos y laboratorios documentados."
+              title="Tecnologías y áreas de trabajo"
+              description="Los proyectos y laboratorios publicados documentan cómo se aplican estas tecnologías."
             />
             <div className="mt-8 grid gap-6 lg:grid-cols-3">
               {skillGroups.map((group) => (
@@ -84,20 +60,7 @@ export default async function AboutPage() {
                   <ul className="mt-5 space-y-4">
                     {group.skills.map((skill) => (
                       <li key={skill.name}>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-zinc-300">{skill.name}</span>
-                          <span className="text-xs text-zinc-500">
-                            {levelLabel[skill.level]}
-                          </span>
-                        </div>
-                        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/5">
-                          <div
-                            className={cn(
-                              "h-full rounded-full bg-gradient-to-r from-cyan-500 to-purple-500",
-                              levelWidth[skill.level]
-                            )}
-                          />
-                        </div>
+                        <span className="text-sm text-zinc-300">{skill.name}</span>
                       </li>
                     ))}
                   </ul>
