@@ -11,6 +11,12 @@ const errors = requireBackend("./src/middlewares/globalErrorHandler");
 const origin = "http://localhost:3110";
 const app = express();
 app.use(cors({ origin, credentials: true }), express.json());
+process.env.FRONTEND_URL = origin;
+const visitSessions = new Set();
+app.use("/api/visits", requireBackend("./src/routes/visit.routes").createVisitRouter({ store: {
+  record: async id => { visitSessions.add(id); },
+  total: async () => visitSessions.size,
+} }));
 // A local fixture session for inspecting admin form validation; never used by production.
 app.get("/api/auth/me", (_req, res) => res.json({ status: "success", data: { user: { _id: "fixture-admin", name: "Fixture admin", email: "admin@example.com", role: "admin", isActive: true } } }));
 let fixtureSettings = { profile: { fullName: "Nombre CMS de prueba", professionalTitle: "Título CMS de prueba", tagline: "Presentación desde el panel", shortBio: "Biografía CMS de prueba" }, social: [] };
@@ -114,7 +120,11 @@ try {
     for (const content of ["Participación documentada", "Problema documentado", "Solución documentada", "Arquitectura documentada", "Reto documentado", "Aprendizaje documentado", "Carrito de prueba"]) assert.ok(project.includes(content), content);
     const legacy = await check("/projects/legacy", 200);
     assert.doesNotMatch(legacy.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, ""), /Mi participación|Capturas del proyecto/);
-    await check("/", 200, /Presentación desde el panel/);
+    const home = await check("/", 200, /Presentación desde el panel/);
+    assert.match(home, /<title>Armando Mora \| Desarrollo Full Stack y Ciberseguridad<\/title>/);
+    assert.match(home, /Visitas:/);
+    assert.match(home, /Desarrollo web full stack/);
+    assert.match(home, /knowsAbout/);
     await check("/about", 200, /Biografía CMS de prueba/);
     await check("/contact", 200, /Nombre CMS de prueba/);
     const og = await fetch(origin + "/og");

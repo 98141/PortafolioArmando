@@ -13,6 +13,8 @@ export const personJsonLd = (settings: SiteSettings, baseUrl: string) => ({
   "@id": `${baseUrl}/#person`,
   name: resolvePublicProfile(settings).fullName,
   jobTitle: resolvePublicProfile(settings).professionalTitle,
+  description: resolvePublicProfile(settings).shortBio,
+  knowsAbout: ["Desarrollo full stack", "Desarrollo web", "Ciberseguridad", "Seguridad de aplicaciones web", "React", "Node.js", "MongoDB"],
   email: resolvePublicProfile(settings).email,
   url: baseUrl,
   sameAs: publicSocialLinks(settings).filter(link => link.external).map(link => link.href),
@@ -21,9 +23,12 @@ export const personJsonLd = (settings: SiteSettings, baseUrl: string) => ({
 export const websiteJsonLd = (settings: SiteSettings, baseUrl: string) => ({
   "@context": "https://schema.org",
   "@type": "WebSite",
+  "@id": `${baseUrl}/#website`,
   name: settings.seo?.siteName || "Armando Mora",
   url: baseUrl,
-  description: settings.seo?.defaultDescription,
+  description: settings.seo?.defaultDescription || resolvePublicProfile(settings).shortBio,
+  inLanguage: "es",
+  author: { "@id": `${baseUrl}/#person` },
 });
 
 export const blogPostingJsonLd = (post: BlogPost, baseUrl: string) => ({

@@ -3,9 +3,9 @@ import { httpUrl } from "./publicLinks";
 
 export const defaultProfile = {
   fullName: "Armando Mora",
-  professionalTitle: "Desarrollo de software y ciberseguridad",
-  tagline: "Construyo aplicaciones web con atención a su funcionamiento, mantenimiento y seguridad.",
-  shortBio: "Desarrollo de software con enfoque en seguridad. En este sitio documento proyectos, decisiones técnicas y aprendizajes.",
+  professionalTitle: "Desarrollador full stack y ciberseguridad",
+  tagline: "Desarrollo aplicaciones web, APIs y tiendas online con atención a su funcionamiento, mantenimiento y seguridad.",
+  shortBio: "Desarrollo web full stack con React, Node.js y MongoDB, con enfoque en ciberseguridad y seguridad de aplicaciones. Aquí documento proyectos, decisiones técnicas y aprendizajes.",
   email: "armandomora14115@gmail.com",
 };
 

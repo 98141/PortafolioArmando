@@ -9,9 +9,9 @@ import { buildMetadata } from "@/src/lib/seo";
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getPublicSiteSettings();
   return buildMetadata({
-    title: "Ciberseguridad | Armando Mora",
+    title: "Ciberseguridad y AppSec | Armando Mora",
     description:
-      "Laboratorios técnicos de ciberseguridad: AppSec, forensics, red y cloud con metodología profesional.",
+      "Laboratorios de ciberseguridad de Armando Mora: seguridad de aplicaciones web, análisis de vulnerabilidades y desarrollo seguro en entornos autorizados.",
     path: "/cybersecurity",
     seo: settings.seo,
     branding: settings.branding,

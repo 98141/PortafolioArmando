@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { siteOrigin } from "@/src/lib/publicConfig";
+import { defaultSeoFallback } from "@/src/lib/seo";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteOrigin),
   title: {
-    default: "Armando Mora | Software & Cybersecurity",
+    default: defaultSeoFallback.defaultTitle,
     template: "%s",
   },
-  description:
-    "Portafolio profesional de Armando Mora: desarrollo full stack, ciberseguridad aplicada, laboratorios técnicos y sistemas seguros.",
+  description: defaultSeoFallback.defaultDescription,
+  verification: { google: process.env.GOOGLE_SITE_VERIFICATION || undefined },
   keywords: [
     "Armando Mora",
     "desarrollo de software",

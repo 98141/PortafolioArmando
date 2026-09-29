@@ -26,7 +26,7 @@ export default function SeoSettingsForm({ register }: Props) {
         </div>
         <div className="sm:col-span-2">
           <label htmlFor="seo-defaultTitle" className={labelClass}>Default title</label>
-          <input id="seo-defaultTitle" className={inputClass} {...register("seo.defaultTitle")} />
+          <input id="seo-defaultTitle" className={inputClass} placeholder="Armando Mora | Desarrollo Full Stack y Ciberseguridad" {...register("seo.defaultTitle")} />
         </div>
         <div className="sm:col-span-2">
           <label htmlFor="seo-defaultDescription" className={labelClass}>Default description</label>
@@ -35,6 +35,7 @@ export default function SeoSettingsForm({ register }: Props) {
         <div className="sm:col-span-2">
           <label htmlFor="seo-keywordsText" className={labelClass}>Keywords (coma separadas)</label>
           <input id="seo-keywordsText" className={inputClass} {...register("seo.keywordsText")} />
+          <p className="mt-2 text-xs text-zinc-400">Google no usa esta etiqueta para posicionar. Prioriza títulos claros, descripciones y contenido útil sobre tus proyectos de desarrollo full stack y ciberseguridad.</p>
         </div>
         <div className="sm:col-span-2">
           <label htmlFor="seo-canonicalBaseUrl" className={labelClass}>Canonical base URL</label>

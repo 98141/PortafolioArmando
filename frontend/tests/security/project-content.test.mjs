@@ -58,3 +58,20 @@ test("structured data uses Organization issuer and ordered breadcrumb URLs", () 
   assert.equal(value.itemListElement[1].item, "https://example.com/projects/p");
   assert.equal(jsonLd.blogPostingJsonLd({ title: "Artículo" }, "https://example.com").author, undefined);
 });
+
+test("SEO defaults describe full stack and security, preserve CMS overrides and bound descriptions", () => {
+  const value = seo.buildMetadata({});
+  assert.match(value.title, /Armando Mora.*Full Stack.*Ciberseguridad/);
+  assert.match(value.description, /desarrollador full stack/);
+  assert.equal(value.robots.index, true);
+  assert.equal(value.openGraph.locale, "es_CO");
+  const custom = seo.buildMetadata({ seo: { defaultTitle: "Mi título", defaultDescription: "Mi descripción", canonicalBaseUrl: "https://old.example.com" } });
+  assert.equal(custom.title, "Mi título");
+  assert.equal(custom.description, "Mi descripción");
+  assert.equal(custom.alternates.canonical, "https://portfolio.example.com/");
+  assert.equal(seo.truncateDescription("a".repeat(200)).length, 160);
+  const person = jsonLd.personJsonLd({}, "https://portfolio.example.com");
+  assert.ok(person.knowsAbout.includes("Desarrollo full stack"));
+  assert.ok(person.knowsAbout.includes("Ciberseguridad"));
+  assert.equal(jsonLd.websiteJsonLd({}, "https://portfolio.example.com").author["@id"], person["@id"]);
+});

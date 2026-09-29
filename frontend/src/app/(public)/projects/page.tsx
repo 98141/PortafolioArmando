@@ -8,7 +8,7 @@ import { buildMetadata } from "@/src/lib/seo";
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getPublicSiteSettings();
   return buildMetadata({
-    title: "Proyectos | Armando Mora",
+    title: "Desarrollo web full stack | Proyectos de Armando Mora",
     description: "Proyectos de desarrollo full stack, APIs, e-commerce y herramientas de seguridad.",
     path: "/projects",
     seo: settings.seo,
@@ -21,9 +21,9 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
   return (
     <>
       <PageHero
-        eyebrow="Software Development"
-        title="Proyectos"
-        description="Aplicaciones web, APIs y soluciones con arquitectura moderna, validación robusta y enfoque en mantenibilidad."
+        eyebrow="Desarrollo de software"
+        title="Proyectos de desarrollo full stack"
+        description="Desarrollo web con React, Node.js y MongoDB: aplicaciones, APIs y e-commerce con validación de datos y enfoque en seguridad y mantenibilidad."
       />
       <section className="px-4 pb-20 lg:px-8">
         <div className="mx-auto max-w-6xl">

@@ -3,6 +3,7 @@ import { Mail, ExternalLink } from "lucide-react";
 import { navLinks } from "@/src/data/portfolioData";
 import { GithubIcon, LinkedinIcon } from "@/src/components/ui/SocialIcons";
 import type { SiteSettings } from "@/src/types/siteSettings";
+import VisitCounter from "./VisitCounter";
 
 import { resolvePublicProfile, publicSocialLinks } from "@/src/lib/publicProfile";
 
@@ -28,8 +29,8 @@ export default function PublicFooter({ settings }: { settings?: SiteSettings }) 
               {profile.professionalTitle}
             </p>
             <p className="mt-3 text-sm text-zinc-400">
-              Desarrollo de software y ciberseguridad aplicada con enfoque en
-              sistemas seguros y documentación profesional.
+              Desarrollo web full stack y ciberseguridad aplicada: aplicaciones,
+              APIs y comercio electrónico con atención a la seguridad.
             </p>
           </div>
 
@@ -80,9 +81,7 @@ export default function PublicFooter({ settings }: { settings?: SiteSettings }) 
           <p className="text-xs text-zinc-400">
             © {year} {profile.fullName}. Todos los derechos reservados.
           </p>
-          <p className="text-xs text-zinc-400">
-            Desarrollo de software y seguridad
-          </p>
+          <VisitCounter />
         </div>
       </div>
     </footer>

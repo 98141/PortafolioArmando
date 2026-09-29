@@ -19,7 +19,7 @@ import { buildMetadata } from "@/src/lib/seo";
 export async function generateMetadata() {
   const settings = await getPublicSiteSettings();
   return buildMetadata({
-    title: settings.seo?.defaultTitle || "Inicio | Armando Mora",
+    title: settings.seo?.defaultTitle,
     description: settings.seo?.defaultDescription,
     path: "/",
     seo: settings.seo,

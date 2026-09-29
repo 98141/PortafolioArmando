@@ -76,15 +76,15 @@ export const metrics: Metric[] = [
 export const expertiseAreas: ExpertiseArea[] = [
   {
     id: "software",
-    title: "Software Development",
+    title: "Desarrollo web full stack",
     description:
-      "Arquitectura MERN, APIs REST, dashboards administrativos y experiencias web premium con TypeScript y buenas prácticas de ingeniería.",
+      "Aplicaciones web, tiendas online y APIs REST con arquitectura MERN, TypeScript y buenas prácticas de desarrollo de software.",
     icon: "code",
     highlights: ["Next.js & React", "Node.js / Express", "MongoDB", "CI/CD básico"],
   },
   {
     id: "cyber",
-    title: "Cybersecurity",
+    title: "Ciberseguridad aplicada",
     description:
       "Análisis de vulnerabilidades, hardening, laboratorios controlados y documentación de hallazgos con enfoque profesional y ético.",
     icon: "shield",

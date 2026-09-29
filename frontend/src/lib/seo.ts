@@ -5,9 +5,9 @@ import { httpUrl } from "./publicLinks";
 
 export const defaultSeoFallback = {
   siteName: "Armando Mora",
-  defaultTitle: "Armando Mora | Software & Cybersecurity",
+  defaultTitle: "Armando Mora | Desarrollo Full Stack y Ciberseguridad",
   defaultDescription:
-    "Portafolio profesional: desarrollo full stack, ciberseguridad aplicada y arquitectura segura.",
+    "Armando Mora: desarrollador full stack con enfoque en ciberseguridad. Proyectos de desarrollo web, APIs, e-commerce y seguridad de aplicaciones.",
   canonicalBaseUrl: siteOrigin,
   keywords: [
     "Armando Mora",
@@ -16,13 +16,16 @@ export const defaultSeoFallback = {
     "AppSec",
     "ciberseguridad",
     "desarrollo full stack",
+    "desarrollador full stack",
+    "desarrollo web",
+    "seguridad de aplicaciones web",
   ],
 };
 
 export const truncateDescription = (text?: string, max = 160) => {
   if (!text) return undefined;
   if (text.length <= max) return text;
-  return `${text.slice(0, max - 1).trimEnd()}...`;
+  return `${text.slice(0, max - 3).trimEnd()}...`;
 };
 
 export const buildCanonicalUrl = (baseUrl: string | undefined, path = "/") => {
@@ -50,6 +53,7 @@ export const buildOpenGraph = ({
   description,
   url: canonical,
   type: "website" as const,
+  locale: "es_CO",
   siteName: siteName || defaultSeoFallback.siteName,
   images: imageUrl ? [{ url: imageUrl, alt: title }] : undefined,
 });

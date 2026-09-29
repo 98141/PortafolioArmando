@@ -38,6 +38,11 @@ async function get(path) {
 const servedChunks = new Set();
 for (const path of ["/", "/about", "/contact", "/projects", "/blog", "/cybersecurity", "/certifications", "/education"]) {
   const html = await get(path);
+  if (path === "/") {
+    assert.match(html, /Visitas:/, "Footer counter must be present in initial HTML");
+    assert.match(html, /Desarrollo web full stack/, "Visible full stack content");
+    assert.match(html, /Ciberseguridad aplicada/, "Visible cybersecurity content");
+  }
   for (const match of html.matchAll(/<script[^>]+src="(\/_next\/static\/[^"?]+\.js)[^"]*"/g)) {
     servedChunks.add(match[1]);
   }
