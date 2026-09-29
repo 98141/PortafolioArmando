@@ -71,7 +71,7 @@ export default function AdminDashboardPage() {
       <AdminLayout>
         <div className="space-y-8">
           <div>
-            <h2 className="text-2xl font-bold text-zinc-100">Dashboard</h2>
+            <h1 className="text-2xl font-bold text-zinc-100">Dashboard</h1>
             <p className="mt-1 text-sm text-zinc-400">
               Knowledge Hub — gestiona proyectos, labs, certificaciones, educación y blog técnico.
             </p>
@@ -93,7 +93,7 @@ export default function AdminDashboardPage() {
                       <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
                     </span>
                   ) : (
-                    <span className="mt-4 inline-block text-xs uppercase tracking-wider text-zinc-500">
+                    <span className="mt-4 inline-block text-xs uppercase tracking-wider text-zinc-400">
                       Próximamente
                     </span>
                   )}

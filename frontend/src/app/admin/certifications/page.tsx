@@ -85,7 +85,7 @@ export default function AdminCertificationsPage() {
         <div className="space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-bold text-zinc-100">Certificaciones</h2>
+              <h1 className="text-2xl font-bold text-zinc-100">Certificaciones</h1>
               <p className="mt-1 text-sm text-zinc-400">
                 Credenciales profesionales, badges y enlaces de verificación.
               </p>
@@ -118,7 +118,7 @@ export default function AdminCertificationsPage() {
             <button onClick={() => void loadCertifications()} className="text-sm text-cyan-300">Reintentar carga</button>
           ) : certifications.length === 0 ? (
             <div className="glass-panel flex flex-col items-center rounded-2xl py-16 text-center">
-              <Award className="mb-4 h-12 w-12 text-zinc-600" aria-hidden="true" />
+              <Award className="mb-4 h-12 w-12 text-zinc-400" aria-hidden="true" />
               <p className="text-zinc-400">No hay certificaciones con estos filtros.</p>
               <button
                 type="button"
@@ -132,7 +132,7 @@ export default function AdminCertificationsPage() {
             <>
               <CertificationTable
                 certifications={certifications}
-                onDelete={setDeleteTarget}
+                onDelete={(item) => { setError(null); setDeleteTarget(item); }}
               />
               {totalPages > 1 && (
                 <div className="flex justify-center gap-2">
@@ -144,7 +144,7 @@ export default function AdminCertificationsPage() {
                   >
                     Anterior
                   </button>
-                  <span className="flex items-center px-4 text-sm text-zinc-500">
+                  <span className="flex items-center px-4 text-sm text-zinc-400">
                     {page} / {totalPages}
                   </span>
                   <button
@@ -164,6 +164,7 @@ export default function AdminCertificationsPage() {
         <DeleteCertificationDialog
           certification={deleteTarget}
           loading={deleting}
+          error={actionError}
           onConfirm={handleDelete}
           onCancel={() => setDeleteTarget(null)}
         />

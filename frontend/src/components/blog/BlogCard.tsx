@@ -46,7 +46,7 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
       <div className="flex flex-1 flex-col p-6">
         <div className="flex flex-wrap items-center gap-2">
           <TechBadge label={blogCategoryLabels[post.category]} variant="purple" />
-          <span className="inline-flex items-center gap-1 text-xs text-zinc-500">
+          <span className="inline-flex items-center gap-1 text-xs text-zinc-400">
             <Clock className="h-3 w-3" aria-hidden="true" />
             {post.readingTime} min
           </span>
@@ -68,7 +68,7 @@ export default function BlogCard({ post, featured = false }: BlogCardProps) {
             ))}
           </div>
           {post.publishedAt && (
-            <time className="text-xs text-zinc-500" dateTime={post.publishedAt}>
+            <time className="text-xs text-zinc-400" dateTime={post.publishedAt}>
               {formatDate(post.publishedAt)}
             </time>
           )}

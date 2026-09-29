@@ -34,6 +34,6 @@ export default function config(phase: string): NextConfig {
   }
   // Keep the isolated fixture preview separate from a developer's running server.
   return process.env.NODE_ENV === "development" && process.env.PUBLIC_FIXTURE === "1"
-    ? { ...nextConfig, distDir: ".next/fixture" }
+    ? { ...nextConfig, distDir: ".next-fixture" }
     : nextConfig;
 }

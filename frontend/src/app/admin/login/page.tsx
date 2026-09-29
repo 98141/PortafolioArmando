@@ -80,9 +80,11 @@ export default function AdminLoginPage() {
               Correo electrónico
             </label>
             <div className="relative">
-              <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
+              <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
               <input
                 id="email"
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? "login-email-error" : undefined}
                 type="email"
                 autoComplete="email"
                 className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-10 pr-4 text-sm outline-none transition focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20"
@@ -91,7 +93,7 @@ export default function AdminLoginPage() {
               />
             </div>
             {errors.email && (
-              <p className="mt-1.5 text-xs text-red-400">{errors.email.message}</p>
+              <p id="login-email-error" role="alert" className="mt-1.5 text-xs text-red-400">{errors.email.message}</p>
             )}
           </div>
 
@@ -100,9 +102,11 @@ export default function AdminLoginPage() {
               Contraseña
             </label>
             <div className="relative">
-              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
+              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
               <input
                 id="password"
+                aria-invalid={!!errors.password}
+                aria-describedby={errors.password ? "login-password-error" : undefined}
                 type="password"
                 autoComplete="current-password"
                 className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-10 pr-4 text-sm outline-none transition focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20"
@@ -111,7 +115,7 @@ export default function AdminLoginPage() {
               />
             </div>
             {errors.password && (
-              <p className="mt-1.5 text-xs text-red-400">{errors.password.message}</p>
+              <p id="login-password-error" role="alert" className="mt-1.5 text-xs text-red-400">{errors.password.message}</p>
             )}
           </div>
 

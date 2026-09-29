@@ -55,7 +55,7 @@ export default function CertificationCard({
           </div>
           <p className="mt-1 text-sm text-zinc-400">{certification.issuer}</p>
           {dateStr && (
-            <p className={`text-zinc-500 ${compact ? "mt-1 text-xs" : "mt-2 text-xs"}`}>
+            <p className={`text-zinc-400 ${compact ? "mt-1 text-xs" : "mt-2 text-xs"}`}>
               {dateStr}
             </p>
           )}

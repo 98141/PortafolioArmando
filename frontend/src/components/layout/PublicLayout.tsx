@@ -12,8 +12,9 @@ export default async function PublicLayout({ children }: PublicLayoutProps) {
   return (
     <>
       <AnimatedBackground />
+      <a href="#main-content" className="skip-link">Saltar al contenido</a>
       <PublicNavbar brandName={settings.profile?.fullName} />
-      <main className="relative min-h-[calc(100vh-4rem)]">{children}</main>
+      <main id="main-content" tabIndex={-1} className="relative min-h-[calc(100vh-4rem)]">{children}</main>
       <PublicFooter settings={settings} />
     </>
   );

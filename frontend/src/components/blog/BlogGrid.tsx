@@ -11,7 +11,7 @@ interface BlogGridProps {
 export default function BlogGrid({ posts, featuredFirst = false }: BlogGridProps) {
   if (posts.length === 0) {
     return (
-      <p className="py-16 text-center text-zinc-500">
+      <p className="py-16 text-center text-zinc-400">
         No hay artículos que coincidan con tu búsqueda.
       </p>
     );

@@ -85,7 +85,7 @@ export default function AdminBlogPage() {
         <div className="space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-bold text-zinc-100">Knowledge Hub</h2>
+              <h1 className="text-2xl font-bold text-zinc-100">Knowledge Hub</h1>
               <p className="mt-1 text-sm text-zinc-400">
                 Artículos técnicos, writeups y publicaciones profesionales.
               </p>
@@ -118,7 +118,7 @@ export default function AdminBlogPage() {
             <button onClick={() => void loadPosts()} className="text-sm text-cyan-300">Reintentar carga</button>
           ) : posts.length === 0 ? (
             <div className="glass-panel flex flex-col items-center rounded-2xl py-16 text-center">
-              <FileText className="mb-4 h-12 w-12 text-zinc-600" aria-hidden="true" />
+              <FileText className="mb-4 h-12 w-12 text-zinc-400" aria-hidden="true" />
               <p className="text-zinc-400">No hay artículos con estos filtros.</p>
               <button
                 type="button"
@@ -130,7 +130,7 @@ export default function AdminBlogPage() {
             </div>
           ) : (
             <>
-              <BlogPostTable posts={posts} onDelete={setDeleteTarget} />
+              <BlogPostTable posts={posts} onDelete={(item) => { setError(null); setDeleteTarget(item); }} />
               {totalPages > 1 && (
                 <div className="flex justify-center gap-2">
                   <button
@@ -141,7 +141,7 @@ export default function AdminBlogPage() {
                   >
                     Anterior
                   </button>
-                  <span className="flex items-center px-4 text-sm text-zinc-500">
+                  <span className="flex items-center px-4 text-sm text-zinc-400">
                     {page} / {totalPages}
                   </span>
                   <button
@@ -161,6 +161,7 @@ export default function AdminBlogPage() {
         <DeleteBlogPostDialog
           post={deleteTarget}
           loading={deleting}
+          error={actionError}
           onConfirm={handleDelete}
           onCancel={() => setDeleteTarget(null)}
         />

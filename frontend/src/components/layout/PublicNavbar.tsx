@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Menu, Shield, X } from "lucide-react";
 import { navLinks, profile } from "@/src/data/portfolioData";
 import { cn } from "@/src/lib/cn";
@@ -14,6 +14,8 @@ interface PublicNavbarProps {
 export default function PublicNavbar({ brandName }: PublicNavbarProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const toggle = useRef<HTMLButtonElement>(null);
+  const active = (href: string) => pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
 
   const isAdmin = pathname.startsWith("/admin");
 
@@ -22,13 +24,15 @@ export default function PublicNavbar({ brandName }: PublicNavbarProps) {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/5 bg-[#080c18]/80 backdrop-blur-xl">
+    <header onKeyDown={event => {
+      if (event.key === "Escape" && open) { setOpen(false); toggle.current?.focus(); }
+    }} className="sticky top-0 z-50 border-b border-white/5 bg-[#080c18]/95 backdrop-blur-xl">
       <nav
         className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 lg:px-8"
         aria-label="Navegación principal"
       >
-        <Link href="/" className="group flex items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl gradient-accent shadow-lg shadow-blue-500/20">
+        <Link href="/" onClick={() => setOpen(false)} className="group flex min-w-0 items-center gap-2 pr-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl gradient-accent shadow-lg shadow-blue-500/20">
             <Shield className="h-4 w-4 text-white" aria-hidden="true" />
           </span>
           <span className="font-semibold text-zinc-100 transition group-hover:text-white">
@@ -36,14 +40,15 @@ export default function PublicNavbar({ brandName }: PublicNavbarProps) {
           </span>
         </Link>
 
-        <ul className="hidden items-center gap-1 lg:flex">
+        <ul className="hidden shrink-0 items-center gap-1 xl:flex">
           {navLinks.map((link) => (
             <li key={link.href}>
               <Link
                 href={link.href}
+                aria-current={active(link.href) ? "page" : undefined}
                 className={cn(
                   "rounded-lg px-3 py-2 text-sm transition",
-                  pathname === link.href
+                  active(link.href)
                     ? "bg-white/10 text-white"
                     : "text-zinc-400 hover:bg-white/5 hover:text-zinc-100"
                 )}
@@ -64,30 +69,32 @@ export default function PublicNavbar({ brandName }: PublicNavbarProps) {
 
         <button
           type="button"
-          className="rounded-lg border border-white/10 p-2 text-zinc-300 lg:hidden"
+          ref={toggle}
+          className="shrink-0 rounded-lg border border-white/20 p-3 text-zinc-300 xl:hidden"
           onClick={() => setOpen(!open)}
           aria-expanded={open}
           aria-controls="mobile-menu"
           aria-label={open ? "Cerrar menú" : "Abrir menú"}
         >
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          {open ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
         </button>
       </nav>
 
       {open && (
         <div
           id="mobile-menu"
-          className="border-t border-white/5 bg-[#080c18]/95 px-4 py-4 lg:hidden"
+          className="max-h-[calc(100dvh-6rem)] overflow-y-auto border-t border-white/5 bg-[#080c18] px-4 py-4 xl:hidden"
         >
           <ul className="space-y-1">
             {navLinks.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
+                  aria-current={active(link.href) ? "page" : undefined}
                   onClick={() => setOpen(false)}
                   className={cn(
                     "block rounded-lg px-3 py-2.5 text-sm",
-                    pathname === link.href
+                    active(link.href)
                       ? "bg-white/10 text-white"
                       : "text-zinc-400 hover:bg-white/5"
                   )}

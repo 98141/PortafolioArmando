@@ -48,7 +48,7 @@ export default function EducationEntryCard({
               </Link>
             </h2>
             <p className="mt-1 text-zinc-400">{entry.institution}</p>
-            <p className="mt-1 text-xs text-zinc-500">
+            <p className="mt-1 text-xs text-zinc-400">
               {academicLevelLabels[entry.academicLevel]}
             </p>
           </div>
@@ -65,7 +65,7 @@ export default function EducationEntryCard({
           {entry.achievements
             .slice(0, showAchievements ?? entry.achievements.length)
             .map((achievement) => (
-              <li key={achievement} className="text-sm text-zinc-500">
+              <li key={achievement} className="text-sm text-zinc-400">
                 · {achievement}
               </li>
             ))}

@@ -10,7 +10,7 @@ export default function DetailMetaGrid({ items }: DetailMetaGridProps) {
     <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {visible.map((item) => (
         <article key={item.label} className="glass-panel rounded-xl p-4">
-          <p className="text-xs uppercase tracking-wider text-zinc-500">{item.label}</p>
+          <p className="text-xs uppercase tracking-wider text-zinc-400">{item.label}</p>
           <p className="mt-1 text-sm text-zinc-200">{item.value}</p>
         </article>
       ))}

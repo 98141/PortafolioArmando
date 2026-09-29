@@ -32,14 +32,14 @@ export default function CyberLabCard({ lab }: CyberLabCardProps) {
         </Link>
       </h3>
       {lab.subtitle && (
-        <p className="mt-1 text-xs text-zinc-500">{lab.subtitle}</p>
+        <p className="mt-1 text-xs text-zinc-400">{lab.subtitle}</p>
       )}
       <p className="mt-3 flex-1 text-sm leading-relaxed text-zinc-400">
         {lab.shortDescription}
       </p>
 
       {lab.methodology.length > 0 && (
-        <p className="mt-4 text-xs text-zinc-500">
+        <p className="mt-4 text-xs text-zinc-400">
           <span className="text-zinc-400">Metodología:</span>{" "}
           {lab.methodology.slice(0, 3).join(" → ")}
           {lab.methodology.length > 3 ? "…" : ""}
@@ -47,7 +47,7 @@ export default function CyberLabCard({ lab }: CyberLabCardProps) {
       )}
 
       {lab.findings.length > 0 && (
-        <p className="mt-2 text-xs text-zinc-500 line-clamp-2">
+        <p className="mt-2 text-xs text-zinc-400 line-clamp-2">
           <span className="text-zinc-400">Hallazgo clave:</span> {lab.findings[0]}
         </p>
       )}
@@ -64,7 +64,7 @@ export default function CyberLabCard({ lab }: CyberLabCardProps) {
         ))}
       </div>
 
-      <div className="mt-5 flex items-center justify-between border-t border-white/5 pt-4 text-xs text-zinc-500">
+      <div className="mt-5 flex items-center justify-between border-t border-white/5 pt-4 text-xs text-zinc-400">
         <span>{year}</span>
         <div className="flex items-center gap-3">
           <Link href={`/cybersecurity/${lab.slug}`} className="text-cyan-300 hover:text-cyan-200">

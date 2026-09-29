@@ -48,7 +48,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
           <TechBadge label={projectCategoryLabels[project.category]} variant="blue" />
           {project.isFeatured && <TechBadge label="Destacado" variant="cyan" />}
         </div>
-        <p className="mt-1 text-xs text-zinc-500">{year}</p>
+        <p className="mt-1 text-xs text-zinc-400">{year}</p>
         <p className="mt-3 flex-1 text-sm leading-relaxed text-zinc-400">
           {project.shortDescription}
         </p>

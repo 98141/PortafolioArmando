@@ -1,5 +1,7 @@
 "use client";
 
+import FormErrors, { accessibleRegister } from "@/src/components/admin/FormErrors";
+
 import { Star } from "lucide-react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -42,7 +44,7 @@ export default function CyberLabForm({
   onCancel,
 }: CyberLabFormProps) {
   const {
-    register,
+    register: rawRegister,
     handleSubmit,
     setValue,
     getValues,
@@ -52,6 +54,7 @@ export default function CyberLabForm({
     resolver: zodResolver(cyberLabFormSchema),
     defaultValues,
   });
+  const register = accessibleRegister(rawRegister, errors);
 
   const [evidenceAlt, setEvidenceAlt] = useState("");
   const [evidenceCaption, setEvidenceCaption] = useState("");
@@ -75,6 +78,7 @@ export default function CyberLabForm({
       className="space-y-8"
       noValidate
     >
+      <FormErrors errors={errors} />
       {error && (
         <div
           role="alert"
@@ -246,7 +250,7 @@ export default function CyberLabForm({
 
       <section className="glass-panel space-y-4 rounded-2xl p-6">
         <h2 className="font-semibold text-zinc-100">Evidencia y reporte</h2>
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-zinc-400">
           Evidencia por línea. Soporta manual:
           <span className="text-purple-300"> url|alt|caption</span> y también
           imágenes subidas con Cloudinary: <span className="text-purple-300">url|publicId|alt|caption</span>.
@@ -365,7 +369,7 @@ export default function CyberLabForm({
           />
 
           <div className="glass-panel rounded-2xl p-4">
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-zinc-400">
               Puedes dejar el campo manual si ya tienes un PDF en un host propio.
             </p>
           </div>

@@ -33,7 +33,7 @@ export default function BlogFilters({
       <div className="grid gap-4 md:grid-cols-3">
         <div className="relative md:col-span-1">
           <Search
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500"
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400"
             aria-hidden="true"
           />
           <input

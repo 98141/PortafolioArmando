@@ -33,7 +33,7 @@ export default function NewProjectPage({ initialValues }: { initialValues?: Proj
     <ProtectedRoute>
       <AdminLayout>
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-zinc-100">Nuevo proyecto</h2>
+          <h1 className="text-2xl font-bold text-zinc-100">Nuevo proyecto</h1>
           <p className="mt-1 text-sm text-zinc-400">
             Completa el formulario para publicar en el portafolio.
           </p>

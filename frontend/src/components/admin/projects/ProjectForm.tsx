@@ -1,5 +1,7 @@
 "use client";
 
+import FormErrors, { accessibleRegister } from "@/src/components/admin/FormErrors";
+
 import { Star } from "lucide-react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -40,7 +42,7 @@ export default function ProjectForm({
   onCancel,
 }: ProjectFormProps) {
   const {
-    register,
+    register: rawRegister,
     handleSubmit,
     setValue,
     control,
@@ -49,6 +51,7 @@ export default function ProjectForm({
     resolver: zodResolver(projectFormSchema),
     defaultValues,
   });
+  const register = accessibleRegister(rawRegister, errors);
 
   const handleFormSubmit = async (values: ProjectFormValues) => {
     await onSubmit(formValuesToPayload(values));
@@ -72,6 +75,7 @@ export default function ProjectForm({
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-8" noValidate>
+      <FormErrors errors={errors} />
       {error && (
         <div
           role="alert"

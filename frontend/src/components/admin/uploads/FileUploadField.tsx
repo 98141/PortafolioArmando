@@ -117,7 +117,7 @@ export default function FileUploadField({
           className="block w-full text-sm text-zinc-400 file:mr-4 file:rounded-xl file:border-0 file:bg-white/5 file:px-4 file:py-2 file:text-zinc-200 hover:file:bg-white/10 disabled:opacity-50"
         />
         {helperText && (
-          <p className="mt-1 text-xs text-zinc-500">{helperText}</p>
+          <p className="mt-1 text-xs text-zinc-400">{helperText}</p>
         )}
       </div>
 

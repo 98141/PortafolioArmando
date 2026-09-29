@@ -24,17 +24,17 @@ export default function PublicFooter({ settings }: { settings?: SiteSettings }) 
         <div className="grid gap-10 md:grid-cols-3">
           <div>
             <p className="text-lg font-semibold text-zinc-100">{profile.fullName}</p>
-            <p className="mt-2 text-sm leading-relaxed text-zinc-500">
+            <p className="mt-2 text-sm leading-relaxed text-zinc-400">
               {profile.professionalTitle}
             </p>
-            <p className="mt-3 text-sm text-zinc-500">
+            <p className="mt-3 text-sm text-zinc-400">
               Desarrollo de software y ciberseguridad aplicada con enfoque en
               sistemas seguros y documentación profesional.
             </p>
           </div>
 
           <div>
-            <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+            <p className="text-xs font-medium uppercase tracking-wider text-zinc-400">
               Enlaces rápidos
             </p>
             <ul className="mt-4 space-y-2">
@@ -52,7 +52,7 @@ export default function PublicFooter({ settings }: { settings?: SiteSettings }) 
           </div>
 
           <div>
-            <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+            <p className="text-xs font-medium uppercase tracking-wider text-zinc-400">
               Conectar
             </p>
             <ul className="mt-4 space-y-3">
@@ -77,10 +77,10 @@ export default function PublicFooter({ settings }: { settings?: SiteSettings }) 
         </div>
 
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-white/5 pt-8 sm:flex-row">
-          <p className="text-xs text-zinc-600">
+          <p className="text-xs text-zinc-400">
             © {year} {profile.fullName}. Todos los derechos reservados.
           </p>
-          <p className="text-xs text-zinc-600">
+          <p className="text-xs text-zinc-400">
             Desarrollo de software y seguridad
           </p>
         </div>

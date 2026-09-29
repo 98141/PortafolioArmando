@@ -45,7 +45,7 @@ export default function BlogDetail({ post }: BlogDetailProps) {
           {post.title}
         </h1>
         <p className="mt-4 text-lg leading-relaxed text-zinc-400">{post.excerpt}</p>
-        <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-zinc-500">
+        <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-zinc-400">
           {post.author?.name && (
             <span className="inline-flex items-center gap-2">
               {post.author.avatarUrl ? (
@@ -62,7 +62,7 @@ export default function BlogDetail({ post }: BlogDetailProps) {
               <span>
                 <span className="text-zinc-300">{post.author.name}</span>
                 {post.author.role && (
-                  <span className="block text-xs text-zinc-500">{post.author.role}</span>
+                  <span className="block text-xs text-zinc-400">{post.author.role}</span>
                 )}
               </span>
             </span>
@@ -99,7 +99,7 @@ export default function BlogDetail({ post }: BlogDetailProps) {
 
       {post.relatedTopics.length > 0 && (
         <footer className="mt-12 border-t border-white/10 pt-8">
-          <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+          <p className="text-xs font-medium uppercase tracking-wider text-zinc-400">
             Temas relacionados
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -111,7 +111,7 @@ export default function BlogDetail({ post }: BlogDetailProps) {
       )}
 
       {post.allowComments && (
-        <p className="mt-8 text-xs text-zinc-600 italic">
+        <p className="mt-8 text-xs text-zinc-400 italic">
           Comentarios — próximamente (Sprint 7+).
         </p>
       )}

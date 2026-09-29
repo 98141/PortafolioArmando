@@ -1,5 +1,7 @@
 "use client";
 
+import FormErrors, { accessibleRegister } from "@/src/components/admin/FormErrors";
+
 import { Star } from "lucide-react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -40,7 +42,7 @@ export default function CertificationForm({
   onCancel,
 }: CertificationFormProps) {
   const {
-    register,
+    register: rawRegister,
     handleSubmit,
     setValue,
     control,
@@ -49,6 +51,7 @@ export default function CertificationForm({
     resolver: zodResolver(certificationFormSchema),
     defaultValues,
   });
+  const register = accessibleRegister(rawRegister, errors);
 
   const badgeUrl = useWatch({ control, name: "badgeUrl" });
   const badgePublicId = useWatch({ control, name: "badgePublicId" }) || "";
@@ -72,6 +75,7 @@ export default function CertificationForm({
       className="space-y-8"
       noValidate
     >
+      <FormErrors errors={errors} />
       {error && (
         <div
           role="alert"

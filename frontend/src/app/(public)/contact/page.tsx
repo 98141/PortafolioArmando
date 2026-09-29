@@ -53,13 +53,13 @@ export default async function ContactPage() {
                     {resolvedEmail}
                   </a>
                 </li>
-                <li className="flex gap-3 text-sm text-zinc-400">
+                {resolvedLocation && <li className="flex gap-3 text-sm text-zinc-400">
                   <MapPin className="h-5 w-5 shrink-0 text-purple-400" aria-hidden="true" />
                   {resolvedLocation}
-                </li>
+                </li>}
               </ul>
               {resolvedSocial.length > 0 && <div className="mt-8 border-t border-white/5 pt-6">
-                <p className="text-xs uppercase tracking-wider text-zinc-500">Redes</p>
+                <p className="text-xs uppercase tracking-wider text-zinc-400">Redes</p>
                 <ul className="mt-3 space-y-2">
                   {resolvedSocial.map((s) => (
                     <li key={`${s.label}-${s.href}`}>

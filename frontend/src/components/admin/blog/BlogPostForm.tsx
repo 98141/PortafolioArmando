@@ -1,5 +1,7 @@
 "use client";
 
+import FormErrors, { accessibleRegister } from "@/src/components/admin/FormErrors";
+
 import { useState } from "react";
 import { Star } from "lucide-react";
 import { useForm, useWatch } from "react-hook-form";
@@ -37,7 +39,7 @@ export default function BlogPostForm({
   const [showPreview, setShowPreview] = useState(true);
 
   const {
-    register,
+    register: rawRegister,
     handleSubmit,
     control,
     setValue,
@@ -46,6 +48,7 @@ export default function BlogPostForm({
     resolver: zodResolver(blogPostFormSchema),
     defaultValues,
   });
+  const register = accessibleRegister(rawRegister, errors);
 
   const contentValue = useWatch({ control, name: "content" });
   const coverUrl = useWatch({ control, name: "coverUrl" });
@@ -78,6 +81,7 @@ export default function BlogPostForm({
       className="space-y-8"
       noValidate
     >
+      <FormErrors errors={errors} />
       {error && (
         <div
           role="alert"
@@ -383,7 +387,7 @@ export default function BlogPostForm({
               />
               Activo en sitio
             </label>
-            <label className="flex cursor-pointer items-center gap-2 text-sm text-zinc-500">
+            <label className="flex cursor-pointer items-center gap-2 text-sm text-zinc-400">
               <input
                 type="checkbox"
                 className="rounded border-white/20 bg-white/5"

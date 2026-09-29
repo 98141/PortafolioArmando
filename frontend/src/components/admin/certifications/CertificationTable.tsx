@@ -18,17 +18,17 @@ export default function CertificationTable({
 }: CertificationTableProps) {
   return (
     <div className="glass-panel overflow-hidden rounded-2xl">
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto" role="region" aria-label="Tabla de contenido; desplaza horizontalmente para ver las acciones" tabIndex={0}>
         <table className="w-full min-w-[880px] text-left text-sm">
           <thead>
-            <tr className="border-b border-white/10 text-xs uppercase tracking-wider text-zinc-500">
-              <th className="px-4 py-3 font-medium">Certificación</th>
-              <th className="px-4 py-3 font-medium">Emisor</th>
-              <th className="px-4 py-3 font-medium">Categoría</th>
-              <th className="px-4 py-3 font-medium">Estado</th>
-              <th className="px-4 py-3 font-medium">Prioridad</th>
-              <th className="px-4 py-3 font-medium">Flags</th>
-              <th className="px-4 py-3 font-medium text-right">Acciones</th>
+            <tr className="border-b border-white/10 text-xs uppercase tracking-wider text-zinc-400">
+              <th scope="col" className="px-4 py-3 font-medium">Certificación</th>
+              <th scope="col" className="px-4 py-3 font-medium">Emisor</th>
+              <th scope="col" className="px-4 py-3 font-medium">Categoría</th>
+              <th scope="col" className="px-4 py-3 font-medium">Estado</th>
+              <th scope="col" className="px-4 py-3 font-medium">Prioridad</th>
+              <th scope="col" className="px-4 py-3 font-medium">Flags</th>
+              <th scope="col" className="px-4 py-3 font-medium text-right">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -39,7 +39,7 @@ export default function CertificationTable({
               >
                 <td className="px-4 py-4">
                   <p className="font-medium text-zinc-100">{cert.title}</p>
-                  <p className="mt-0.5 text-xs text-zinc-500">{cert.slug}</p>
+                  <p className="mt-0.5 text-xs text-zinc-400">{cert.slug}</p>
                 </td>
                 <td className="px-4 py-4 text-zinc-400">{cert.issuer}</td>
                 <td className="px-4 py-4">

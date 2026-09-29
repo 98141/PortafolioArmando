@@ -21,7 +21,7 @@ export default function SocialLinksEditor({ control, register }: Props) {
   return (
     <section className="glass-panel rounded-2xl p-6">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-base font-semibold text-zinc-100">Redes sociales</h3>
+        <h2 className="text-base font-semibold text-zinc-100">Redes sociales</h2>
         <button
           type="button"
           onClick={() => append({ platform: "", label: "", url: "", isActive: true, priority: 100 })}
@@ -32,27 +32,31 @@ export default function SocialLinksEditor({ control, register }: Props) {
         </button>
       </div>
       <div className="space-y-3">
-        {fields.length === 0 && <p className="text-xs text-zinc-500">No hay enlaces configurados.</p>}
+        {fields.length === 0 && <p className="text-xs text-zinc-400">No hay enlaces configurados.</p>}
         {fields.map((field, index) => (
           <div key={field.id} className="grid gap-2 rounded-xl border border-white/10 p-3 sm:grid-cols-12">
             <input
               className={`sm:col-span-2 ${inputClass}`}
+              aria-label={`Plataforma del enlace ${index + 1}`}
               placeholder="platform"
               {...register(`social.${index}.platform`)}
             />
             <input
               className={`sm:col-span-3 ${inputClass}`}
+              aria-label={`Nombre del enlace ${index + 1}`}
               placeholder="label"
               {...register(`social.${index}.label`)}
             />
             <input
               className={`sm:col-span-4 ${inputClass}`}
+              aria-label={`URL del enlace ${index + 1}`}
               placeholder="https://..."
               {...register(`social.${index}.url`)}
             />
             <input
               type="number"
               className={`sm:col-span-2 ${inputClass}`}
+              aria-label={`Prioridad del enlace ${index + 1}`}
               placeholder="priority"
               {...register(`social.${index}.priority`, { valueAsNumber: true })}
             />
@@ -60,7 +64,7 @@ export default function SocialLinksEditor({ control, register }: Props) {
               type="button"
               onClick={() => remove(index)}
               className="inline-flex items-center justify-center rounded-lg border border-red-500/30 text-red-300 sm:col-span-1"
-              aria-label="Eliminar enlace"
+              aria-label={`Eliminar enlace ${index + 1}`}
             >
               <Trash2 className="h-4 w-4" />
             </button>

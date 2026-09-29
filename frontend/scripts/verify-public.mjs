@@ -36,11 +36,12 @@ let outage = false;
 app.post("/fixture/outage", (req, res) => { outage = !!req.body.enabled; res.json({ outage }); });
 app.get("/api/site-settings", (_req, res) => res.json({ status: "success", data: { settings: fixtureSettings } }));
 let savedProject;
+app.delete("/api/admin/projects/:id", (_req, res) => res.status(503).json({ status: "error", message: "Fallo simulado: el proyecto no fue eliminado." }));
 app.post("/api/admin/projects", (req, res) => {
   savedProject = { ...base, ...req.body, _id: "fixture-saved", slug: "tejiendo-raices" };
   res.status(201).json({ status: "success", data: { project: savedProject } });
 });
-app.get("/api/admin/projects", (_req, res) => res.json({ status: "success", data: { projects: savedProject ? [savedProject] : [], pagination: { page: 1, limit: 12, total: savedProject ? 1 : 0, totalPages: 1 } } }));
+app.get("/api/admin/projects", (_req, res) => res.json({ status: "success", data: { projects: [savedProject || records.projects], pagination: { page: 1, limit: 12, total: 1, totalPages: 1 } } }));
 app.get("/api/admin/projects/:id", (_req, res) => res.json({ status: "success", data: { project: savedProject || records.projects } }));
 app.patch("/api/admin/projects/:id", (req, res) => { savedProject = { ...savedProject, ...req.body }; res.json({ status: "success", data: { project: savedProject } }); });
 app.get("/api/projects/legacy", (_req, res) => res.json({ status: "success", data: { project: { ...records.projects, slug: "legacy", caseStudy: undefined, gallery: [] } } }));

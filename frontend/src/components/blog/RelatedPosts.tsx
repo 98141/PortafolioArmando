@@ -28,7 +28,7 @@ export default function RelatedPosts({ posts, currentSlug }: RelatedPostsProps) 
                 {post.title}
               </Link>
             </h3>
-            <p className="mt-2 text-xs text-zinc-500 line-clamp-2">{post.excerpt}</p>
+            <p className="mt-2 text-xs text-zinc-400 line-clamp-2">{post.excerpt}</p>
             <Link
               href={`/blog/${post.slug}`}
               className="mt-3 inline-flex items-center gap-1 text-xs text-cyan-400"

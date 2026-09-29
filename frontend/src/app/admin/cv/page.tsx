@@ -84,7 +84,7 @@ export default function AdminCvUploadPage() {
       <AdminLayout>
         <div className="space-y-6">
           <div>
-            <h2 className="text-2xl font-bold text-zinc-100">CV Profesional</h2>
+            <h1 className="text-2xl font-bold text-zinc-100">CV Profesional</h1>
             <p className="mt-1 text-sm text-zinc-400">
               El PDF subido queda enlazado al botón de descarga del portfolio público.
             </p>
@@ -110,7 +110,7 @@ export default function AdminCvUploadPage() {
           )}
 
           {loadingInit ? (
-            <div className="glass-panel rounded-2xl p-6 text-sm text-zinc-500">
+            <div className="glass-panel rounded-2xl p-6 text-sm text-zinc-400">
               Cargando estado del CV…
             </div>
           ) : current ? (
@@ -125,7 +125,7 @@ export default function AdminCvUploadPage() {
                       {current.fileName || "cv.pdf"}
                     </p>
                     {current.updatedAt && (
-                      <p className="text-xs text-zinc-500">
+                      <p className="text-xs text-zinc-400">
                         Subido el {formatDate(current.updatedAt)}
                       </p>
                     )}
@@ -154,7 +154,7 @@ export default function AdminCvUploadPage() {
               </div>
 
               <div className="border-t border-white/5 pt-4">
-                <p className="mb-3 text-xs text-zinc-500 flex items-center gap-1.5">
+                <p className="mb-3 text-xs text-zinc-400 flex items-center gap-1.5">
                   <Upload className="h-3.5 w-3.5" />
                   Reemplazar con un nuevo PDF
                 </p>

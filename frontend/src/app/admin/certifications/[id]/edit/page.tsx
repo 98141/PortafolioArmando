@@ -26,7 +26,7 @@ export default function EditPage() {
     catch { setError("No se pudieron guardar los cambios. Revisa los campos e inténtalo de nuevo."); setLoading(false); }
   };
   return <ProtectedRoute><AdminLayout>
-    <h2 className="mb-6 text-2xl font-bold text-zinc-100">Editar certificación</h2>
+    <h1 className="mb-6 text-2xl font-bold text-zinc-100">Editar certificación</h1>
     {query.isPending ? <p role="status" className="py-16 text-center text-zinc-400">Cargando contenido…</p> :
       query.isError || !query.data ? <div role="alert" className="space-y-4 text-rose-300">
         <p>No se pudo cargar el registro solicitado.</p>

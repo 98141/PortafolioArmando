@@ -11,7 +11,7 @@ export default function GlobalError({
 }) {
   return (
     <main className="mx-auto flex min-h-[60vh] max-w-3xl flex-col items-center justify-center px-4 text-center">
-      <p className="text-sm uppercase tracking-[0.2em] text-zinc-500">Error</p>
+      <p className="text-sm uppercase tracking-[0.2em] text-zinc-400">Error</p>
       <h1 className="mt-3 text-3xl font-bold text-zinc-100">Algo salió mal</h1>
       <p className="mt-3 text-zinc-400">{error.message || "Error inesperado del sistema."}</p>
       <div className="mt-6 flex gap-3">

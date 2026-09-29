@@ -86,7 +86,7 @@ export default function AdminProjectsPage() {
         <div className="space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-bold text-zinc-100">Proyectos</h2>
+              <h1 className="text-2xl font-bold text-zinc-100">Proyectos</h1>
               <p className="mt-1 text-sm text-zinc-400">
                 CMS de proyectos de software — crear, editar y publicar.
               </p>
@@ -119,7 +119,7 @@ export default function AdminProjectsPage() {
             <button onClick={() => void loadProjects()} className="text-sm text-cyan-300">Reintentar carga</button>
           ) : projects.length === 0 ? (
             <div className="glass-panel flex flex-col items-center rounded-2xl py-16 text-center">
-              <FolderKanban className="mb-4 h-12 w-12 text-zinc-600" aria-hidden="true" />
+              <FolderKanban className="mb-4 h-12 w-12 text-zinc-400" aria-hidden="true" />
               <p className="text-zinc-400">No hay proyectos con estos filtros.</p>
               <button
                 type="button"
@@ -131,7 +131,7 @@ export default function AdminProjectsPage() {
             </div>
           ) : (
             <>
-              <ProjectTable projects={projects} onDelete={setDeleteTarget} />
+              <ProjectTable projects={projects} onDelete={(item) => { setError(null); setDeleteTarget(item); }} />
               {totalPages > 1 && (
                 <div className="flex justify-center gap-2">
                   <button
@@ -142,7 +142,7 @@ export default function AdminProjectsPage() {
                   >
                     Anterior
                   </button>
-                  <span className="flex items-center px-4 text-sm text-zinc-500">
+                  <span className="flex items-center px-4 text-sm text-zinc-400">
                     {page} / {totalPages}
                   </span>
                   <button
@@ -163,6 +163,7 @@ export default function AdminProjectsPage() {
           open={!!deleteTarget}
           title={deleteTarget?.title ?? ""}
           loading={deleting}
+          error={actionError}
           onConfirm={handleDelete}
           onCancel={() => setDeleteTarget(null)}
         />

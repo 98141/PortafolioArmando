@@ -1,5 +1,7 @@
 "use client";
 
+import FormErrors, { accessibleRegister } from "@/src/components/admin/FormErrors";
+
 import { useMemo } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { toNestErrors } from "@hookform/resolvers";
@@ -96,7 +98,7 @@ const settingsResolver: Resolver<SiteSettingsFormValues> = async (values, _conte
 export default function SiteSettingsForm({ initialSettings, loading, error, onSubmit }: Props) {
   const defaults = useMemo(() => mapToFormValues(initialSettings), [initialSettings]);
   const {
-    register,
+    register: rawRegister,
     control,
     handleSubmit,
     formState: { errors },
@@ -104,17 +106,14 @@ export default function SiteSettingsForm({ initialSettings, loading, error, onSu
     defaultValues: defaults,
     resolver: settingsResolver,
   });
+  const register = accessibleRegister(rawRegister, errors);
 
   return (
     <form onSubmit={handleSubmit(async (v) => onSubmit(mapToPayload(v)))} className="space-y-6">
+      <FormErrors errors={errors} />
       {error && (
-        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+        <div role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
           {error}
-        </div>
-      )}
-      {Object.keys(errors).length > 0 && (
-        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs text-amber-200">
-          Revisa los campos con formato inválido (URL, email o valores requeridos).
         </div>
       )}
 
@@ -125,9 +124,10 @@ export default function SiteSettingsForm({ initialSettings, loading, error, onSu
       <SocialLinksEditor control={control} register={register} />
 
       <section className="glass-panel rounded-2xl p-6">
-        <h3 className="mb-4 text-base font-semibold text-zinc-100">Disponibilidad</h3>
+        <h2 className="mb-4 text-base font-semibold text-zinc-100">Disponibilidad</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <select
+            aria-label="Estado de disponibilidad"
             className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm"
             {...register("availability.status")}
           >
@@ -136,6 +136,7 @@ export default function SiteSettingsForm({ initialSettings, loading, error, onSu
             <option value="unavailable">Unavailable</option>
           </select>
           <input
+            aria-label="Mensaje de disponibilidad"
             className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm"
             placeholder="Mensaje opcional"
             {...register("availability.message")}

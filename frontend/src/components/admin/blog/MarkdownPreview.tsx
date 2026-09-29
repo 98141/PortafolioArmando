@@ -10,7 +10,7 @@ interface MarkdownPreviewProps {
 export default function MarkdownPreview({ content, title = "Vista previa" }: MarkdownPreviewProps) {
   if (!content.trim()) {
     return (
-      <div className="glass-panel rounded-2xl border border-dashed border-white/10 p-8 text-center text-sm text-zinc-500">
+      <div className="glass-panel rounded-2xl border border-dashed border-white/10 p-8 text-center text-sm text-zinc-400">
         Escribe contenido en Markdown para ver la vista previa.
       </div>
     );

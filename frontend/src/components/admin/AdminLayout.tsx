@@ -14,7 +14,8 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Modal from "@/src/components/ui/Modal";
 import { useAuthStore } from "@/src/store/authStore";
 
 const navItems = [
@@ -49,36 +50,30 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-[#080c18] text-zinc-100">
-      {logoutError && <p role="alert" className="relative z-50 bg-red-950 p-4 text-red-100">{logoutError}</p>}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -left-32 top-0 h-96 w-96 rounded-full bg-blue-600/10 blur-3xl" />
-        <div className="absolute -right-32 bottom-0 h-96 w-96 rounded-full bg-purple-600/10 blur-3xl" />
-      </div>
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    const closeOnDesktop = () => { if (desktop.matches) setSidebarOpen(false); };
+    desktop.addEventListener("change", closeOnDesktop);
+    return () => desktop.removeEventListener("change", closeOnDesktop);
+  }, []);
 
-      <div className="relative flex min-h-screen">
-        <aside
-          className={`glass-panel fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-white/10 transition-transform lg:static lg:translate-x-0 ${
-            sidebarOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
-        >
+  const navigation = <>
           <div className="flex items-center justify-between border-b border-white/10 px-5 py-5">
             <div>
-              <p className="text-xs uppercase tracking-widest text-zinc-500">Admin Panel</p>
-              <h1 className="text-lg font-semibold text-gradient">Armando Mora</h1>
+              <p className="text-xs uppercase tracking-widest text-zinc-400">Admin Panel</p>
+              <p className="text-lg font-semibold text-gradient">Armando Mora</p>
             </div>
             <button
               type="button"
-              className="lg:hidden"
+              className="rounded-lg p-3 lg:hidden" data-autofocus
               onClick={() => setSidebarOpen(false)}
               aria-label="Cerrar menú"
             >
-              <X className="h-5 w-5" />
+              <X className="h-5 w-5" aria-hidden="true" />
             </button>
           </div>
 
-          <nav className="flex-1 space-y-1 p-4">
+          <nav aria-label="Administración" className="flex-1 space-y-1 p-4">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive =
@@ -90,6 +85,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 <Link
                   key={item.label}
                   href={item.href}
+                  aria-current={isActive ? "page" : undefined}
                   className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${
                     isActive
                       ? "gradient-accent text-white shadow-lg shadow-blue-500/20"
@@ -97,7 +93,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   }`}
                   onClick={() => setSidebarOpen(false)}
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon className="h-4 w-4" aria-hidden="true" />
                   {item.label}
                 </Link>
               );
@@ -112,38 +108,48 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               disabled={isLoading}
               className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm text-red-300 transition hover:bg-red-500/20 disabled:opacity-50"
             >
-              <LogOut className="h-4 w-4" />
+              <LogOut className="h-4 w-4" aria-hidden="true" />
               Cerrar sesión
             </button>
           </div>
-        </aside>
 
-        {sidebarOpen && (
-          <button
-            type="button"
-            className="fixed inset-0 z-30 bg-black/60 lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-            aria-label="Cerrar overlay"
-          />
-        )}
+  </>;
 
-        <div className="flex flex-1 flex-col">
+  return (
+    <div className="min-h-screen bg-[#080c18] text-zinc-100">
+      <a href="#main-content" className="skip-link">Saltar al contenido</a>
+      {logoutError && <p role="alert" className="relative z-50 bg-red-950 p-4 text-red-100">{logoutError}</p>}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -left-32 top-0 h-96 w-96 rounded-full bg-blue-600/10 blur-3xl" />
+        <div className="absolute -right-32 bottom-0 h-96 w-96 rounded-full bg-purple-600/10 blur-3xl" />
+      </div>
+
+      <div className="relative flex min-h-screen">
+        <aside className="glass-panel hidden w-64 shrink-0 flex-col border-r border-white/10 lg:flex">{navigation}</aside>
+        <Modal open={sidebarOpen} onClose={() => setSidebarOpen(false)} id="admin-navigation-dialog" titleId="admin-navigation-title" className="admin-drawer border-r border-white/20 bg-[#080c18] text-zinc-100">
+          <h2 id="admin-navigation-title" className="sr-only">Menú de administración</h2>
+          {navigation}
+        </Modal>
+
+        <div className="flex min-w-0 flex-1 flex-col">
           <header className="glass-panel sticky top-0 z-20 flex items-center justify-between border-b border-white/10 px-4 py-4 lg:px-8">
             <button
               type="button"
-              className="rounded-lg border border-white/10 p-2 lg:hidden"
+              className="shrink-0 rounded-lg border border-white/20 p-3 lg:hidden"
+              aria-expanded={sidebarOpen}
+              aria-controls="admin-navigation-dialog"
               onClick={() => setSidebarOpen(true)}
               aria-label="Abrir menú"
             >
-              <Menu className="h-5 w-5" />
+              <Menu className="h-5 w-5" aria-hidden="true" />
             </button>
             <div>
-              <p className="text-sm text-zinc-500">Bienvenido</p>
+              <p className="text-sm text-zinc-400">Bienvenido</p>
               <p className="font-medium">{user?.name ?? "Administrador"}</p>
             </div>
           </header>
 
-          <main className="flex-1 p-4 lg:p-8">{children}</main>
+          <main id="main-content" tabIndex={-1} className="min-w-0 flex-1 p-4 lg:p-8">{children}</main>
         </div>
       </div>
     </div>

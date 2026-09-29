@@ -15,17 +15,17 @@ interface EducationTableProps {
 export default function EducationTable({ entries, onDelete }: EducationTableProps) {
   return (
     <div className="glass-panel overflow-hidden rounded-2xl">
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto" role="region" aria-label="Tabla de contenido; desplaza horizontalmente para ver las acciones" tabIndex={0}>
         <table className="w-full min-w-[880px] text-left text-sm">
           <thead>
-            <tr className="border-b border-white/10 text-xs uppercase tracking-wider text-zinc-500">
-              <th className="px-4 py-3 font-medium">Programa</th>
-              <th className="px-4 py-3 font-medium">Institución</th>
-              <th className="px-4 py-3 font-medium">Nivel</th>
-              <th className="px-4 py-3 font-medium">Estado</th>
-              <th className="px-4 py-3 font-medium">Prioridad</th>
-              <th className="px-4 py-3 font-medium">Flags</th>
-              <th className="px-4 py-3 font-medium text-right">Acciones</th>
+            <tr className="border-b border-white/10 text-xs uppercase tracking-wider text-zinc-400">
+              <th scope="col" className="px-4 py-3 font-medium">Programa</th>
+              <th scope="col" className="px-4 py-3 font-medium">Institución</th>
+              <th scope="col" className="px-4 py-3 font-medium">Nivel</th>
+              <th scope="col" className="px-4 py-3 font-medium">Estado</th>
+              <th scope="col" className="px-4 py-3 font-medium">Prioridad</th>
+              <th scope="col" className="px-4 py-3 font-medium">Flags</th>
+              <th scope="col" className="px-4 py-3 font-medium text-right">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -36,7 +36,7 @@ export default function EducationTable({ entries, onDelete }: EducationTableProp
               >
                 <td className="px-4 py-4">
                   <p className="font-medium text-zinc-100">{entry.title}</p>
-                  <p className="mt-0.5 text-xs text-zinc-500">{entry.slug}</p>
+                  <p className="mt-0.5 text-xs text-zinc-400">{entry.slug}</p>
                 </td>
                 <td className="px-4 py-4 text-zinc-400">{entry.institution}</td>
                 <td className="px-4 py-4">

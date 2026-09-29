@@ -44,6 +44,7 @@ export default function ContactForm() {
   return (
     <GlassCard className="p-6 sm:p-8">
       <form onSubmit={handleSubmit} className="space-y-5" aria-busy={status === "sending"}>
+        <p className="text-sm text-zinc-300">Todos los campos son obligatorios.</p>
         <fieldset disabled={status === "sending"} className="space-y-5">
         <div className="grid gap-5 sm:grid-cols-2">
           <div>

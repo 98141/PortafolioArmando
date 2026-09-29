@@ -29,7 +29,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
       <div className="flex min-h-screen items-center justify-center bg-[#080c18]">
         <div className="glass-panel rounded-2xl px-8 py-6 text-center">
           <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-blue-500/30 border-t-blue-400" />
-          <p className="text-sm text-zinc-400">Validando sesión...</p>
+          <p role="status" className="text-sm text-zinc-400">Validando sesión...</p>
         </div>
       </div>
     );

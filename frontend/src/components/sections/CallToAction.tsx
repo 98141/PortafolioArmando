@@ -10,7 +10,7 @@ export default function CallToAction() {
     <section className="px-4 py-20 lg:px-8">
       <div className="mx-auto max-w-6xl">
         <motion.div
-          initial={{ opacity: 0, scale: 0.98 }}
+          initial={false}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-blue-600/20 via-purple-600/15 to-cyan-600/10 p-8 sm:p-12"

@@ -29,7 +29,10 @@ export default function MarkdownRenderer({ content, className }: MarkdownRendere
         className
       )}
     >
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
+        pre: ({ children }) => <pre tabIndex={0} role="region" aria-label="Bloque de código; desplaza horizontalmente para leerlo">{children}</pre>,
+        table: ({ children }) => <div className="max-w-full overflow-x-auto" tabIndex={0} role="region" aria-label="Tabla del artículo"><table>{children}</table></div>,
+      }}>{content}</ReactMarkdown>
     </div>
   );
 }

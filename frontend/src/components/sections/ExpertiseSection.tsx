@@ -28,7 +28,7 @@ export default function ExpertiseSection() {
             return (
               <motion.div
                 key={area.id}
-                initial={{ opacity: 0, y: 20 }}
+                initial={false}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
                 transition={{ delay: i * 0.1 }}

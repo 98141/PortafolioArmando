@@ -42,7 +42,7 @@ export default function AdminSiteSettingsPage() {
       <AdminLayout>
         <div className="space-y-6">
           <div>
-            <h2 className="text-2xl font-bold text-zinc-100">Site Settings</h2>
+            <h1 className="text-2xl font-bold text-zinc-100">Site Settings</h1>
             <p className="mt-1 text-sm text-zinc-400">
               Configuración central del perfil público, SEO base y CV.
             </p>

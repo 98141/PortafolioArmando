@@ -1,5 +1,7 @@
 "use client";
 
+import FormErrors, { accessibleRegister } from "@/src/components/admin/FormErrors";
+
 import { Star } from "lucide-react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -34,7 +36,7 @@ export default function EducationForm({
   onCancel,
 }: EducationFormProps) {
   const {
-    register,
+    register: rawRegister,
     handleSubmit,
     control,
     setValue,
@@ -43,6 +45,7 @@ export default function EducationForm({
     resolver: zodResolver(educationFormSchema),
     defaultValues,
   });
+  const register = accessibleRegister(rawRegister, errors);
 
   const isCurrent = useWatch({ control, name: "isCurrent" });
 
@@ -68,6 +71,7 @@ export default function EducationForm({
       className="space-y-8"
       noValidate
     >
+      <FormErrors errors={errors} />
       {error && (
         <div
           role="alert"

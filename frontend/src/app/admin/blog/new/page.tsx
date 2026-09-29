@@ -31,7 +31,7 @@ export default function NewBlogPostPage() {
     <ProtectedRoute>
       <AdminLayout>
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-zinc-100">Nuevo artículo</h2>
+          <h1 className="text-2xl font-bold text-zinc-100">Nuevo artículo</h1>
           <p className="mt-1 text-sm text-zinc-400">
             Writeup técnico o publicación del Knowledge Hub en Markdown.
           </p>
