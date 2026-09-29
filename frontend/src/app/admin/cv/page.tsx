@@ -1,72 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { FileText, Trash2, CheckCircle, Upload } from "lucide-react";
 import ProtectedRoute from "@/src/components/admin/ProtectedRoute";
 import AdminLayout from "@/src/components/admin/AdminLayout";
 import FileUploadField from "@/src/components/admin/uploads/FileUploadField";
-import type { UploadResponse } from "@/src/services/uploadService";
+import { createCvController } from "@/src/lib/cvController";
 import { siteSettingsService } from "@/src/services/siteSettingsService";
 
-interface CvState {
-  url: string;
-  publicId: string;
-  fileName?: string;
-  updatedAt?: string;
-}
-
 export default function AdminCvUploadPage() {
-  const [current, setCurrent] = useState<CvState | null>(null);
-  const [pendingUpload, setPendingUpload] = useState<UploadResponse | null>(null);
-  const [loadingInit, setLoadingInit] = useState(true);
-  const [loadingDelete, setLoadingDelete] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [saved, setSaved] = useState(false);
+  const [controller] = useState(() => createCvController(siteSettingsService));
+  const state = useSyncExternalStore(controller.subscribe, controller.getSnapshot, controller.getSnapshot);
+  const { current, error } = state;
+  const busy = state.operation !== "idle";
+  const blocked = busy || state.read !== "ready" || state.uncertain;
 
   useEffect(() => {
-    siteSettingsService
-      .getAdminSettings()
-      .then((s) => {
-        const cv = (s as { cv?: CvState }).cv;
-        if (cv?.url) setCurrent(cv);
-      })
-      .catch(() => {})
-      .finally(() => setLoadingInit(false));
-  }, []);
-
-  const handleUploadComplete = (asset: UploadResponse | null) => {
-    setPendingUpload(asset);
-    setError(null);
-    setSaved(false);
-    if (asset) {
-      setCurrent({
-        url: asset.secureUrl,
-        publicId: asset.publicId,
-        fileName: asset.originalName,
-        updatedAt: new Date().toISOString(),
-      });
-      setSaved(true);
-      setPendingUpload(null);
-    }
-  };
-
-  const handleDelete = async () => {
-    setLoadingDelete(true);
-    setError(null);
-    setSaved(false);
-    try {
-      await siteSettingsService.deleteCv();
-      setCurrent(null);
-      setPendingUpload(null);
-    } catch (e: unknown) {
-      const msg =
-        (e as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message || "No se pudo eliminar el CV.";
-      setError(msg);
-    } finally {
-      setLoadingDelete(false);
-    }
-  };
+    controller.activate();
+    void controller.refresh();
+    return () => controller.dispose();
+  }, [controller]);
 
   const formatDate = (iso?: string) => {
     if (!iso) return null;
@@ -99,21 +52,32 @@ export default function AdminCvUploadPage() {
             </div>
           )}
 
-          {saved && (
+          {state.success && (
             <div
               role="status"
               className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300"
             >
               <CheckCircle className="h-4 w-4 shrink-0" />
-              CV actualizado y enlazado al portfolio.
+              {state.success}
             </div>
           )}
 
-          {loadingInit ? (
-            <div className="glass-panel rounded-2xl p-6 text-sm text-zinc-400">
-              Cargando estado del CV…
-            </div>
-          ) : current ? (
+          <div className="flex items-center gap-3">
+            <button type="button" disabled={busy || state.read === "loading"}
+              onClick={() => void controller.refresh()}
+              className="rounded-xl border border-white/10 px-4 py-2 text-sm disabled:opacity-40">
+              {state.read === "error" ? "Reintentar consulta" : "Comprobar estado actual"}
+            </button>
+            <p role="status" className="text-sm text-cyan-300">
+              {state.read === "loading" ? "Cargando información del CV…"
+                : state.operation === "upload" ? "Reemplazando CV… Espera antes de eliminar o subir otro archivo."
+                : state.operation === "delete" ? "Eliminando CV… Espera antes de subir otro archivo."
+                : current ? "CV disponible (última información confirmada)."
+                : state.read === "ready" && !state.uncertain ? "Consulta correcta: no hay un CV publicado." : ""}
+            </p>
+          </div>
+
+          {current ? (
             <div className="glass-panel rounded-2xl p-6 space-y-4">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3">
@@ -143,12 +107,12 @@ export default function AdminCvUploadPage() {
                   </a>
                   <button
                     type="button"
-                    onClick={handleDelete}
-                    disabled={loadingDelete}
+                    onClick={() => void controller.remove()}
+                    disabled={blocked}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs text-red-300 transition hover:bg-red-500/20 disabled:opacity-40"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
-                    {loadingDelete ? "Eliminando…" : "Eliminar"}
+                    {state.operation === "delete" ? "Eliminando…" : "Eliminar"}
                   </button>
                 </div>
               </div>
@@ -159,9 +123,13 @@ export default function AdminCvUploadPage() {
                   Reemplazar con un nuevo PDF
                 </p>
                 <FileUploadField
-                  label=""
-                  value={pendingUpload}
-                  onChange={handleUploadComplete}
+                  key={current.publicId || current.url}
+                  label="Reemplazar CV (PDF)"
+                  value={null}
+                  onChange={controller.completeUpload}
+                  onUploadStart={controller.beginUpload}
+                  onUploadError={controller.failUpload}
+                  disabled={blocked}
                   uploadType="cv"
                   accept="application/pdf"
                   maxSize={10 * 1024 * 1024}
@@ -170,12 +138,15 @@ export default function AdminCvUploadPage() {
                 />
               </div>
             </div>
-          ) : (
+          ) : state.read === "ready" && !state.uncertain ? (
             <div className="glass-panel rounded-2xl p-6">
               <FileUploadField
                 label="CV (PDF)"
-                value={pendingUpload}
-                onChange={handleUploadComplete}
+                value={null}
+                onChange={controller.completeUpload}
+                onUploadStart={controller.beginUpload}
+                onUploadError={controller.failUpload}
+                disabled={blocked}
                 uploadType="cv"
                 accept="application/pdf"
                 maxSize={10 * 1024 * 1024}
@@ -183,7 +154,7 @@ export default function AdminCvUploadPage() {
                 previewType="pdf"
               />
             </div>
-          )}
+          ) : null}
         </div>
       </AdminLayout>
     </ProtectedRoute>

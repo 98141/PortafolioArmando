@@ -17,6 +17,7 @@ import {
   certificationStatusLabels,
 } from "@/src/lib/certificationLabels";
 import { cn } from "@/src/lib/cn";
+import UploadForm, { UploadSubmitButton } from "@/src/components/admin/uploads/UploadForm";
 import FileUploadField from "@/src/components/admin/uploads/FileUploadField";
 import type { UploadResponse } from "@/src/services/uploadService";
 
@@ -70,7 +71,7 @@ export default function CertificationForm({
   );
 
   return (
-    <form
+    <UploadForm saving={loading}
       onSubmit={handleSubmit(async (values) => onSubmit(formValuesToPayload(values)))}
       className="space-y-8"
       noValidate
@@ -281,13 +282,13 @@ export default function CertificationForm({
       </section>
 
       <div className="flex flex-wrap gap-3">
-        <button
+        <UploadSubmitButton
           type="submit"
           disabled={loading}
           className="rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 px-6 py-2.5 text-sm font-medium text-white hover:from-amber-500 hover:to-orange-500 disabled:opacity-50"
         >
           {loading ? "Guardando…" : submitLabel}
-        </button>
+        </UploadSubmitButton>
         <button
           type="button"
           onClick={onCancel}
@@ -297,6 +298,6 @@ export default function CertificationForm({
           Cancelar
         </button>
       </div>
-    </form>
+    </UploadForm>
   );
 }

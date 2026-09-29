@@ -11,6 +11,7 @@ import { defaultEducationFormValues, formValuesToPayload } from "@/src/lib/educa
 import type { EducationFormValues, AcademicLevel } from "@/src/types/education";
 import { academicLevelLabels } from "@/src/lib/educationLabels";
 import { cn } from "@/src/lib/cn";
+import UploadForm, { UploadSubmitButton } from "@/src/components/admin/uploads/UploadForm";
 import FileUploadField from "@/src/components/admin/uploads/FileUploadField";
 import type { UploadResponse } from "@/src/services/uploadService";
 
@@ -66,7 +67,7 @@ export default function EducationForm({
   );
 
   return (
-    <form
+    <UploadForm saving={loading}
       onSubmit={handleSubmit(async (values) => onSubmit(formValuesToPayload(values)))}
       className="space-y-8"
       noValidate
@@ -273,13 +274,13 @@ export default function EducationForm({
       </section>
 
       <div className="flex flex-wrap gap-3">
-        <button
+        <UploadSubmitButton
           type="submit"
           disabled={loading}
           className="rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 px-6 py-2.5 text-sm font-medium text-white hover:from-cyan-500 hover:to-blue-500 disabled:opacity-50"
         >
           {loading ? "Guardando…" : submitLabel}
-        </button>
+        </UploadSubmitButton>
         <button
           type="button"
           onClick={onCancel}
@@ -289,6 +290,6 @@ export default function EducationForm({
           Cancelar
         </button>
       </div>
-    </form>
+    </UploadForm>
   );
 }

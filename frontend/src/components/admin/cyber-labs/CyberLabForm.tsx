@@ -19,6 +19,7 @@ import {
 } from "@/src/lib/cyberLabLabels";
 import type { CyberLabCategory, CyberLabStatus, CyberSeverity } from "@/src/types/cyberLab";
 import { cn } from "@/src/lib/cn";
+import UploadForm, { UploadSubmitButton } from "@/src/components/admin/uploads/UploadForm";
 import FileUploadField from "@/src/components/admin/uploads/FileUploadField";
 import type { UploadResponse } from "@/src/services/uploadService";
 
@@ -73,7 +74,7 @@ export default function CyberLabForm({
     : null;
 
   return (
-    <form
+    <UploadForm saving={loading}
       onSubmit={handleSubmit(async (values) => onSubmit(formValuesToPayload(values)))}
       className="space-y-8"
       noValidate
@@ -432,15 +433,15 @@ export default function CyberLabForm({
         >
           Cancelar
         </button>
-        <button
+        <UploadSubmitButton
           type="submit"
           disabled={loading}
           className="rounded-xl gradient-accent px-6 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
         >
           {loading ? "Guardando..." : submitLabel}
-        </button>
+        </UploadSubmitButton>
       </div>
-    </form>
+    </UploadForm>
   );
 }
 

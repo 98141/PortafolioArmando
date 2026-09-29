@@ -108,7 +108,8 @@ for (const fails of [false, true]) {
     const uploadService = { uploadProjectImage: async () => { if (fails) throw new Error("offline"); return { publicId: "new" }; },
       tryDeleteUploadedAsset: async () => { deletions++; } };
     const { default: Field } = loadTs("src/components/admin/uploads/FileUploadField.tsx", {
-      react: { ...React, useMemo: (fn) => fn(), useState: (initial) => [initial, () => {}] },
+      react: { ...React, useMemo: (fn) => fn(), useState: (initial) => [initial, () => {}], useRef: (v) => ({ current: v }), useId: () => "file", useEffect: () => {} },
+      "./UploadForm": { useUploadForm: () => null },
       "next/image": () => null, "@/src/services/uploadService": { uploadService },
     });
     const tree = Field({ label: "Image", value: { publicId: "old", url: "https://example.com/old.png" }, onChange: (value) => changes.push(value),

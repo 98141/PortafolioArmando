@@ -12,6 +12,7 @@ import type { BlogPostFormValues, BlogCategory, BlogStatus } from "@/src/types/b
 import { blogCategoryLabels, blogStatusLabels } from "@/src/lib/blogPostLabels";
 import MarkdownPreview from "@/src/components/admin/blog/MarkdownPreview";
 import { cn } from "@/src/lib/cn";
+import UploadForm, { UploadSubmitButton } from "@/src/components/admin/uploads/UploadForm";
 import FileUploadField from "@/src/components/admin/uploads/FileUploadField";
 import type { UploadResponse } from "@/src/services/uploadService";
 
@@ -76,7 +77,7 @@ export default function BlogPostForm({
     : null;
 
   return (
-    <form
+    <UploadForm saving={loading}
       onSubmit={handleSubmit(async (values) => onSubmit(formValuesToPayload(values)))}
       className="space-y-8"
       noValidate
@@ -400,13 +401,13 @@ export default function BlogPostForm({
       </section>
 
       <div className="flex flex-wrap gap-3">
-        <button
+        <UploadSubmitButton
           type="submit"
           disabled={loading}
           className="rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-2.5 text-sm font-medium text-white hover:from-violet-500 hover:to-indigo-500 disabled:opacity-50"
         >
           {loading ? "Guardando…" : submitLabel}
-        </button>
+        </UploadSubmitButton>
         <button
           type="button"
           onClick={onCancel}
@@ -416,6 +417,6 @@ export default function BlogPostForm({
           Cancelar
         </button>
       </div>
-    </form>
+    </UploadForm>
   );
 }

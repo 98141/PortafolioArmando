@@ -15,6 +15,7 @@ import type { ProjectFormValues } from "@/src/types/project";
 import { projectCategoryLabels, projectStatusLabels } from "@/src/lib/projectLabels";
 import type { ProjectCategory, ProjectStatus } from "@/src/types/project";
 import { cn } from "@/src/lib/cn";
+import UploadForm, { UploadSubmitButton } from "@/src/components/admin/uploads/UploadForm";
 import FileUploadField from "@/src/components/admin/uploads/FileUploadField";
 import ProjectGalleryFields from "./ProjectGalleryFields";
 import { supportedImageUrl } from "@/src/lib/publicLinks";
@@ -74,7 +75,7 @@ export default function ProjectForm({
   );
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-8" noValidate>
+    <UploadForm saving={loading} onSubmit={handleSubmit(handleFormSubmit)} className="space-y-8" noValidate>
       <FormErrors errors={errors} />
       {error && (
         <div
@@ -373,14 +374,14 @@ export default function ProjectForm({
         >
           Cancelar
         </button>
-        <button
+        <UploadSubmitButton
           type="submit"
           disabled={loading}
           className="rounded-xl gradient-accent px-6 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
         >
           {loading ? "Guardando..." : submitLabel}
-        </button>
+        </UploadSubmitButton>
       </div>
-    </form>
+    </UploadForm>
   );
 }
