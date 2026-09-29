@@ -14,10 +14,21 @@ const sanitizePublicIdBase = (name = "") =>
     .replace(/^-+|-+$/g, "")
     .toLowerCase();
 
-const buildPublicId = (file) => {
-  const base = sanitizePublicIdBase(file?.originalname ?? "asset");
-  const unique = randomUUID();
-  return `${base || "asset"}-${unique}`;
+// Images must not carry a file extension in public_id. Raw PDFs must end in
+// the validated content extension, not whatever the client named the file.
+const buildPublicId = (file, resourceType) => {
+  const base = sanitizePublicIdBase(file?.originalname ?? "asset") || "asset";
+  const id = `${base}-${randomUUID()}`;
+  if (resourceType !== "raw") return id;
+
+  if (file?.validatedKind !== "pdf" || file?.validatedMime !== "application/pdf") {
+    const error = new AppError("PDF upload failed", 500);
+    error.phase = "validation";
+    error.reason = "missing-validated-pdf";
+    throw error;
+  }
+
+  return `${id}.pdf`;
 };
 
 const buildUploadResponse = (result, originalName) => {
@@ -40,10 +51,10 @@ const buildUploadResponse = (result, originalName) => {
   };
 };
 
-const uploadBufferToCloudinary = (file, { folder, resource_type }) =>
-  new Promise((resolve, reject) => {
-    const publicId = buildPublicId(file);
+const uploadBufferToCloudinary = (file, { folder, resource_type }) => {
+  const publicId = buildPublicId(file, resource_type);
 
+  return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder,
@@ -60,8 +71,18 @@ const uploadBufferToCloudinary = (file, { folder, resource_type }) =>
     uploadStream.on("error", reject);
     Readable.from(file.buffer).on("error", reject).pipe(uploadStream);
   });
+};
 
-const uploadImageToCloudinary = async (file, folder, endpoint) => {
+const logProviderFailure = (endpoint, err, context) => {
+  logUploadFailure(endpoint || "upload", err, {
+    endpoint,
+    phase: err?.phase || "provider",
+    requestId: context.requestId,
+    reason: err?.reason,
+  });
+};
+
+const uploadImageToCloudinary = async (file, folder, endpoint, context = {}) => {
   try {
     const result = await uploadBufferToCloudinary(file, {
       folder,
@@ -69,14 +90,14 @@ const uploadImageToCloudinary = async (file, folder, endpoint) => {
     });
     return buildUploadResponse(result, file.originalname);
   } catch (err) {
-    logUploadFailure(endpoint || "image", err, { endpoint });
+    logProviderFailure(endpoint || "image", err, context);
     throw err.isOperational
       ? err
       : new AppError("Image upload failed", 500);
   }
 };
 
-const uploadPdfToCloudinary = async (file, folder, endpoint) => {
+const uploadPdfToCloudinary = async (file, folder, endpoint, context = {}) => {
   try {
     const result = await uploadBufferToCloudinary(file, {
       folder,
@@ -84,12 +105,12 @@ const uploadPdfToCloudinary = async (file, folder, endpoint) => {
     });
     return buildUploadResponse(result, file.originalname);
   } catch (err) {
-    logUploadFailure(endpoint || "pdf", err, { endpoint });
+    logProviderFailure(endpoint || "pdf", err, context);
     throw err.isOperational ? err : new AppError("PDF upload failed", 500);
   }
 };
 
-const deleteFromCloudinary = async (publicId, resourceType, endpoint) => {
+const deleteFromCloudinary = async (publicId, resourceType, endpoint, context = {}) => {
   const resource_type = resourceType === "raw" ? "raw" : "image";
   try {
     const result = await cloudinary.uploader.destroy(publicId, { resource_type });
@@ -97,7 +118,12 @@ const deleteFromCloudinary = async (publicId, resourceType, endpoint) => {
       throw new AppError("Cloudinary did not confirm asset deletion", 502);
     }
   } catch (err) {
-    logDeleteFailure(endpoint || "delete", err, { publicId, resourceType });
+    logDeleteFailure(endpoint || "delete", err, {
+      publicId,
+      resourceType,
+      requestId: context.requestId,
+      phase: "cleanup",
+    });
     throw err.isOperational
       ? err
       : new AppError("Failed to delete asset from Cloudinary", 500);

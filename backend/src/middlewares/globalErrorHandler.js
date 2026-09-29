@@ -1,4 +1,5 @@
 const AppError = require("../utils/AppError");
+const { buildSafeErrorLog, logUploadFailure } = require("../utils/uploadLogger");
 
 const handleCastErrorDB = () =>
   new AppError("The requested resource was not found", 404);
@@ -28,7 +29,7 @@ const sendErrorDev = (err, res) => {
   });
 };
 
-const sendErrorProd = (err, res) => {
+const sendErrorProd = (err, res, req, originalErr) => {
   if (err.isOperational) {
     return res.status(err.statusCode).json({
       status: err.status,
@@ -36,7 +37,7 @@ const sendErrorProd = (err, res) => {
     });
   }
 
-  console.error("ERROR:", err);
+  console.error("ERROR:", buildSafeErrorLog(originalErr, req));
 
   return res.status(500).json({
     status: "error",
@@ -52,18 +53,36 @@ const globalErrorHandler = (err, req, res, _next) => {
     return sendErrorDev(err, res);
   }
 
-  let error = { ...err, message: err.message, name: err.name };
+  let error = Object.assign(new Error(err.message), {
+    name: err.name,
+    code: err.code,
+    statusCode: err.statusCode,
+    status: err.status,
+    isOperational: err.isOperational,
+    phase: err.phase,
+    http_code: err.http_code,
+  });
+  error.stack = err.stack;
 
   if (err.name === "CastError") error = handleCastErrorDB();
   if (err.code === 11000) error = handleDuplicateFieldsDB(err);
   if (err.name === "ValidationError") error = handleValidationErrorDB(err);
-  if (err.code === "LIMIT_FILE_SIZE") error = new AppError("File too large", 413);
-  if (err.code === "LIMIT_UNEXPECTED_FILE")
-    error = new AppError("Unexpected file field", 400);
+  if (err.code === "LIMIT_FILE_SIZE" || err.code === "LIMIT_UNEXPECTED_FILE") {
+    logUploadFailure("request", err, {
+      phase: "validation",
+      requestId: req.requestId,
+      route: req.originalUrl,
+      providerCode: err.code,
+    });
+    error = err.code === "LIMIT_FILE_SIZE"
+      ? new AppError("File too large", 413)
+      : new AppError("Unexpected file field", 400);
+    error.phase = "validation";
+  }
   if (err.name === "JsonWebTokenError") error = handleJWTError();
   if (err.name === "TokenExpiredError") error = handleJWTExpiredError();
 
-  return sendErrorProd(error, res);
+  return sendErrorProd(error, res, req, err);
 };
 
 module.exports = globalErrorHandler;

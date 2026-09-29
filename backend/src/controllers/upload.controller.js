@@ -10,6 +10,9 @@ const { writeAudit } = require("../services/audit.service");
 const { logSecurityEvent } = require("../utils/securityLogger");
 const SiteSettings = require("../models/siteSettings.model");
 const { isAssetReferenced, cleanupUnreferencedAsset } = require("../services/assetReferences.service");
+const { logUploadFailure } = require("../utils/uploadLogger");
+
+const uploadContext = (req) => ({ requestId: req.requestId });
 
 const requireFile = (req) => {
   if (!req.file) {
@@ -35,7 +38,8 @@ const uploadProjectImage = catchAsync(async (req, res) => {
   const data = await uploadImageToCloudinary(
     file,
     "portfolio/projects",
-    "project-image"
+    "project-image",
+    uploadContext(req)
   );
   await respondUpload(req, res, data, "project-image");
 });
@@ -45,7 +49,8 @@ const uploadCyberEvidence = catchAsync(async (req, res) => {
   const data = await uploadImageToCloudinary(
     file,
     "portfolio/cyber-labs/evidence",
-    "cyber-evidence"
+    "cyber-evidence",
+    uploadContext(req)
   );
   await respondUpload(req, res, data, "cyber-evidence");
 });
@@ -55,7 +60,8 @@ const uploadCyberReportPdf = catchAsync(async (req, res) => {
   const data = await uploadPdfToCloudinary(
     file,
     "portfolio/cyber-labs/reports",
-    "cyber-report"
+    "cyber-report",
+    uploadContext(req)
   );
   await respondUpload(req, res, data, "cyber-report");
 });
@@ -65,7 +71,8 @@ const uploadCertificationBadge = catchAsync(async (req, res) => {
   const data = await uploadImageToCloudinary(
     file,
     "portfolio/certifications/badges",
-    "certification-badge"
+    "certification-badge",
+    uploadContext(req)
   );
   await respondUpload(req, res, data, "certification-badge");
 });
@@ -75,7 +82,8 @@ const uploadEducationLogo = catchAsync(async (req, res) => {
   const data = await uploadImageToCloudinary(
     file,
     "portfolio/education/logos",
-    "education-logo"
+    "education-logo",
+    uploadContext(req)
   );
   await respondUpload(req, res, data, "education-logo");
 });
@@ -85,7 +93,8 @@ const uploadBlogCover = catchAsync(async (req, res) => {
   const data = await uploadImageToCloudinary(
     file,
     "portfolio/blog/covers",
-    "blog-cover"
+    "blog-cover",
+    uploadContext(req)
   );
   await respondUpload(req, res, data, "blog-cover");
 });
@@ -95,7 +104,8 @@ const uploadAuthorAvatar = catchAsync(async (req, res) => {
   const data = await uploadImageToCloudinary(
     file,
     "portfolio/authors",
-    "author-avatar"
+    "author-avatar",
+    uploadContext(req)
   );
   await respondUpload(req, res, data, "author-avatar");
 });
@@ -103,7 +113,7 @@ const uploadAuthorAvatar = catchAsync(async (req, res) => {
 const uploadCvPdf = catchAsync(async (req, res) => {
   const file = requireFile(req);
 
-  const data = await uploadPdfToCloudinary(file, "portfolio/cv", "cv");
+  const data = await uploadPdfToCloudinary(file, "portfolio/cv", "cv", uploadContext(req));
 
   let previous;
   try {
@@ -123,6 +133,13 @@ const uploadCvPdf = catchAsync(async (req, res) => {
       { upsert: true, new: false, runValidators: true, setDefaultsOnInsert: true }
     );
   } catch (error) {
+    logUploadFailure("cv", error, {
+      endpoint: "cv",
+      phase: "persistence",
+      requestId: req.requestId,
+      route: req.originalUrl,
+    });
+    if (error && typeof error === "object") error.phase = "persistence";
     await cleanupUnreferencedAsset(data.publicId, "raw", req, "cv-save-failed");
     throw error;
   }
@@ -144,7 +161,8 @@ const deleteUploadedAsset = catchAsync(async (req, res, next) => {
     await deleteFromCloudinary(
       validated.publicId,
       validated.resourceType,
-      "delete"
+      "delete",
+      uploadContext(req)
     );
   } catch (err) {
     logSecurityEvent("upload_delete_failed", err.message, {

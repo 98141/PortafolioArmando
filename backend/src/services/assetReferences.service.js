@@ -6,6 +6,7 @@ const BlogPost = require("../models/blogPost.model");
 const SiteSettings = require("../models/siteSettings.model");
 const { deleteFromCloudinary } = require("./upload.service");
 const { writeAudit } = require("./audit.service");
+const { logDeleteFailure } = require("../utils/uploadLogger");
 
 // Include soft-deleted records: their assets are needed if an administrator restores them.
 async function isAssetReferenced(publicId) {
@@ -24,11 +25,17 @@ async function cleanupUnreferencedAsset(publicId, resourceType, req, reason) {
   if (!publicId) return;
   try {
     if (await isAssetReferenced(publicId)) return;
-    await deleteFromCloudinary(publicId, resourceType, reason);
+    await deleteFromCloudinary(publicId, resourceType, reason, { requestId: req?.requestId });
   } catch (error) {
     // The database operation has already committed (or its outcome is uncertain).
     // Preserve the user-visible result and record cleanup for operational follow-up.
-    console.error("[asset cleanup]", reason, publicId, error.message);
+    logDeleteFailure(reason || "cleanup", error, {
+      publicId,
+      resourceType,
+      requestId: req?.requestId,
+      phase: "cleanup",
+      route: req?.originalUrl,
+    });
     await writeAudit({ actor: req.user, action: "upload.cleanup_failed", entityType: "upload",
       entityId: publicId, req, severity: "warning", metadata: { resourceType, reason } });
   }

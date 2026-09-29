@@ -93,10 +93,11 @@ const run = async () => {
   const pdfBuffer = Buffer.from("%PDF-1.4\n1 0 obj\n<<>>\nendobj\n", "utf8");
 
   await assertOk("valid pdf magic", async () => {
-    await assertMagicBytes(
-      { buffer: pdfBuffer, mimetype: "application/pdf", originalname: "report.pdf" },
-      "pdf"
-    );
+    const file = { buffer: pdfBuffer, mimetype: "application/pdf", originalname: "report.bin" };
+    await assertMagicBytes(file, "pdf");
+    if (file.validatedKind !== "pdf" || file.validatedMime !== "application/pdf") {
+      throw new Error("validated PDF type was not stamped");
+    }
   });
 
   console.log(`\nResults: ${passed} passed, ${failed} failed`);

@@ -57,6 +57,8 @@ const assertMagicBytes = async (file, expectedKind) => {
       throw new AppError("Declared mimetype does not match file content", 400);
     }
 
+    file.validatedKind = "image";
+    file.validatedMime = detected.mime;
     return;
   }
 
@@ -69,6 +71,8 @@ const assertMagicBytes = async (file, expectedKind) => {
       throw new AppError("Declared mimetype does not match file content", 400);
     }
 
+    file.validatedKind = "pdf";
+    file.validatedMime = detected.mime;
     return;
   }
 
