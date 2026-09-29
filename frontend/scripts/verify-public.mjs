@@ -101,6 +101,13 @@ try {
     // Close this local preview from another terminal with POST http://127.0.0.1:5110/fixture/stop.
     await new Promise(resolve => { app.post("/fixture/stop", (_req, res) => { res.sendStatus(200); resolve(); }); setTimeout(resolve, 15 * 60 * 1000).unref(); });
   } else {
+    // Only screen delivery is tested here. No admin write or real session is needed.
+    for (const route of ["/admin/projects/new", ...["projects", "cyber-labs", "certifications", "education", "blog"]
+      .map(resource => `/admin/${resource}/507f1f77bcf86cd799439011/edit`)]) {
+      const html = await check(route, 200, /Validando sesión/);
+      assert.match(html, /<meta name="robots" content="[^"]*noindex/);
+    }
+    await check("/robots.txt", 200, /Disallow: \/admin/);
     for (const route of ["projects", "cybersecurity", "certifications", "education", "blog"]) {
       const html = await check(`/${route}`, 200, /Registro de prueba SSR/);
       assert.match(html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, ""), /Registro de prueba SSR/, "Content must be in rendered HTML, not only RSC scripts");

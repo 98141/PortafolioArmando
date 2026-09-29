@@ -39,4 +39,5 @@ jobs:
       - run: npm run build --prefix frontend
       - run: npm run typecheck --prefix frontend
       - run: node frontend/scripts/with-production.mjs scripts/verify-release.mjs
+      - run: npm run test:release:passenger --prefix frontend
       - run: node frontend/scripts/with-production.mjs scripts/measure-public.mjs --check

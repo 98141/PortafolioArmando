@@ -3,12 +3,17 @@ import { once } from "node:events";
 import { fileURLToPath } from "node:url";
 
 // Runs a verification script against an existing build and always stops its server.
-// Usage: node scripts/with-production.mjs scripts/measure-public.mjs [output] [--check]
-const [script, ...args] = process.argv.slice(2);
+// Usage: node scripts/with-production.mjs [--custom-server] scripts/verify-release.mjs [args]
+const input = process.argv.slice(2);
+const customServer = input[0] === "--custom-server";
+if (customServer) input.shift();
+const [script, ...args] = input;
 if (!script) throw new Error("A verification script is required");
 const cwd = fileURLToPath(new URL("../", import.meta.url));
-const server = spawn(process.execPath, ["node_modules/next/dist/bin/next", "start", "--hostname", "127.0.0.1", "--port", "3100"], {
-  cwd, windowsHide: true, stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, NODE_ENV: "production" },
+const command = customServer ? ["server.js"] : ["node_modules/next/dist/bin/next", "start", "--hostname", "127.0.0.1", "--port", "3100"];
+console.log(`Local release runner: node ${command.join(" ")} (not the hosting supervisor)`);
+const server = spawn(process.execPath, command, {
+  cwd, windowsHide: true, stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, NODE_ENV: "production", PORT: "3100" },
 });
 const stopped = once(server, "exit");
 server.stderr.pipe(process.stderr);
@@ -18,7 +23,7 @@ try {
     server.once("error", reject);
     server.once("exit", (code) => { clearTimeout(timer); reject(new Error(`Production server exited: ${code}`)); });
     server.stdout.on("data", (chunk) => {
-      if (chunk.toString().includes("Ready")) { clearTimeout(timer); resolve(); }
+      if (chunk.toString().includes(customServer ? "Frontend listo" : "Ready")) { clearTimeout(timer); resolve(); }
     });
   });
   const child = spawn(process.execPath, [script, "http://127.0.0.1:3100", ...args], { cwd, windowsHide: true, stdio: "inherit" });
