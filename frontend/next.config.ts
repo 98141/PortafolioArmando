@@ -33,7 +33,17 @@ export default function config(phase: string): NextConfig {
     validateProductionEnv(process.env);
   }
   // Keep the isolated fixture preview separate from a developer's running server.
-  return process.env.NODE_ENV === "development" && process.env.PUBLIC_FIXTURE === "1"
-    ? { ...nextConfig, distDir: ".next-fixture" }
-    : nextConfig;
+  if (process.env.NODE_ENV === "development" && process.env.PUBLIC_FIXTURE === "1") {
+    return {
+      ...nextConfig,
+      distDir: ".next-fixture",
+      images: {
+        remotePatterns: [
+          ...(nextConfig.images?.remotePatterns ?? []),
+          { protocol: "http", hostname: "127.0.0.1", port: "5111", pathname: "/fixture/**" },
+        ],
+      },
+    };
+  }
+  return nextConfig;
 }
