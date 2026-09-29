@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import PageHero from "@/src/components/portfolio/PageHero";
-import BlogPageClient from "@/src/app/(public)/blog/BlogPageClient";
+import PublicListing from "@/src/components/portfolio/PublicListing";
+import type { SearchParams } from "@/src/lib/publicContent";
 import { getPublicSiteSettings } from "@/src/lib/publicSiteSettings";
 import { buildMetadata } from "@/src/lib/seo";
 
@@ -16,7 +17,8 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default function BlogPage() {
+export default async function BlogPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  const listing = await PublicListing({ resource: "blog", searchParams: await searchParams });
   return (
     <>
       <PageHero
@@ -24,7 +26,7 @@ export default function BlogPage() {
         title="Knowledge Hub"
         description="Writeups, tutoriales y análisis técnicos con enfoque profesional en software y seguridad."
       />
-      <BlogPageClient />
+      <section className="px-4 pb-20 lg:px-8"><div className="mx-auto max-w-6xl">{listing}</div></section>
     </>
   );
 }

@@ -119,7 +119,8 @@ Sprint 1 mantiene cookies host-only en la API y valida la sesión mediante `/api
 - Abrir una página en navegador y revisar las peticiones: la API debe ser `https://api.armandomora.com.co/api`. Inspeccionar los chunks **realmente servidos** después de invalidar caché.
 - En el proxy/panel configurar redirección permanente de HTTP y `www` a `https://armandomora.com.co`, preservando ruta y query. Las etiquetas canonical no sustituyen esa redirección. Evitar reglas basadas en cabeceras reenviadas no confiables. Verificar que no haya bucles y que el certificado cubra los hosts usados.
 - Verificar login, recarga del panel, refresh con acceso expirado, uploads y logout entre los subdominios HTTPS. Confirmar que las cookies sean HttpOnly, Secure, host-only y que no haya bucles al login. La página admin sin sesión devuelve la estructura de validación; la API privada debe devolver 401/403.
-- La paginación del sitemap (ahora solicita `limit=200`) sigue pendiente del Sprint 2. Este sprint corrige su origen, no garantiza cobertura dinámica completa.
+- El sitemap recorre todas las páginas con `limit=50` y usa las fechas de actualización del CMS. La API debe estar accesible durante el build y durante la ejecución SSR. Si falla una página, no se publica un sitemap parcial. Revisar caché/revalidación (120 segundos).
+- Configurar Resend siguiendo [contacto directo](contact-resend.md): `RESEND_API_KEY`, `CONTACT_FROM` autorizado y `CONTACT_TO=armandomora14115@gmail.com`, solo en el backend. Verificar aceptación, entrega y Reply-To con un envío propio después de publicar.
 
 ## Rollback
 

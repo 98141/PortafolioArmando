@@ -1,7 +1,7 @@
 "use client";
 
 import { Star } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo } from "react";
 import { projectFormSchema } from "@/src/lib/validations/project";
@@ -41,7 +41,7 @@ export default function ProjectForm({
     register,
     handleSubmit,
     setValue,
-    watch,
+    control,
     formState: { errors },
   } = useForm<ProjectFormValues>({
     resolver: zodResolver(projectFormSchema),
@@ -52,8 +52,8 @@ export default function ProjectForm({
     await onSubmit(formValuesToPayload(values));
   };
 
-  const imageUrl = watch("imageUrl");
-  const imagePublicId = watch("imagePublicId") || "";
+  const imageUrl = useWatch({ control, name: "imageUrl" });
+  const imagePublicId = useWatch({ control, name: "imagePublicId" }) || "";
   const imagePreviewValue: UploadResponse | null = useMemo(
     () =>
       imageUrl

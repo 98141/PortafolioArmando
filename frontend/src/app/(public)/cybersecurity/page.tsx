@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import PageHero from "@/src/components/portfolio/PageHero";
-import CyberLabsGrid from "@/src/components/portfolio/CyberLabsGrid";
+import PublicListing from "@/src/components/portfolio/PublicListing";
+import type { SearchParams } from "@/src/lib/publicContent";
 import GlassCard from "@/src/components/ui/GlassCard";
 import { getPublicSiteSettings } from "@/src/lib/publicSiteSettings";
 import { buildMetadata } from "@/src/lib/seo";
@@ -17,7 +18,8 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default function CybersecurityPage() {
+export default async function CybersecurityPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  const listing = await PublicListing({ resource: "cybersecurity", searchParams: await searchParams });
   return (
     <>
       <PageHero
@@ -34,7 +36,7 @@ export default function CybersecurityPage() {
               riesgo y recomendaciones de remediación alineadas al desarrollo seguro.
             </p>
           </GlassCard>
-          <CyberLabsGrid />
+          {listing}
         </div>
       </section>
     </>

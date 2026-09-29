@@ -1,51 +1,14 @@
 import type { MetadataRoute } from "next";
-import { siteOrigin as baseUrl, apiBaseUrl as apiUrl } from "@/src/lib/publicConfig";
-
-const staticRoutes = [
-  "",
-  "/projects",
-  "/cybersecurity",
-  "/certifications",
-  "/education",
-  "/blog",
-  "/about",
-  "/contact",
-];
-
-const fetchSlugs = async (endpoint: string, key: string): Promise<string[]> => {
-  try {
-    const res = await fetch(`${apiUrl}${endpoint}`, { next: { revalidate: 300 } });
-    if (!res.ok) return [];
-    const json = await res.json();
-    const items = json?.data?.[key] || [];
-    return items.map((item: { slug?: string }) => item.slug).filter(Boolean);
-  } catch {
-    return [];
-  }
-};
-
+import { siteOrigin } from "@/src/lib/publicConfig";
+import { getAllPublicItems, resources, type Resource } from "@/src/lib/publicContent";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
-  const [projects, labs, certs, education, posts] = await Promise.all([
-    fetchSlugs("/projects?limit=200", "projects"),
-    fetchSlugs("/cyber-labs?limit=200", "labs"),
-    fetchSlugs("/certifications?limit=200", "certifications"),
-    fetchSlugs("/education?limit=200", "education"),
-    fetchSlugs("/blog?status=published&limit=200", "posts"),
-  ]);
-
-  const dynamicRoutes = [
-    ...projects.map((slug) => `/projects/${slug}`),
-    ...labs.map((slug) => `/cybersecurity/${slug}`),
-    ...certs.map((slug) => `/certifications/${slug}`),
-    ...education.map((slug) => `/education/${slug}`),
-    ...posts.map((slug) => `/blog/${slug}`),
-  ];
-
-  return [...staticRoutes, ...dynamicRoutes].map((path) => ({
-    url: `${baseUrl}${path}`,
-    lastModified: now,
-    changeFrequency: path.includes("/blog/") ? "weekly" : "monthly",
-    priority: path === "" ? 1 : 0.8,
+  const staticRoutes = ["", "/projects", "/cybersecurity", "/certifications", "/education", "/blog", "/about", "/contact"];
+  const dynamic = await Promise.all((Object.keys(resources) as Resource[]).map(async resource => {
+    const items = await getAllPublicItems(resource);
+    return items.map(item => ({
+      url: siteOrigin + "/" + resource + "/" + encodeURIComponent(item.slug),
+      ...(item.updatedAt && !Number.isNaN(Date.parse(item.updatedAt)) ? { lastModified: new Date(item.updatedAt) } : {}),
+    }));
   }));
+  return [...staticRoutes.map(path => ({ url: siteOrigin + path })), ...dynamic.flat()];
 }

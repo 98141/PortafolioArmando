@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Pencil, Star, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import type { Project } from "@/src/types/project";
 import { projectCategoryLabels } from "@/src/lib/projectLabels";
 import ProjectStatusBadge from "@/src/components/admin/projects/ProjectStatusBadge";

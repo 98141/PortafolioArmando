@@ -1,6 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useAuthStore } from "@/src/store/authStore";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { GraduationCap, Plus } from "lucide-react";
@@ -24,11 +26,9 @@ const defaultFilters: EducationFilterState = {
 export default function AdminEducationPage() {
   const router = useRouter();
   const [filters, setFilters] = useState<EducationFilterState>(defaultFilters);
-  const [entries, setEntries] = useState<Education[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+
+  const [actionError, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [deleteTarget, setDeleteTarget] = useState<Education | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -44,39 +44,30 @@ export default function AdminEducationPage() {
     return params;
   }, [filters, page]);
 
-  const loadEducation = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await educationService.getAdminEducation(queryParams);
-      setEntries(data.education);
-      setTotalPages(data.pagination?.totalPages ?? 1);
-    } catch (err: unknown) {
-      const message =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        "No se pudo cargar la formación académica.";
-      setError(message);
-      setEntries([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [queryParams]);
-
-  useEffect(() => {
-    loadEducation();
-  }, [loadEducation]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [filters]);
+  const user = useAuthStore(state => state.user);
+  const query = useQuery({
+    queryKey: ["admin-education", user?._id, queryParams],
+    queryFn: () => educationService.getAdminEducation(queryParams),
+    enabled: !!user,
+    staleTime: 0,
+    gcTime: 0,
+    retry: false,
+  });
+  const entries = query.data?.education ?? [];
+  const loading = query.isPending;
+  const totalPages = query.data?.pagination?.totalPages ?? 1;
+  const error = actionError || (query.isError ? "No se pudo cargar el contenido. Inténtalo de nuevo." : null);
+  const loadEducation = () => query.refetch();
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
     setDeleting(true);
+    setError(null);
     try {
       await educationService.deleteEducation(deleteTarget._id);
       setDeleteTarget(null);
-      await loadEducation();
+      if (entries.length === 1 && page > 1) setPage(page - 1);
+      else await loadEducation();
     } catch (err: unknown) {
       const message =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
@@ -107,7 +98,7 @@ export default function AdminEducationPage() {
             </Link>
           </div>
 
-          <EducationFilters filters={filters} onChange={setFilters} />
+          <EducationFilters filters={filters} onChange={(next) => { setFilters(next); setPage(1); setError(null); }} />
 
           {error && (
             <div
@@ -122,6 +113,8 @@ export default function AdminEducationPage() {
             <div className="flex justify-center py-16">
               <div className="h-10 w-10 animate-spin rounded-full border-2 border-cyan-500/30 border-t-cyan-400" />
             </div>
+          ) : query.isError ? (
+            <button onClick={() => void loadEducation()} className="text-sm text-cyan-300">Reintentar carga</button>
           ) : entries.length === 0 ? (
             <div className="glass-panel flex flex-col items-center rounded-2xl py-16 text-center">
               <GraduationCap className="mb-4 h-12 w-12 text-zinc-600" aria-hidden="true" />

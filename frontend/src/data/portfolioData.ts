@@ -15,7 +15,7 @@ export const profile = {
   name: "Armando Mora",
   title: "Software Developer | Cybersecurity Specialist | Secure Systems Builder",
   tagline: "Construyendo software robusto con mentalidad de seguridad desde el diseño.",
-  email: "contacto@armandomora.dev",
+  email: "armandomora14115@gmail.com",
   location: "Centroamérica",
   cvUrl: "#cv-download",
   summary:
@@ -47,7 +47,7 @@ export const navLinks: NavLink[] = [
 export const socialLinks: SocialLink[] = [
   { label: "LinkedIn", href: "https://linkedin.com/in/armandomora", icon: "linkedin" },
   { label: "GitHub", href: "https://github.com/armandomora", icon: "github" },
-  { label: "Email", href: "mailto:contacto@armandomora.dev", icon: "email" },
+  { label: "Email", href: "mailto:armandomora14115@gmail.com", icon: "email" },
 ];
 
 export const metrics: Metric[] = [

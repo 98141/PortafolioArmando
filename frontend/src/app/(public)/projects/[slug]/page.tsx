@@ -1,9 +1,8 @@
 import { siteOrigin } from "@/src/lib/publicConfig";
-import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import ProjectDetail from "@/src/components/detail/ProjectDetail";
 import JsonLd from "@/src/components/seo/JsonLd";
-import { projectService } from "@/src/services/projectService";
+import { getPublicDetail } from "@/src/lib/publicContent";
 import { getPublicSiteSettings } from "@/src/lib/publicSiteSettings";
 import { buildMetadata } from "@/src/lib/seo";
 import { creativeWorkJsonLd } from "@/src/lib/jsonLd";
@@ -14,9 +13,8 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  try {
     const [project, settings] = await Promise.all([
-      projectService.getProjectBySlug(slug),
+      getPublicDetail("projects", slug),
       getPublicSiteSettings(),
     ]);
     return buildMetadata({
@@ -27,15 +25,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       branding: settings.branding,
       imageUrl: project.image?.url,
     });
-  } catch {
-    return buildMetadata({ title: "Proyecto", path: `/projects/${slug}` });
-  }
 }
 
 export default async function ProjectDetailPage({ params }: Props) {
   const { slug } = await params;
-  try {
-    const project = await projectService.getProjectBySlug(slug);
+    const project = await getPublicDetail("projects", slug);
     const base = siteOrigin;
     return (
       <>
@@ -43,7 +37,4 @@ export default async function ProjectDetailPage({ params }: Props) {
         <ProjectDetail project={project} />
       </>
     );
-  } catch {
-    notFound();
-  }
 }

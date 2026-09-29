@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import PageHero from "@/src/components/portfolio/PageHero";
-import EducationPageClient from "@/src/app/(public)/education/EducationPageClient";
+import PublicListing from "@/src/components/portfolio/PublicListing";
+import type { SearchParams } from "@/src/lib/publicContent";
 import { getPublicSiteSettings } from "@/src/lib/publicSiteSettings";
 import { buildMetadata } from "@/src/lib/seo";
 
@@ -15,7 +16,8 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default function EducationPage() {
+export default async function EducationPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  const listing = await PublicListing({ resource: "education", searchParams: await searchParams });
   return (
     <>
       <PageHero
@@ -23,7 +25,7 @@ export default function EducationPage() {
         title="Educación"
         description="Trayectoria académica con enfoque en ingeniería de software, redes y seguridad informática."
       />
-      <EducationPageClient />
+      <section className="px-4 pb-20 lg:px-8"><div className="mx-auto max-w-6xl">{listing}</div></section>
     </>
   );
 }

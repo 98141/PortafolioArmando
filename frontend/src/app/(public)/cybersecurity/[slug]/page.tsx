@@ -1,9 +1,8 @@
 import { siteOrigin } from "@/src/lib/publicConfig";
-import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import CyberLabDetail from "@/src/components/detail/CyberLabDetail";
 import JsonLd from "@/src/components/seo/JsonLd";
-import { cyberLabService } from "@/src/services/cyberLabService";
+import { getPublicDetail } from "@/src/lib/publicContent";
 import { getPublicSiteSettings } from "@/src/lib/publicSiteSettings";
 import { buildMetadata } from "@/src/lib/seo";
 import { creativeWorkJsonLd } from "@/src/lib/jsonLd";
@@ -14,9 +13,8 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  try {
     const [lab, settings] = await Promise.all([
-      cyberLabService.getCyberLabBySlug(slug),
+      getPublicDetail("cybersecurity", slug),
       getPublicSiteSettings(),
     ]);
     return buildMetadata({
@@ -26,15 +24,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       seo: settings.seo,
       branding: settings.branding,
     });
-  } catch {
-    return buildMetadata({ title: "Cyber Lab", path: `/cybersecurity/${slug}` });
-  }
 }
 
 export default async function CyberLabDetailPage({ params }: Props) {
   const { slug } = await params;
-  try {
-    const lab = await cyberLabService.getCyberLabBySlug(slug);
+    const lab = await getPublicDetail("cybersecurity", slug);
     const base = siteOrigin;
     return (
       <>
@@ -42,7 +36,4 @@ export default async function CyberLabDetailPage({ params }: Props) {
         <CyberLabDetail lab={lab} />
       </>
     );
-  } catch {
-    notFound();
-  }
 }

@@ -1,6 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useAuthStore } from "@/src/store/authStore";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FileText, Plus } from "lucide-react";
@@ -25,11 +27,9 @@ const defaultFilters: BlogPostFilterState = {
 export default function AdminBlogPage() {
   const router = useRouter();
   const [filters, setFilters] = useState<BlogPostFilterState>(defaultFilters);
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+
+  const [actionError, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [deleteTarget, setDeleteTarget] = useState<BlogPost | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -45,39 +45,30 @@ export default function AdminBlogPage() {
     return params;
   }, [filters, page]);
 
-  const loadPosts = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await blogPostService.getAdminBlogPosts(queryParams);
-      setPosts(data.posts);
-      setTotalPages(data.pagination?.totalPages ?? 1);
-    } catch (err: unknown) {
-      const message =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        "No se pudieron cargar los artículos.";
-      setError(message);
-      setPosts([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [queryParams]);
-
-  useEffect(() => {
-    loadPosts();
-  }, [loadPosts]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [filters]);
+  const user = useAuthStore(state => state.user);
+  const query = useQuery({
+    queryKey: ["admin-blog", user?._id, queryParams],
+    queryFn: () => blogPostService.getAdminBlogPosts(queryParams),
+    enabled: !!user,
+    staleTime: 0,
+    gcTime: 0,
+    retry: false,
+  });
+  const posts = query.data?.posts ?? [];
+  const loading = query.isPending;
+  const totalPages = query.data?.pagination?.totalPages ?? 1;
+  const error = actionError || (query.isError ? "No se pudo cargar el contenido. Inténtalo de nuevo." : null);
+  const loadPosts = () => query.refetch();
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
     setDeleting(true);
+    setError(null);
     try {
       await blogPostService.deleteBlogPost(deleteTarget._id);
       setDeleteTarget(null);
-      await loadPosts();
+      if (posts.length === 1 && page > 1) setPage(page - 1);
+      else await loadPosts();
     } catch (err: unknown) {
       const message =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
@@ -108,7 +99,7 @@ export default function AdminBlogPage() {
             </Link>
           </div>
 
-          <BlogPostFilters filters={filters} onChange={setFilters} />
+          <BlogPostFilters filters={filters} onChange={(next) => { setFilters(next); setPage(1); setError(null); }} />
 
           {error && (
             <div
@@ -123,6 +114,8 @@ export default function AdminBlogPage() {
             <div className="flex justify-center py-16">
               <div className="h-10 w-10 animate-spin rounded-full border-2 border-violet-500/30 border-t-violet-400" />
             </div>
+          ) : query.isError ? (
+            <button onClick={() => void loadPosts()} className="text-sm text-cyan-300">Reintentar carga</button>
           ) : posts.length === 0 ? (
             <div className="glass-panel flex flex-col items-center rounded-2xl py-16 text-center">
               <FileText className="mb-4 h-12 w-12 text-zinc-600" aria-hidden="true" />

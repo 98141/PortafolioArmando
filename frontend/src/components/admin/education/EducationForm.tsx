@@ -1,7 +1,7 @@
 "use client";
 
 import { Star } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo } from "react";
 import { educationFormSchema } from "@/src/lib/validations/education";
@@ -36,7 +36,7 @@ export default function EducationForm({
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     setValue,
     formState: { errors },
   } = useForm<EducationFormValues>({
@@ -44,10 +44,10 @@ export default function EducationForm({
     defaultValues,
   });
 
-  const isCurrent = watch("isCurrent");
+  const isCurrent = useWatch({ control, name: "isCurrent" });
 
-  const logoUrl = watch("logoUrl");
-  const logoPublicId = watch("logoPublicId") || "";
+  const logoUrl = useWatch({ control, name: "logoUrl" });
+  const logoPublicId = useWatch({ control, name: "logoPublicId" }) || "";
   const logoPreviewValue: UploadResponse | null = useMemo(
     () =>
       logoUrl

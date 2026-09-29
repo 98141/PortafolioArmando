@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Star } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { blogPostFormSchema } from "@/src/lib/validations/blogPost";
 import { defaultBlogPostFormValues, formValuesToPayload } from "@/src/lib/blogPostForm";
@@ -39,7 +39,7 @@ export default function BlogPostForm({
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     setValue,
     formState: { errors },
   } = useForm<BlogPostFormValues>({
@@ -47,9 +47,9 @@ export default function BlogPostForm({
     defaultValues,
   });
 
-  const contentValue = watch("content");
-  const coverUrl = watch("coverUrl");
-  const coverPublicId = watch("coverPublicId") || "";
+  const contentValue = useWatch({ control, name: "content" });
+  const coverUrl = useWatch({ control, name: "coverUrl" });
+  const coverPublicId = useWatch({ control, name: "coverPublicId" }) || "";
   const coverPreviewValue: UploadResponse | null = coverUrl
     ? {
         url: coverUrl,
@@ -60,8 +60,8 @@ export default function BlogPostForm({
       }
     : null;
 
-  const authorAvatarUrl = watch("authorAvatarUrl");
-  const authorAvatarPublicId = watch("authorAvatarPublicId") || "";
+  const authorAvatarUrl = useWatch({ control, name: "authorAvatarUrl" });
+  const authorAvatarPublicId = useWatch({ control, name: "authorAvatarPublicId" }) || "";
   const authorAvatarPreviewValue: UploadResponse | null = authorAvatarUrl
     ? {
         url: authorAvatarUrl,

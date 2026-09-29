@@ -1,89 +1,37 @@
 "use client";
-
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter, useParams } from "next/navigation";
+import { useAuthStore } from "@/src/store/authStore";
 import ProtectedRoute from "@/src/components/admin/ProtectedRoute";
 import AdminLayout from "@/src/components/admin/AdminLayout";
 import ProjectForm from "@/src/components/admin/projects/ProjectForm";
 import { projectService } from "@/src/services/projectService";
 import { projectToFormValues } from "@/src/lib/projectForm";
-import type { ProjectFormValues } from "@/src/types/project";
-
-export default function EditProjectPage() {
+export default function EditPage() {
   const router = useRouter();
-  const params = useParams();
-  const id = params.id as string;
-
-  const [formValues, setFormValues] = useState<ProjectFormValues | null>(null);
+  const id = useParams().id as string;
+  const user = useAuthStore(state => state.user);
   const [loading, setLoading] = useState(false);
-  const [fetching, setFetching] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const loadProject = useCallback(async () => {
-    setFetching(true);
-    setError(null);
-    try {
-      const project = await projectService.getAdminProjectById(id);
-      setFormValues(projectToFormValues(project));
-    } catch (err: unknown) {
-      const message =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        "No se pudo cargar el proyecto.";
-      setError(message);
-    } finally {
-      setFetching(false);
-    }
-  }, [id]);
-
-  useEffect(() => {
-    loadProject();
-  }, [loadProject]);
-
+  const query = useQuery({
+    queryKey: ["admin-projects", user?._id, id],
+    queryFn: () => projectService.getAdminProjectById(id),
+    enabled: !!user, staleTime: 0, gcTime: 0, retry: false,
+    refetchOnWindowFocus: false,
+  });
   const handleSubmit = async (payload: Record<string, unknown>) => {
-    setLoading(true);
-    setError(null);
-    try {
-      await projectService.updateProject(id, payload);
-      router.push("/admin/projects");
-    } catch (err: unknown) {
-      const message =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        "No se pudo actualizar el proyecto.";
-      setError(message);
-      setLoading(false);
-    }
+    setLoading(true); setError(null);
+    try { await projectService.updateProject(id, payload); router.push("/admin/projects"); }
+    catch { setError("No se pudieron guardar los cambios. Revisa los campos e inténtalo de nuevo."); setLoading(false); }
   };
-
-  return (
-    <ProtectedRoute>
-      <AdminLayout>
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-zinc-100">Editar proyecto</h2>
-          <p className="mt-1 text-sm text-zinc-400">ID: {id}</p>
-        </div>
-
-        {fetching ? (
-          <div className="flex justify-center py-16">
-            <div className="h-10 w-10 animate-spin rounded-full border-2 border-blue-500/30 border-t-blue-400" />
-          </div>
-        ) : formValues ? (
-          <ProjectForm
-            defaultValues={formValues}
-            submitLabel="Guardar cambios"
-            loading={loading}
-            error={error}
-            onSubmit={handleSubmit}
-            onCancel={() => router.push("/admin/projects")}
-          />
-        ) : (
-          <div
-            role="alert"
-            className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300"
-          >
-            {error ?? "Proyecto no encontrado."}
-          </div>
-        )}
-      </AdminLayout>
-    </ProtectedRoute>
-  );
+  return <ProtectedRoute><AdminLayout>
+    <h2 className="mb-6 text-2xl font-bold text-zinc-100">Editar proyecto</h2>
+    {query.isPending ? <p role="status" className="py-16 text-center text-zinc-400">Cargando contenido…</p> :
+      query.isError || !query.data ? <div role="alert" className="space-y-4 text-rose-300">
+        <p>No se pudo cargar el registro solicitado.</p>
+        <button onClick={() => void query.refetch()} className="text-cyan-300">Reintentar</button>
+      </div> : <ProjectForm key={id} defaultValues={projectToFormValues(query.data)} submitLabel="Guardar cambios"
+        loading={loading} error={error} onSubmit={handleSubmit} onCancel={() => router.push("/admin/projects")} />}
+  </AdminLayout></ProtectedRoute>;
 }

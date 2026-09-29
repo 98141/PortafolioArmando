@@ -11,7 +11,8 @@
     "test:config": "node --test tests/production-env.test.mjs",
     "verify:release": "node scripts/verify-release.mjs",
     "typecheck": "tsc --noEmit --incremental false",
-    "test:security": "node --test tests/security/*.test.mjs"
+    "test:security": "node --test tests/security/*.test.mjs",
+    "test:public": "node scripts/verify-public.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

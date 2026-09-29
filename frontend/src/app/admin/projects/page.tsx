@@ -1,6 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useAuthStore } from "@/src/store/authStore";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Plus, FolderKanban } from "lucide-react";
@@ -26,11 +28,9 @@ const defaultFilters: ProjectFilterState = {
 export default function AdminProjectsPage() {
   const router = useRouter();
   const [filters, setFilters] = useState<ProjectFilterState>(defaultFilters);
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+
+  const [actionError, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [deleteTarget, setDeleteTarget] = useState<Project | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -46,39 +46,30 @@ export default function AdminProjectsPage() {
     return params;
   }, [filters, page]);
 
-  const loadProjects = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await projectService.getAdminProjects(queryParams);
-      setProjects(data.projects);
-      setTotalPages(data.pagination?.totalPages ?? 1);
-    } catch (err: unknown) {
-      const message =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        "No se pudieron cargar los proyectos.";
-      setError(message);
-      setProjects([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [queryParams]);
-
-  useEffect(() => {
-    loadProjects();
-  }, [loadProjects]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [filters]);
+  const user = useAuthStore(state => state.user);
+  const query = useQuery({
+    queryKey: ["admin-projects", user?._id, queryParams],
+    queryFn: () => projectService.getAdminProjects(queryParams),
+    enabled: !!user,
+    staleTime: 0,
+    gcTime: 0,
+    retry: false,
+  });
+  const projects = query.data?.projects ?? [];
+  const loading = query.isPending;
+  const totalPages = query.data?.pagination?.totalPages ?? 1;
+  const error = actionError || (query.isError ? "No se pudo cargar el contenido. Inténtalo de nuevo." : null);
+  const loadProjects = () => query.refetch();
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
     setDeleting(true);
+    setError(null);
     try {
       await projectService.deleteProject(deleteTarget._id);
       setDeleteTarget(null);
-      await loadProjects();
+      if (projects.length === 1 && page > 1) setPage(page - 1);
+      else await loadProjects();
     } catch (err: unknown) {
       const message =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
@@ -109,7 +100,7 @@ export default function AdminProjectsPage() {
             </Link>
           </div>
 
-          <ProjectFilters filters={filters} onChange={setFilters} />
+          <ProjectFilters filters={filters} onChange={(next) => { setFilters(next); setPage(1); setError(null); }} />
 
           {error && (
             <div
@@ -124,6 +115,8 @@ export default function AdminProjectsPage() {
             <div className="flex justify-center py-16">
               <div className="h-10 w-10 animate-spin rounded-full border-2 border-blue-500/30 border-t-blue-400" />
             </div>
+          ) : query.isError ? (
+            <button onClick={() => void loadProjects()} className="text-sm text-cyan-300">Reintentar carga</button>
           ) : projects.length === 0 ? (
             <div className="glass-panel flex flex-col items-center rounded-2xl py-16 text-center">
               <FolderKanban className="mb-4 h-12 w-12 text-zinc-600" aria-hidden="true" />

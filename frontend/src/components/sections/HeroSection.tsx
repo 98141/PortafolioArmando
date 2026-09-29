@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Download, Mail, Shield } from "lucide-react";
-import { mainLines, metrics, profile } from "@/src/data/portfolioData";
+import { mainLines, profile } from "@/src/data/portfolioData";
 import TechBadge from "@/src/components/ui/TechBadge";
 
-export default function HeroSection({ cvUrl }: { cvUrl?: string }) {
+export default function HeroSection({ cvUrl, metrics }: { cvUrl?: string; metrics: Array<{ value: string; label: string; description: string }> }) {
   const effectiveCvUrl = cvUrl || profile.cvUrl;
   const hasCv = Boolean(cvUrl);
   return (

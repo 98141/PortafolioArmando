@@ -101,6 +101,7 @@ app.get("/api/health", (_req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/contact", require("./routes/contact.routes").createContactRouter());
 app.use("/api/projects", projectPublicRoutes);
 app.use("/api/admin/projects", projectAdminRoutes);
 app.use("/api/cyber-labs", cyberLabPublicRoutes);

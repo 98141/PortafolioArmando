@@ -1,7 +1,7 @@
 import { siteOrigin } from "@/src/lib/publicConfig";
 import type { Metadata } from "next";
 import { Mail, MapPin } from "lucide-react";
-import { profile, socialLinks } from "@/src/data/portfolioData";
+
 import PageHero from "@/src/components/portfolio/PageHero";
 import ContactForm from "@/src/components/portfolio/ContactForm";
 import GlassCard from "@/src/components/ui/GlassCard";
@@ -24,8 +24,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ContactPage() {
   const settings = await getPublicSiteSettings();
   const profileInfo = settings.profile || {};
-  const resolvedEmail = profileInfo.email || profile.email;
-  const resolvedLocation = profileInfo.location || profile.location;
+  const resolvedEmail = profileInfo.email || "armandomora14115@gmail.com";
+  const resolvedLocation = profileInfo.location || "";
   const resolvedSocial =
     settings.social && settings.social.length > 0
       ? settings.social
@@ -35,11 +35,7 @@ export default async function ContactPage() {
             href: s.url || "#",
             external: (s.url || "").startsWith("http"),
           }))
-      : socialLinks.map((s) => ({
-          label: s.label,
-          href: s.href,
-          external: s.icon !== "email",
-        }));
+      : [];
   const base = siteOrigin;
 
   return (
@@ -48,7 +44,7 @@ export default async function ContactPage() {
       <PageHero
         eyebrow="Contact"
         title="Contacto"
-        description="¿Tienes un proyecto, vacante o consulta de seguridad? Escríbeme — respondo en 24–48h hábiles."
+        description="¿Tienes un proyecto, vacante o consulta de seguridad? Escríbeme con los detalles."
       />
       <section className="px-4 pb-20 lg:px-8">
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-5">
@@ -70,7 +66,7 @@ export default async function ContactPage() {
                   {resolvedLocation}
                 </li>
               </ul>
-              <div className="mt-8 border-t border-white/5 pt-6">
+              {resolvedSocial.length > 0 && <div className="mt-8 border-t border-white/5 pt-6">
                 <p className="text-xs uppercase tracking-wider text-zinc-500">Redes</p>
                 <ul className="mt-3 space-y-2">
                   {resolvedSocial.map((s) => (
@@ -86,7 +82,7 @@ export default async function ContactPage() {
                     </li>
                   ))}
                 </ul>
-              </div>
+              </div>}
             </GlassCard>
           </div>
           <div className="lg:col-span-3">

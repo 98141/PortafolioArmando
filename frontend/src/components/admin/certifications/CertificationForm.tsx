@@ -1,7 +1,7 @@
 "use client";
 
 import { Star } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo } from "react";
 import { certificationFormSchema } from "@/src/lib/validations/certification";
@@ -43,15 +43,15 @@ export default function CertificationForm({
     register,
     handleSubmit,
     setValue,
-    watch,
+    control,
     formState: { errors },
   } = useForm<CertificationFormValues>({
     resolver: zodResolver(certificationFormSchema),
     defaultValues,
   });
 
-  const badgeUrl = watch("badgeUrl");
-  const badgePublicId = watch("badgePublicId") || "";
+  const badgeUrl = useWatch({ control, name: "badgeUrl" });
+  const badgePublicId = useWatch({ control, name: "badgePublicId" }) || "";
   const badgePreviewValue: UploadResponse | null = useMemo(
     () =>
       badgeUrl

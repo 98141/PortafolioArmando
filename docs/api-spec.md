@@ -863,3 +863,16 @@ Acciones típicas: `{entity}.create`, `{entity}.update`, `{entity}.delete`, `{en
 ## Env obligatorias
 
 Ver `backend/src/config/env.js` y `docs/deployment.md`.
+
+
+## Sprint 2 — Contacto público
+
+`POST /api/contact` requiere Origin igual a FRONTEND_URL, JSON con `name` (2–100), `email` válido (máximo 254), `subject` (2–150, una línea), `message` (10–5000), `website` vacío u omitido. No requiere sesión. Máximo 5 intentos/IP/hora. Remitente y destinatario se toman solo del entorno del backend; el visitante se usa como Reply-To.
+
+- 202: Resend aceptó el correo, no equivale a entrega confirmada.
+- 400: campos inválidos o honeypot.
+- 403: origen no confiable.
+- 429: límite de intentos.
+- 503: configuración ausente, rechazo/cuota del proveedor o envío no confirmado.
+
+Todas las respuestas llevan Cache-Control: no-store. Ver [configuración de Resend](contact-resend.md).

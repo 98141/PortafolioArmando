@@ -1,7 +1,8 @@
 import { getPublicSiteSettings } from "@/src/lib/publicSiteSettings";
 import { defaultSeoFallback } from "@/src/lib/seo";
 
-import { siteOrigin as siteUrl, apiBaseUrl as apiUrl } from "@/src/lib/publicConfig";
+import { getPublicList } from "@/src/lib/publicContent";
+import { siteOrigin as siteUrl } from "@/src/lib/publicConfig";
 
 const escapeXml = (value: string) =>
   value
@@ -13,19 +14,9 @@ const escapeXml = (value: string) =>
 
 export async function GET() {
   const settings = await getPublicSiteSettings();
-  let posts: Array<{ slug: string; title: string; excerpt: string; publishedAt?: string; updatedAt?: string }> = [];
-
-  try {
-    const res = await fetch(`${apiUrl}/blog?status=published&limit=50`, {
-      next: { revalidate: 300 },
-    });
-    if (res.ok) {
-      const json = await res.json();
-      posts = json?.data?.posts || [];
-    }
-  } catch {
-    posts = [];
-  }
+  const result = await getPublicList("blog", { limit: 50 }).catch(() => null);
+  if (!result) return new Response("El feed no está disponible temporalmente.", { status: 503, headers: { "Cache-Control": "no-store", "Retry-After": "120" } });
+  const posts = result.items;
 
   const channelTitle = settings.seo?.siteName || defaultSeoFallback.siteName;
   const channelDescription =
@@ -34,13 +25,13 @@ export async function GET() {
   const items = posts
     .map((post) => {
       const link = `${siteUrl}/blog/${post.slug}`;
-      const pubDate = new Date(post.publishedAt || post.updatedAt || Date.now()).toUTCString();
+      const pubDate = post.publishedAt || post.updatedAt;
       return `
     <item>
       <title>${escapeXml(post.title)}</title>
       <link>${escapeXml(link)}</link>
       <guid>${escapeXml(link)}</guid>
-      <pubDate>${pubDate}</pubDate>
+      ${pubDate && !Number.isNaN(Date.parse(pubDate)) ? `<pubDate>${new Date(pubDate).toUTCString()}</pubDate>` : ""}
       <description>${escapeXml(post.excerpt || "")}</description>
     </item>`;
     })

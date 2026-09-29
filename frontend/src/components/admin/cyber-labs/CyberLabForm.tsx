@@ -1,7 +1,7 @@
 "use client";
 
 import { Star } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { cyberLabFormSchema } from "@/src/lib/validations/cyberLab";
@@ -46,7 +46,7 @@ export default function CyberLabForm({
     handleSubmit,
     setValue,
     getValues,
-    watch,
+    control,
     formState: { errors },
   } = useForm<CyberLabFormValues>({
     resolver: zodResolver(cyberLabFormSchema),
@@ -57,8 +57,8 @@ export default function CyberLabForm({
   const [evidenceCaption, setEvidenceCaption] = useState("");
   const [evidenceUploadValue, setEvidenceUploadValue] = useState<UploadResponse | null>(null);
 
-  const currentReportUrl = watch("reportUrl");
-  const currentReportPublicId = watch("reportPublicId") || "";
+  const currentReportUrl = useWatch({ control, name: "reportUrl" });
+  const currentReportPublicId = useWatch({ control, name: "reportPublicId" }) || "";
   const reportPreviewValue = currentReportUrl
     ? {
         url: currentReportUrl,

@@ -1,66 +1,26 @@
-import { siteOrigin, apiBaseUrl } from "@/src/lib/publicConfig";
 import type { Metadata } from "next";
-import BlogPostPageClient from "@/src/app/(public)/blog/[slug]/BlogPostPageClient";
-import JsonLd from "@/src/components/seo/JsonLd";
-import { blogPostingJsonLd } from "@/src/lib/jsonLd";
+import { siteOrigin } from "@/src/lib/publicConfig";
+import { getPublicDetail, getPublicList } from "@/src/lib/publicContent";
 import { getPublicSiteSettings } from "@/src/lib/publicSiteSettings";
 import { buildMetadata } from "@/src/lib/seo";
-
-interface BlogPostPageProps {
-  params: Promise<{ slug: string }>;
-}
-
-export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
+import { blogPostingJsonLd } from "@/src/lib/jsonLd";
+import JsonLd from "@/src/components/seo/JsonLd";
+import BlogDetail from "@/src/components/blog/BlogDetail";
+import RelatedPosts from "@/src/components/blog/RelatedPosts";
+interface Props { params: Promise<{ slug: string }> }
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const apiUrl = apiBaseUrl;
-
-  try {
-    const [res, settings] = await Promise.all([
-      fetch(`${apiUrl}/blog/${slug}`, { next: { revalidate: 60 } }),
-      getPublicSiteSettings(),
-    ]);
-    if (!res.ok) throw new Error("not found");
-    const json = await res.json();
-    const post = json.data?.post;
-    return buildMetadata({
-      title: post?.seo?.title ?? `${post?.title ?? "Artículo"} | Armando Mora`,
-      description: post?.seo?.description ?? post?.excerpt,
-      path: `/blog/${slug}`,
-      seo: settings.seo,
-      branding: settings.branding,
-      imageUrl: post?.coverImage?.url,
-    });
-  } catch {
-    return buildMetadata({
-      title: "Knowledge Hub | Armando Mora",
-      path: `/blog/${slug}`,
-    });
-  }
+  const [post, settings] = await Promise.all([getPublicDetail("blog", slug), getPublicSiteSettings()]);
+  return buildMetadata({ title: post.seo?.title || post.title, description: post.seo?.description || post.excerpt,
+    path: "/blog/" + slug, seo: settings.seo, branding: settings.branding, imageUrl: post.coverImage?.url });
 }
-
-export default async function BlogPostPage({ params }: BlogPostPageProps) {
+export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const apiUrl = apiBaseUrl;
-  const base = siteOrigin;
-  let jsonLd: Record<string, unknown> | null = null;
-
-  try {
-    const res = await fetch(`${apiUrl}/blog/${slug}`, { next: { revalidate: 60 } });
-    if (res.ok) {
-      const json = await res.json();
-      const post = json.data?.post;
-      if (post) {
-        jsonLd = blogPostingJsonLd(post, base);
-      }
-    }
-  } catch {
-    jsonLd = null;
-  }
-
-  return (
-    <>
-      {jsonLd && <JsonLd data={jsonLd} />}
-      <BlogPostPageClient slug={slug} />
-    </>
-  );
+  const post = await getPublicDetail("blog", slug);
+  const related = await getPublicList("blog", { limit: 6, category: post.category }).catch(() => null);
+  return <section className="px-4 py-12 lg:px-8"><div className="mx-auto max-w-4xl">
+    <JsonLd data={blogPostingJsonLd(post, siteOrigin)} />
+    <BlogDetail post={post} />
+    {related && <RelatedPosts posts={related.items} currentSlug={slug} />}
+  </div></section>;
 }

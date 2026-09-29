@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import PageHero from "@/src/components/portfolio/PageHero";
-import ProjectsGrid from "@/src/components/portfolio/ProjectsGrid";
+import PublicListing from "@/src/components/portfolio/PublicListing";
+import type { SearchParams } from "@/src/lib/publicContent";
 import { getPublicSiteSettings } from "@/src/lib/publicSiteSettings";
 import { buildMetadata } from "@/src/lib/seo";
 
@@ -15,7 +16,8 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default function ProjectsPage() {
+export default async function ProjectsPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  const listing = await PublicListing({ resource: "projects", searchParams: await searchParams });
   return (
     <>
       <PageHero
@@ -25,7 +27,7 @@ export default function ProjectsPage() {
       />
       <section className="px-4 pb-20 lg:px-8">
         <div className="mx-auto max-w-6xl">
-          <ProjectsGrid />
+          {listing}
         </div>
       </section>
     </>

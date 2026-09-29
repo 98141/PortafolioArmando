@@ -1,10 +1,12 @@
 "use client";
 
 import { useMemo } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
+import { toNestErrors } from "@hookform/resolvers";
 import type { SiteSettings } from "@/src/types/siteSettings";
 import {
   type SiteSettingsFormValues,
+  siteSettingsFormSchema,
 } from "@/src/lib/validations/siteSettings";
 import ProfileSettingsForm from "@/src/components/admin/settings/ProfileSettingsForm";
 import BrandingSettingsForm from "@/src/components/admin/settings/BrandingSettingsForm";
@@ -84,16 +86,23 @@ const mapToPayload = (values: SiteSettingsFormValues): SiteSettings => ({
   isActive: true,
 });
 
+const settingsResolver: Resolver<SiteSettingsFormValues> = async (values, _context, options) => {
+  const parsed = siteSettingsFormSchema.safeParse(values);
+  if (parsed.success) return { values: parsed.data, errors: {} };
+  const flatErrors = Object.fromEntries(parsed.error.issues.map(issue => [issue.path.join("."), { type: issue.code, message: issue.message }]));
+  return { values: {}, errors: toNestErrors(flatErrors, options) };
+};
+
 export default function SiteSettingsForm({ initialSettings, loading, error, onSubmit }: Props) {
   const defaults = useMemo(() => mapToFormValues(initialSettings), [initialSettings]);
   const {
     register,
     control,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<SiteSettingsFormValues>({
     defaultValues: defaults,
+    resolver: settingsResolver,
   });
 
   return (
@@ -111,7 +120,7 @@ export default function SiteSettingsForm({ initialSettings, loading, error, onSu
 
       <ProfileSettingsForm register={register} />
       <BrandingSettingsForm register={register} />
-      <CvSettingsForm cvUrl={watch("cv.url")} />
+      <CvSettingsForm cvUrl={initialSettings.cv?.url} />
       <SeoSettingsForm register={register} />
       <SocialLinksEditor control={control} register={register} />
 
